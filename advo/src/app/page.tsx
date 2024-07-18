@@ -7,7 +7,6 @@ export default function Home() {
     <main className="">
       <Navbar />
       <Search />
-      <h1>Hello World!</h1>
     </main>
   );
 }
