@@ -11,7 +11,7 @@ const MainSearch = () => {
           <h3 className='text-center font-bold text-6xl'>Lorem Ipsum</h3>
           <p className='text-center my-8'>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Impedit, voluptatum pariatur possimus, adipisci iste a provident amet repellendus quia esse blanditiis perspiciatis nemo hic magni, eius consectetur molestias consequuntur assumenda!</p>
           <div className="flex flex-col sm:flex-row justify-center items-center gap-4 py-4">
-            <Select className="w-full sm:w-1/5">
+            <Select>
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Age Range" />
               </SelectTrigger>
@@ -24,7 +24,7 @@ const MainSearch = () => {
               </SelectContent>
             </Select>
             <Input className="w-full sm:w-1/5" placeholder="Zipcode" />
-            <Select className="w-full sm:w-1/5">
+            <Select>
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Social Health" />
               </SelectTrigger>
@@ -34,7 +34,7 @@ const MainSearch = () => {
                 <SelectItem value="relationships">Relationships</SelectItem>
               </SelectContent>
             </Select>
-            <Select className="w-full sm:w-1/5">
+            <Select>
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Mental Health" />
               </SelectTrigger>
@@ -44,7 +44,7 @@ const MainSearch = () => {
                 <SelectItem value="support-groups">Support Groups</SelectItem>
               </SelectContent>
             </Select>
-            <Select className="w-full sm:w-1/5">
+            <Select>
               <SelectTrigger>
                 <SelectValue placeholder="Physical Health" />
               </SelectTrigger>
