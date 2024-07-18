@@ -1,7 +1,15 @@
+"use client";
+
 import React from 'react';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+
+
+// handleOnClick function
+const handleSubmit = () => {
+  console.log('Button clicked');
+};
 
 const MainSearch = () => {
   return (
@@ -56,7 +64,7 @@ const MainSearch = () => {
             </Select>
           </div>
           <div className="flex justify-center mt-4">
-            <Button className="">
+            <Button type='submit' onClick={handleSubmit}>
               GET STARTED
             </Button>
           </div>
