@@ -1,25 +1,41 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-
-// handleOnClick function
-const handleSubmit = () => {
-  console.log('Button clicked');
-};
-
 const MainSearch = () => {
+  const [ageRange, setAgeRange] = useState('');
+  const [zipcode, setZipcode] = useState('');
+  const [socialHealth, setSocialHealth] = useState('');
+  const [mentalHealth, setMentalHealth] = useState('');
+  const [physicalHealth, setPhysicalHealth] = useState('');
+
+  const handleOnSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    console.log('Age Range:', ageRange);
+    console.log('Zipcode:', zipcode);
+    console.log('Social Health:', socialHealth);
+    console.log('Mental Health:', mentalHealth);
+    console.log('Physical Health:', physicalHealth);
+
+    // Reset the form
+    setAgeRange('');
+    setZipcode('');
+    setSocialHealth('');
+    setMentalHealth('');
+    setPhysicalHealth('');
+  };
+
   return (
     <>
       <div className="w-full py-8 bg-gray-300">
         <div className="max-w-[80%] mx-auto py-36">
           <h3 className='text-center font-bold text-6xl'>Lorem Ipsum</h3>
           <p className='text-center my-8'>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Impedit, voluptatum pariatur possimus, adipisci iste a provident amet repellendus quia esse blanditiis perspiciatis nemo hic magni, eius consectetur molestias consequuntur assumenda!</p>
-          <div className="flex flex-col sm:flex-row justify-center items-center gap-4 py-4">
-            <Select>
+          <form onSubmit={handleOnSubmit} className="flex flex-col sm:flex-row justify-center items-center gap-4 py-4">
+            <Select value={ageRange} onValueChange={setAgeRange}>
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Age Range" />
               </SelectTrigger>
@@ -31,8 +47,8 @@ const MainSearch = () => {
                 <SelectItem value="56+">56+</SelectItem>
               </SelectContent>
             </Select>
-            <Input className="w-full sm:min-w-1/5" placeholder="Zipcode" />
-            <Select>
+            <Input className="w-full sm:min-w-1/5" placeholder="Zipcode" value={zipcode} onChange={(e) => setZipcode(e.target.value)} />
+            <Select value={socialHealth} onValueChange={setSocialHealth}>
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Social Health" />
               </SelectTrigger>
@@ -42,7 +58,7 @@ const MainSearch = () => {
                 <SelectItem value="relationships">Relationships</SelectItem>
               </SelectContent>
             </Select>
-            <Select>
+            <Select value={mentalHealth} onValueChange={setMentalHealth}>
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Mental Health" />
               </SelectTrigger>
@@ -52,8 +68,8 @@ const MainSearch = () => {
                 <SelectItem value="support-groups">Support Groups</SelectItem>
               </SelectContent>
             </Select>
-            <Select>
-              <SelectTrigger>
+            <Select value={physicalHealth} onValueChange={setPhysicalHealth}>
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder="Physical Health" />
               </SelectTrigger>
               <SelectContent>
@@ -62,12 +78,12 @@ const MainSearch = () => {
                 <SelectItem value="medical">Medical</SelectItem>
               </SelectContent>
             </Select>
-          </div>
-          <div className="flex justify-center mt-4">
-            <Button type='submit' onClick={handleSubmit}>
-              GET STARTED
-            </Button>
-          </div>
+            <div className="flex justify-center mt-4">
+            </div>
+              <Button type="submit">
+                GET STARTED
+              </Button>
+          </form>
         </div>
       </div>
     </>
