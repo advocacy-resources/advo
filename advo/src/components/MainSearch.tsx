@@ -31,7 +31,7 @@ const MainSearch = () => {
                 <SelectItem value="56+">56+</SelectItem>
               </SelectContent>
             </Select>
-            <Input className="w-full sm:w-1/5" placeholder="Zipcode" />
+            <Input className="w-full sm:min-w-1/5" placeholder="Zipcode" />
             <Select>
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Social Health" />
