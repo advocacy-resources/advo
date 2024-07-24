@@ -3,7 +3,7 @@ import Search from "../components/MainSearch";
 
 export default function Home() {
   return (
-    <main className="">
+    <main className="mt-8">
       <Navbar />
       <Search />
     </main>
