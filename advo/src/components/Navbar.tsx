@@ -14,7 +14,7 @@ function Navbar() {
                         </Link>
                     </li>
                     <li className="px-5">
-                        <Link href="/about">
+                        <Link href="/about-us">
                             About Us
                         </Link>
                     </li>
