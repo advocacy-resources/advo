@@ -1,19 +1,19 @@
 // Select.stories.tsx
 
-import React from 'react';
-import { Meta, Story } from '@storybook/react';
-import { Select, SelectGroup, SelectTrigger, SelectContent, SelectLabel, SelectItem, SelectSeparator, SelectValue } from '@/components/ui/select';
+import React from "react";
+import { Meta, Story } from "@storybook/react";
+import { Select, SelectGroup, SelectTrigger, SelectContent, SelectLabel, SelectItem, SelectSeparator, SelectValue } from "@/components/ui/select";
 
 const meta: Meta<typeof Select> = {
-  title: 'Example/Select',
+  title: "Example/Select",
   component: Select,
   parameters: {
-    layout: 'centered',
+    layout: "centered",
   },
   argTypes: {
-    children: { control: 'text' },
+    children: { control: "text" },
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
 };
 
 export default meta;

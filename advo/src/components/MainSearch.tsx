@@ -1,42 +1,42 @@
 "use client";
 
-import React, { useState } from 'react';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
+import React, { useState } from "react";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 const MainSearch = () => {
   // State variables to manage form input values
-  const [ageRange, setAgeRange] = useState('');
-  const [zipcode, setZipcode] = useState('');
-  const [socialHealth, setSocialHealth] = useState('');
-  const [mentalHealth, setMentalHealth] = useState('');
-  const [physicalHealth, setPhysicalHealth] = useState('');
+  const [ageRange, setAgeRange] = useState("");
+  const [zipcode, setZipcode] = useState("");
+  const [socialHealth, setSocialHealth] = useState("");
+  const [mentalHealth, setMentalHealth] = useState("");
+  const [physicalHealth, setPhysicalHealth] = useState("");
 
   // Handle form submission
   const handleOnSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     // Log the form values to the console
-    console.log('Age Range:', ageRange);
-    console.log('Zipcode:', zipcode);
-    console.log('Social Health:', socialHealth);
-    console.log('Mental Health:', mentalHealth);
-    console.log('Physical Health:', physicalHealth);
+    console.log("Age Range:", ageRange);
+    console.log("Zipcode:", zipcode);
+    console.log("Social Health:", socialHealth);
+    console.log("Mental Health:", mentalHealth);
+    console.log("Physical Health:", physicalHealth);
 
     // Reset the form values
-    setAgeRange('');
-    setZipcode('');
-    setSocialHealth('');
-    setMentalHealth('');
-    setPhysicalHealth('');
+    setAgeRange("");
+    setZipcode("");
+    setSocialHealth("");
+    setMentalHealth("");
+    setPhysicalHealth("");
   };
 
   return (
     <>
       <div className="w-full py-8 bg-gray-300">
         <div className="max-w-[80%] mx-auto py-36">
-          <h3 className='text-center font-bold text-6xl'>Lorem Ipsum</h3>
-          <p className='text-center my-8'>
+          <h3 className="text-center font-bold text-6xl">Lorem Ipsum</h3>
+          <p className="text-center my-8">
             Lorem ipsum dolor sit amet consectetur, adipisicing elit. Impedit, voluptatum pariatur possimus, 
             adipisci iste a provident amet repellendus quia esse blanditiis perspiciatis nemo hic magni, 
             eius consectetur molestias consequuntur assumenda!

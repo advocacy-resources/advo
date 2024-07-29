@@ -1,16 +1,16 @@
 // MainSearch.stories.tsx
 
-import React from 'react';
-import { Meta, Story } from '@storybook/react';
-import MainSearch from '@/components/MainSearch';
+import React from "react";
+import { Meta } from "@storybook/react";
+import MainSearch from "@/components/MainSearch";
 
 const meta: Meta<typeof MainSearch> = {
-  title: 'Example/MainSearch',
+  title: "Example/MainSearch",
   component: MainSearch,
   parameters: {
-    layout: 'centered',
+    layout: "centered",
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
 };
 
 export default meta;
