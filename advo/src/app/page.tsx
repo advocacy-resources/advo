@@ -1,6 +1,7 @@
 import Footbar from "@/components/Footbar";
 import Navbar from "@/components/Navbar";
 import Search from "@/components/MainSearch";
+import Modal from "@/components/Modal";
 
 
 export default function Home() {
@@ -9,6 +10,8 @@ export default function Home() {
       <Navbar />
       <Search />
       <Footbar />
+      <Modal />
+
     </main >
   );
 }
