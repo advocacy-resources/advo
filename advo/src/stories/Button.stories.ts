@@ -2,14 +2,13 @@ import { Meta, StoryObj } from "@storybook/react";
 import { Button, ButtonProps } from "@/components/ui/button";
 import { action } from "@storybook/addon-actions";
 
-const meta: Meta = {
+const meta: Meta<typeof Button> = {
   title: "Example/Button",
   component: Button,
   parameters: {
     layout: "centered",
   },
   argTypes: {
-    backgroundColor: { control: "color" },
     onClick: { action: "clicked" },
     variant: {
       control: { type: "select", options: ["default", "destructive", "outline", "secondary", "ghost", "link"] },
@@ -23,7 +22,7 @@ const meta: Meta = {
 
 export default meta;
 
-type Story = Story<typeof meta>;
+type Story = StoryObj<typeof meta>;
 
 // Default button story
 export const Default: Story = {
