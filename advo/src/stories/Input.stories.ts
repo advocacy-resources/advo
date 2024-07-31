@@ -1,7 +1,5 @@
 // Input.stories.tsx
-
-import React from "react";
-import { Meta, Story } from "@storybook/react";
+import { Meta, StoryObj } from "@storybook/react";
 import { Input, InputProps } from "@/components/ui/input";
 import { action } from "@storybook/addon-actions";
 
@@ -23,7 +21,7 @@ const meta: Meta<typeof Input> = {
 
 export default meta;
 
-type Story = Story<typeof meta>;
+type Story = StoryObj<typeof meta>;
 
 // Default Input story
 export const Default: Story = {
