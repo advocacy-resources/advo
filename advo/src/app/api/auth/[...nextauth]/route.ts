@@ -5,7 +5,7 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import { MongoDBAdapter } from '@next-auth/mongodb-adapter';
 import { compare } from 'bcryptjs';
 
-import clientPromise from '@/lib/db';
+import clientPromise, { db } from '@/lib/db';
 import { IUser, IUserLogin } from "&/user";
 
 const authOptions = {
@@ -21,10 +21,8 @@ const authOptions = {
         password: { label: 'Password', type: 'password' },
       },
       authorize: async (credentials): Promise<IUser | null> => {
-        const client = await clientPromise;
-        const db = client.db();
 
-        const user: IUserLogin | null = await db.collection('users').findOne({ username: credentials?.username }) as unknown as IUserLogin | null;
+        const user: IUserLogin | null = await db.collection('User').findOne({ username: credentials?.username }) as unknown as IUserLogin | null;
         if (user && credentials?.password) {
           const isValid = await compare(credentials.password, user.password);
           if (isValid) {
