@@ -7,6 +7,7 @@ const config = {
     './components/**/*.{ts,tsx}',
     './app/**/*.{ts,tsx}',
     './src/**/*.{ts,tsx}',
+    './stories/**/*.{js,jsx,ts,tsx}', // Add the stories directory
   ],
   prefix: "",
   theme: {
