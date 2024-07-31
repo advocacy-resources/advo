@@ -1,7 +1,7 @@
 // MainSearch.stories.tsx
 
 import React from "react";
-import { Meta } from "@storybook/react";
+import { Meta, StoryObj } from "@storybook/react";
 import MainSearch from "@/components/MainSearch";
 
 const meta: Meta<typeof MainSearch> = {
@@ -15,10 +15,10 @@ const meta: Meta<typeof MainSearch> = {
 
 export default meta;
 
-type MainSearchStory = Story<typeof meta>;
+type Story = StoryObj<typeof meta>;
 
-const Template: Story = (args: React.JSX.IntrinsicAttributes) => <MainSearch {...args} />;
+const Template = (args: React.JSX.IntrinsicAttributes) => <MainSearch {...args} />;
 
 // Default story for MainSearch component
-export const Default: Story = Template.bind({});
+export const Default: Story = Template.bind({}) as unknown as Story;
 Default.args = {};

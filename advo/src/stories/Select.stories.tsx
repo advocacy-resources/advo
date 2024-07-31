@@ -1,7 +1,7 @@
 // Select.stories.tsx
 
 import React from "react";
-import { Meta, Story } from "@storybook/react";
+import { Meta, StoryObj } from "@storybook/react";
 import { Select, SelectGroup, SelectTrigger, SelectContent, SelectLabel, SelectItem, SelectSeparator, SelectValue } from "@/components/ui/select";
 
 const meta: Meta<typeof Select> = {
@@ -18,10 +18,10 @@ const meta: Meta<typeof Select> = {
 
 export default meta;
 
-type Story = Story<typeof meta>;
+type Story = StoryObj<typeof meta>;
 
 // Template for the Select component stories
-const Template: Story = (args) => (
+const Template = (args: typeof Select) => (
   <Select {...args}>
     <SelectTrigger className="w-[180px]">
       <SelectValue placeholder="Select an option..." />
@@ -40,5 +40,5 @@ const Template: Story = (args) => (
 );
 
 // Default Select story
-export const Default: Story = Template.bind({});
+export const Default: Story = Template.bind({}) as unknown as Story;
 Default.args = {};
