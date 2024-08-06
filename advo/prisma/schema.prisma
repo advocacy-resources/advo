@@ -8,17 +8,17 @@ datasource db {
 }
 
 model User {
-  id                String   @id @default(auto()) @map("_id") @db.ObjectId
-  username          String?  @unique
-  email             String   @unique
-  password          String?
-  googleId          String?  @unique
-  name              String?
-  image             String?
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  accounts          Account[]
-  sessions          Session[]
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  username  String?  @unique
+  email     String   @unique
+  password  String?
+  googleId  String?  @unique
+  name      String?
+  image     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  accounts  Account[]
+  sessions  Session[]
 }
 
 model Account {
@@ -56,4 +56,26 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model Resource {
+  id                  String   @id @default(auto()) @map("_id") @db.ObjectId
+  name                String
+  description         String
+  type                String[]
+  category            String[]
+  contact             Json
+  address             Json
+  operatingHours      Json
+  eligibilityCriteria String
+  servicesProvided    String[]
+  targetAudience      String[]
+  accessibilityFeatures String[]
+  cost                String
+  ratings             Json
+  geoLocation         Json
+  policies            String[]
+  tags                String[]
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 }
