@@ -9,7 +9,8 @@
     "lint": "next lint",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "chromatic": "npx chromatic --project-token=chpt_e29c7fe53e0a3a7"
+    "chromatic": "npx chromatic --project-token=chpt_e29c7fe53e0a3a7",
+    "pg": "prisma generate"
   },
   "dependencies": {
     "@next-auth/mongodb-adapter": "^1.1.3",
