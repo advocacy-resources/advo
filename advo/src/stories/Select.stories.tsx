@@ -2,7 +2,16 @@
 
 import React from "react";
 import { Meta, StoryObj } from "@storybook/react";
-import { Select, SelectGroup, SelectTrigger, SelectContent, SelectLabel, SelectItem, SelectSeparator, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectGroup,
+  SelectTrigger,
+  SelectContent,
+  SelectLabel,
+  SelectItem,
+  SelectSeparator,
+  SelectValue,
+} from "@/components/ui/select";
 
 const meta: Meta<typeof Select> = {
   title: "Example/Select",

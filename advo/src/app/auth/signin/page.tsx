@@ -1,41 +1,41 @@
 "use client";
 
-import { getProviders, signIn, useSession } from 'next-auth/react';
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { getProviders, signIn, useSession } from "next-auth/react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 interface SignInProps {
   providers: Record<string, any>;
 }
 
 const SignIn: React.FC<SignInProps> = ({ providers }) => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const { status } = useSession();
   const router = useRouter();
 
   useEffect(() => {
-    if (status === 'authenticated') {
-      router.push('/account');
+    if (status === "authenticated") {
+      router.push("/account");
     }
   }, [status, router]);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
 
-    const response = await signIn('credentials', {
+    const response = await signIn("credentials", {
       username,
       password,
       redirect: false,
     });
 
     if (response?.ok) {
-      router.push('/account');
+      router.push("/account");
     } else {
-      setError('Invalid username or password');
+      setError("Invalid username or password");
     }
   };
 
@@ -48,7 +48,10 @@ const SignIn: React.FC<SignInProps> = ({ providers }) => {
         <form onSubmit={handleSignIn} className="space-y-6">
           {error && <p className="text-red-500">{error}</p>}
           <div>
-            <label htmlFor="username" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="username"
+              className="block text-sm font-medium text-gray-700"
+            >
               Username
             </label>
             <input
@@ -62,7 +65,10 @@ const SignIn: React.FC<SignInProps> = ({ providers }) => {
             />
           </div>
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-700"
+            >
               Password
             </label>
             <input
@@ -85,10 +91,12 @@ const SignIn: React.FC<SignInProps> = ({ providers }) => {
         <div className="mt-6">
           {providers &&
             Object.values(providers).map((provider) =>
-              provider.name !== 'Credentials' ? (
+              provider.name !== "Credentials" ? (
                 <div key={provider.name}>
                   <button
-                    onClick={() => signIn(provider.id, { callbackUrl: '/account' })}
+                    onClick={() =>
+                      signIn(provider.id, { callbackUrl: "/account" })
+                    }
                     className="group relative w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                   >
                     <img
@@ -99,12 +107,17 @@ const SignIn: React.FC<SignInProps> = ({ providers }) => {
                     Sign in with {provider.name}
                   </button>
                 </div>
-              ) : null
+              ) : null,
             )}
         </div>
         <p className="text-center text-sm text-gray-600 mt-4">
-          Don't have an account?{' '}
-          <Link href="/auth/register" className='text-indigo-600 hover:text-indigo-500'>Sign Up</Link>
+          Don't have an account?{" "}
+          <Link
+            href="/auth/register"
+            className="text-indigo-600 hover:text-indigo-500"
+          >
+            Sign Up
+          </Link>
         </p>
       </div>
     </div>

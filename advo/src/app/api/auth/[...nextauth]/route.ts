@@ -1,11 +1,11 @@
 // app/api/auth/[...nextauth]/route.ts
-import NextAuth, { SessionStrategy } from 'next-auth';
-import GoogleProvider from 'next-auth/providers/google';
-import CredentialsProvider from 'next-auth/providers/credentials';
-import { MongoDBAdapter } from '@next-auth/mongodb-adapter';
-import { compare } from 'bcryptjs';
+import NextAuth, { SessionStrategy } from "next-auth";
+import GoogleProvider from "next-auth/providers/google";
+import CredentialsProvider from "next-auth/providers/credentials";
+import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
+import { compare } from "bcryptjs";
 
-import clientPromise, { db } from '@/lib/db';
+import clientPromise, { db } from "@/lib/db";
 import { IUser, IUserLogin } from "&/user";
 
 const authOptions = {
@@ -15,14 +15,17 @@ const authOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
     }),
     CredentialsProvider({
-      name: 'Credentials',
+      name: "Credentials",
       credentials: {
-        username: { label: 'Username', type: 'text' },
-        password: { label: 'Password', type: 'password' },
+        username: { label: "Username", type: "text" },
+        password: { label: "Password", type: "password" },
       },
       authorize: async (credentials): Promise<IUser | null> => {
-
-        const user: IUserLogin | null = await db.collection('User').findOne({ username: credentials?.username }) as unknown as IUserLogin | null;
+        const user: IUserLogin | null = (await db
+          .collection("User")
+          .findOne({
+            username: credentials?.username,
+          })) as unknown as IUserLogin | null;
         if (user && credentials?.password) {
           const isValid = await compare(credentials.password, user.password);
           if (isValid) {
@@ -42,11 +45,11 @@ const authOptions = {
   adapter: MongoDBAdapter(Promise.resolve(clientPromise)),
   secret: process.env.SECRET,
   session: {
-    strategy: 'jwt' as SessionStrategy,
+    strategy: "jwt" as SessionStrategy,
   },
   pages: {
-    signIn: '/auth/signin',
-    newUser: '/account',
+    signIn: "/auth/signin",
+    newUser: "/account",
   },
 };
 

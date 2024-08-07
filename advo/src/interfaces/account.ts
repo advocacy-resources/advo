@@ -1,5 +1,5 @@
-import { User } from 'next-auth';
-import { IUser } from '../interfaces/user'; // Make sure to define and import the User interface accordingly
+import { User } from "next-auth";
+import { IUser } from "../interfaces/user"; // Make sure to define and import the User interface accordingly
 
 export interface Account extends User {
   id: string;

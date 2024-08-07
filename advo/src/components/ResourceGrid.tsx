@@ -1,14 +1,14 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
-import { Resource } from '../interfaces/resource';
-import ResourceCard from '../components/ResourceCard';
+import React, { useEffect, useState } from "react";
+import { Resource } from "../interfaces/resource";
+import ResourceCard from "../components/ResourceCard";
 
 const ResourcesGrid: React.FC = () => {
   const [resources, setResources] = useState<Resource[]>([]);
 
   useEffect(() => {
-    fetch('/api/resources')
+    fetch("/api/resources")
       .then((response) => response.json())
       .then((data) => setResources(data));
   }, []);

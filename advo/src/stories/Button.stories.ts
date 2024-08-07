@@ -11,7 +11,17 @@ const meta: Meta<typeof Button> = {
   argTypes: {
     onClick: { action: "clicked" },
     variant: {
-      control: { type: "select", options: ["default", "destructive", "outline", "secondary", "ghost", "link"] },
+      control: {
+        type: "select",
+        options: [
+          "default",
+          "destructive",
+          "outline",
+          "secondary",
+          "ghost",
+          "link",
+        ],
+      },
     },
     size: {
       control: { type: "select", options: ["default", "sm", "lg", "icon"] },
