@@ -21,11 +21,9 @@ const authOptions = {
         password: { label: "Password", type: "password" },
       },
       authorize: async (credentials): Promise<IUser | null> => {
-        const user: IUserLogin | null = (await db
-          .collection("User")
-          .findOne({
-            username: credentials?.username,
-          })) as unknown as IUserLogin | null;
+        const user: IUserLogin | null = (await db.collection("User").findOne({
+          username: credentials?.username,
+        })) as unknown as IUserLogin | null;
         if (user && credentials?.password) {
           const isValid = await compare(credentials.password, user.password);
           if (isValid) {

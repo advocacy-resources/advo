@@ -1,6 +1,6 @@
 import { hash } from "bcryptjs";
 import { NextRequest, NextResponse } from "next/server";
-import clientPromise, { db } from "../../../../lib/db";
+import { db } from "!/db";
 
 export async function POST(req: NextRequest) {
   try {

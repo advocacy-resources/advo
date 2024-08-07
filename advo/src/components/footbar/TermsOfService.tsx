@@ -7,11 +7,11 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-import { ScrollArea } from "./ui/scroll-area";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 import React from "react";
 
-export default function Modal() {
+export default function TermsOfService() {
   return (
     <>
       <Dialog>

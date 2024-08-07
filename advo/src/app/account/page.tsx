@@ -1,8 +1,10 @@
 "use client";
-import Navbar from "@/components/Navbar";
+
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+
+import Navbar from "#/navbar/Navbar";
 
 const AccountPage: React.FC = () => {
   const { data: session, status } = useSession();

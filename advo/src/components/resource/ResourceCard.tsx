@@ -1,5 +1,5 @@
 import React from "react";
-import { Resource } from "../interfaces/resource";
+import { Resource } from "&/resource";
 import Link from "next/link";
 
 interface ResourceCardProps {
