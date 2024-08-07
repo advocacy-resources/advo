@@ -1,3 +1,3 @@
-export const mailingAddress: string = 'Mailing Address';
-export const contactEmail: string = 'Contact Email';
-export const contactPhone: string = 'Contact Phone';
+export const mailingAddress = "Mailing Address";
+export const contactEmail = "Contact Email";
+export const contactPhone = "Contact Phone";
