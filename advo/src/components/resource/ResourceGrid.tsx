@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Resource } from "../interfaces/resource";
-import ResourceCard from "../components/ResourceCard";
+import { Resource } from "&/resource";
+import ResourceCard from "#/resource/ResourceCard";
 
 const ResourcesGrid: React.FC = () => {
   const [resources, setResources] = useState<Resource[]>([]);

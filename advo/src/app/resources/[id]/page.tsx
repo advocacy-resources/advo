@@ -1,8 +1,9 @@
 import prisma from "@/prisma/client"; // adjust the path as necessary
-import { Resource } from "../../../interfaces/resource";
+import { Resource } from "@prisma/client";
 import React from "react";
-import Navbar from "@/components/Navbar";
-import Footbar from "@/components/Footbar";
+
+import Navbar from "#/navbar/Navbar";
+import Footbar from "#/footbar/Footbar";
 
 interface ResourcePageProps {
   params: { id: string };

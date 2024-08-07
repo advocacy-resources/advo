@@ -2,8 +2,8 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Resource } from "../../../interfaces/resource";
-import { Button } from "@/components/ui/button";
+import { Resource } from "&/resource";
+import { Button } from "#/ui/button";
 
 const ResourceForm = () => {
   const [formData, setFormData] = useState<

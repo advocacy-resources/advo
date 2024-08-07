@@ -10,17 +10,17 @@ function Navbar() {
           <span className="font-bold">ADVO</span> | Connecting Youth with
           Support
         </Link>
-        <ul className="flex p-4">
-          <li className="px-5">
+        <ul className="flex gap-10 p-4">
+          <li>
             <Link href="/">Home</Link>
           </li>
-          <li className="px-5">
+          <li>
             <Link href="/about-us">About Us</Link>
           </li>
-          <li className="px-5">
+          <li>
             <Link href="/contact">Contact</Link>
           </li>
-          <li className="px-5">
+          <li>
             <Link href="/faq">FAQ</Link>
           </li>
         </ul>

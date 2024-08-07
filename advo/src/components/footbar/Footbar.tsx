@@ -1,6 +1,8 @@
 "use client";
 import Link from "next/link";
 
+import TermsOfService from "#/footbar/TermsOfService";
+
 const currentYear = new Date().getFullYear();
 
 export default function Footbar() {
@@ -12,7 +14,7 @@ export default function Footbar() {
           Privacy Policy
         </Link>
         <Link className="px-4 text-sm" href="/">
-          Terms of Use
+          <TermsOfService />
         </Link>
         <Link className="px-4 text-sm" href="/">
           About Us

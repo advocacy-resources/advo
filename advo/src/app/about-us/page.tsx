@@ -1,8 +1,8 @@
 import React from "react";
 
-import Navbar from "../../components/Navbar";
-import PageHeading from "../../components/PageHeading";
-import AboutUsRow from "../../components/AboutUsRow";
+import Navbar from "#/navbar/Navbar";
+import PageHeading from "#/utils/PageHeading";
+import AboutUsRow from "#/about-us/AboutUsRow";
 
 const About: React.FC = () => {
   return (
