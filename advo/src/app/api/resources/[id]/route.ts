@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/prisma/client";
+import { Prisma } from "@prisma/client";
 
 // Base Resource interface
 export interface IResource {
@@ -8,46 +9,24 @@ export interface IResource {
   description: string;
   type: string[];
   category: string[];
-  contact: {
-    phone: string;
-    email: string;
-    website: string;
-  };
-  address: {
-    street: string;
-    city: string;
-    state: string;
-    zipCode: string;
-    country: string;
-    latitude: number;
-    longitude: number;
-  };
-  operatingHours: {
-    monday: string;
-    tuesday: string;
-    wednesday: string;
-    thursday: string;
-    friday: string;
-    saturday: string;
-    sunday: string;
-  };
+  contact: Prisma.JsonValue;
+  address: Prisma.JsonValue;
+  operatingHours: Prisma.JsonValue;
   eligibilityCriteria: string;
   servicesProvided: string[];
   targetAudience: string[];
   accessibilityFeatures: string[];
   cost: string;
-  ratings: {
-    averageRating: number;
-    numberOfReviews: number;
-  };
-  geoLocation: {
-    latitude: number;
-    longitude: number;
-  };
+  ratings: Prisma.JsonValue;
+  geoLocation: Prisma.JsonValue;
   policies: string[];
   tags: string[];
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface IUpdateResourceResponse {
+  resource: IResource;
 }
 
 // GET request response
@@ -67,9 +46,7 @@ export interface ICreateResourceResponse {
 }
 
 // PUT request body (for updating a resource)
-export type IUpdateResourceRequest = Partial<
-  Omit<IResource, "id" | "createdAt" | "updatedAt">
->;
+export type IUpdateResourceRequest = Prisma.ResourceUpdateInput;
 
 // PUT request response
 export interface IUpdateResourceResponse {
@@ -101,7 +78,7 @@ export async function GET(
         { status: 404 },
       );
     }
-    return NextResponse.json({ resource });
+    return NextResponse.json({ resource: resource as IResource });
   } catch (error) {
     return NextResponse.json(
       { error: (error as Error).message },
@@ -117,11 +94,12 @@ export async function PUT(
   try {
     const { id } = params;
     const data: IUpdateResourceRequest = await req.json();
-    const resource = await prisma.resource.update({
+    const updatedResource = await prisma.resource.update({
       where: { id },
       data,
     });
-    return NextResponse.json({ resource });
+
+    return NextResponse.json({ resource: updatedResource as IResource });
   } catch (error) {
     return NextResponse.json(
       { error: (error as Error).message },
