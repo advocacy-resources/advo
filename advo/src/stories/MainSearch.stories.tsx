@@ -17,7 +17,9 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-const Template = (args: React.JSX.IntrinsicAttributes) => <MainSearch {...args} />;
+const Template = (args: React.JSX.IntrinsicAttributes) => (
+  <MainSearch {...args} />
+);
 
 // Default story for MainSearch component
 export const Default: Story = Template.bind({}) as unknown as Story;

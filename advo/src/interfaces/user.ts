@@ -1,5 +1,5 @@
-import { ObjectId } from "mongodb"
-import { User } from "next-auth"
+import { ObjectId } from "mongodb";
+import { User } from "next-auth";
 
 type ImageType = string;
 

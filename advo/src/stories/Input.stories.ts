@@ -11,7 +11,10 @@ const meta: Meta<typeof Input> = {
   },
   argTypes: {
     type: {
-      control: { type: "select", options: ["text", "email", "password", "number"] },
+      control: {
+        type: "select",
+        options: ["text", "email", "password", "number"],
+      },
     },
     placeholder: { control: "text" },
     value: { control: "text" },
