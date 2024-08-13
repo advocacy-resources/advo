@@ -1,20 +1,9 @@
 {
   "parser": "@typescript-eslint/parser",
-  "settings": {
-    "react": {
-      "version": "detect"
-    }
-  },
-  "env": {
-    "browser": true,
-    "es2021": true
-  },
   "extends": [
     "next/core-web-vitals",
     "plugin:storybook/recommended",
     "eslint:recommended",
-    "plugin:react/recommended",
-    "plugin:react-hooks/recommended",
     "plugin:@typescript-eslint/recommended"
   ],
   "plugins": [
