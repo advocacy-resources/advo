@@ -4,6 +4,7 @@ import { getProviders, signIn, useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 
 interface SignInProps {
   providers: Record<string, any>;
@@ -99,9 +100,11 @@ const SignIn: React.FC<SignInProps> = ({ providers }) => {
                     }
                     className="group relative w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                   >
-                    <img
+                    <Image
                       src="/google-logo.svg"
                       alt="Google"
+                      width={20} // Adjusted to match the size of h-5 w-5
+                      height={20}
                       className="h-5 w-5 mr-2"
                     />
                     Sign in with {provider.name}
@@ -111,7 +114,7 @@ const SignIn: React.FC<SignInProps> = ({ providers }) => {
             )}
         </div>
         <p className="text-center text-sm text-gray-600 mt-4">
-          Don't have an account?{" "}
+          Don&apos;t have an account?{" "}
           <Link
             href="/auth/register"
             className="text-indigo-600 hover:text-indigo-500"

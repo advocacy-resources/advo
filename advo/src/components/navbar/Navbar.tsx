@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import Image from "next/image";
 import navImage from "$/AdvoHomeHeroBanner.png";
 import logo from "$/AdvoLogoWhite.png";
