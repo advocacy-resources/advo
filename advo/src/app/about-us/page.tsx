@@ -27,7 +27,7 @@ const About: React.FC = () => {
         description={
           "This is the second section description. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua"
         }
-        reverse
+        reverse={true}
       />
       <AboutUsRow
         imageSrc={"https://via.placeholder.com/300x200"}
