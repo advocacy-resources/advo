@@ -19,7 +19,7 @@ const About: React.FC = () => {
       <AboutUsRow
         imageSrc="https://via.placeholder.com/300x200"
         title="Second Section"
-        description="This is the second section description. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua"
+        description="This is the second section description. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magn a aliqua"
         reverse={true}
       />
       <AboutUsRow
@@ -27,7 +27,6 @@ const About: React.FC = () => {
         title="Third Section"
         description="This is the third section description. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua"
       />
-      @ts-ignore-next-line
     </>
   );
 };
