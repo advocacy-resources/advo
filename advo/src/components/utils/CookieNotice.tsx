@@ -1,10 +1,24 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 
 const CookieNotice = () => {
   const { toast, dismiss } = useToast({ title: "", description: "" });
   const toastIdRef = useRef<string | null>(null);
+
+  const handleAcceptAll = useCallback(() => {
+    console.log("All cookies accepted");
+    if (toastIdRef.current) {
+      dismiss(toastIdRef.current);
+    }
+  }, [dismiss]);
+
+  const handleDenyAll = useCallback(() => {
+    console.log("All cookies except essential ones denied");
+    if (toastIdRef.current) {
+      dismiss(toastIdRef.current);
+    }
+  }, [dismiss]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -38,21 +52,7 @@ const CookieNotice = () => {
     }, 3000);
 
     return () => clearTimeout(timer);
-  }, [toast]);
-
-  const handleAcceptAll = () => {
-    console.log("All cookies accepted");
-    if (toastIdRef.current) {
-      dismiss(toastIdRef.current);
-    }
-  };
-
-  const handleDenyAll = () => {
-    console.log("All cookies except essential ones denied");
-    if (toastIdRef.current) {
-      dismiss(toastIdRef.current);
-    }
-  };
+  }, [toast, handleAcceptAll, handleDenyAll]);
 
   return null;
 };

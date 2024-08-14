@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/toast";
 import { useToast } from "@/components/ui/use-toast";
 import { TOAST_REMOVE_DELAY } from "@/components/ui/use-toast";
-import { title } from "process";
+
 export function Toaster() {
   const { toasts } = useToast({ title: "", description: "" });
 
