@@ -1,6 +1,7 @@
 "use client";
 
 import { useSession } from "next-auth/react";
+import { Image } from "next/image";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useEffect } from "react";
@@ -30,7 +31,6 @@ const AccountPage: React.FC = () => {
           Congratulations, {session.user?.email}, you have made it to the
           account page.
         </h3>
-        \ \
         <Image
           src={userImage}
           alt="User profile image"
