@@ -12,19 +12,6 @@
   ],
   "rules": {
     "prettier/prettier": "error",
-    "semi": [
-      "error",
-      "always"
-    ],
-    "quotes": [
-      "error",
-      "double"
-    ],
-    "indent": [
-      "error",
-      2
-    ],
-    "no-unused-vars": "warn",
     "no-console": "off",
     "@typescript-eslint/no-explicit-any": "error",
     "@typescript-eslint/no-empty-object-type": "off",
