@@ -1,7 +1,6 @@
 // Input.stories.tsx
 import { Meta, StoryObj } from "@storybook/react";
-import { Input, InputProps } from "@/components/ui/input";
-import { action } from "@storybook/addon-actions";
+import { Input } from "@/components/ui/input";
 
 const meta: Meta<typeof Input> = {
   title: "Example/Input",
