@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";

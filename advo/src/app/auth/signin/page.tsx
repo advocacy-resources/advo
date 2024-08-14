@@ -6,10 +6,10 @@ import {
   useSession,
   ClientSafeProvider,
 } from "next-auth/react";
-import { Image } from "next/image";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 
 interface SignInProps {
   providers: Record<string, ClientSafeProvider>;
@@ -108,6 +108,8 @@ const SignIn: React.FC<SignInProps> = ({ providers }) => {
                     <Image
                       src="/google-logo.svg"
                       alt="Google"
+                      width={20} // Adjusted to match the size of h-5 w-5
+                      height={20}
                       className="h-5 w-5 mr-2"
                     />
                     Sign in with {provider.name}
