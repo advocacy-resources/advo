@@ -12,7 +12,7 @@ const mockUseRouter = () => ({
 
 // Create a decorator to provide the mocked router
 const withMockedRouter = (Story: React.ComponentType) => {
-  // @ts-ignore: Unreachable code error
+  // @ts-expect-error: Unreachable code error
   useRouter.mockImplementation(mockUseRouter);
   return <Story />;
 };

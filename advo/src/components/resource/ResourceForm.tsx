@@ -9,7 +9,12 @@ import { Textarea } from "#/ui/textarea";
 
 type FormData = Omit<Resource, "id" | "createdAt" | "updatedAt">;
 
-type NestedKeys = "contact" | "address" | "operatingHours" | "ratings" | "geoLocation";
+type NestedKeys =
+  | "contact"
+  | "address"
+  | "operatingHours"
+  | "ratings"
+  | "geoLocation";
 
 const ResourceForm = () => {
   const [formData, setFormData] = useState<FormData>({
@@ -77,7 +82,7 @@ const ResourceForm = () => {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
-    setFormData(prevData => ({
+    setFormData((prevData) => ({
       ...prevData,
       [name]: value,
     }));
@@ -85,7 +90,7 @@ const ResourceForm = () => {
 
   const handleNestedChange = (
     e: React.ChangeEvent<HTMLInputElement>,
-    section: NestedKeys
+    section: NestedKeys,
   ) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -99,10 +104,10 @@ const ResourceForm = () => {
 
   const handleArrayChange = (
     e: React.ChangeEvent<HTMLInputElement>,
-    field: keyof FormData
+    field: keyof FormData,
   ) => {
     const { value } = e.target;
-    setFormData(prevData => ({
+    setFormData((prevData) => ({
       ...prevData,
       [field]: value.split(", "),
     }));
@@ -453,7 +458,7 @@ const ResourceForm = () => {
           </Button>
         </div>
       </form>
-    </> 
+    </>
   );
 };
 
