@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import navImage from "$/AdvoHomeHeroBanner.png";
 import logo from "$/AdvoLogoWhite.png";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
@@ -19,17 +18,6 @@ import {
 function Navbar() {
   return (
     <nav className="relative min-h-[40%] text-white">
-      {/* Background Image */}
-      <div className="absolute inset-0">
-        <Image
-          alt="nav-bg-image"
-          src={navImage}
-          quality={100}
-          layout="fill"
-          objectFit="cover"
-        />
-      </div>
-
       {/* Navbar Content */}
       <div className="relative z-10 ">
         {/* Top Section: Logo and Buttons */}
