@@ -5,6 +5,7 @@ import { Image } from "next/image";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useEffect } from "react";
+import Image from "next/image";
 
 import Navbar from "#/navbar/Navbar";
 
@@ -33,9 +34,10 @@ const AccountPage: React.FC = () => {
         </h3>
         <Image
           src={userImage}
-          alt="User profile image"
-          width={100}
-          height={100}
+          alt="User Profile Image"
+          width={100} // Provide a default width
+          height={100} // Provide a default height
+          priority // Optional: if you want to load it as a priority
         />
       </>
     );

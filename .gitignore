@@ -1,3 +1,6 @@
 .vscode
 .DS_Store
 pnpm-lock.yaml
+node_modules
+dist
+pnpm-lock.yaml

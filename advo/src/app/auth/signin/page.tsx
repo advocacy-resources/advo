@@ -6,7 +6,6 @@ import {
   useSession,
   ClientSafeProvider,
 } from "next-auth/react";
-import { Image } from "next/image";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
