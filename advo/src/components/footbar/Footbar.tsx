@@ -7,9 +7,9 @@ const currentYear = new Date().getFullYear();
 
 export default function Footbar() {
   return (
-    <footer className="container mx-auto grid grid-cols-3">
+    <footer className="container mx-auto grid grid-cols-3 text-white z-10">
       {/* Footer Links */}
-      <div className="bg-white-800">
+      <div className="">
         <Link className="text-sm" href="/">
           Privacy Policy
         </Link>
