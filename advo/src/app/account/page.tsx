@@ -4,6 +4,7 @@ import { useSession } from "next-auth/react";
 import { Image } from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import Image from "next/image";
 
 import Navbar from "#/navbar/Navbar";
 
@@ -22,7 +23,7 @@ const AccountPage: React.FC = () => {
   }
 
   if (session) {
-    const userImage = session.user?.image;
+    const userImage = session.user?.image || ""; // Provide a fallback if image is null
     return (
       <>
         <Navbar />
@@ -30,7 +31,15 @@ const AccountPage: React.FC = () => {
           Congratulations, {session.user?.email}, you have made it to the
           account page.
         </h3>
-        <Image src={userImage} alt="" />
+        {userImage && (
+          <Image
+            src={userImage}
+            alt="User Profile Image"
+            width={100} // Provide a default width
+            height={100} // Provide a default height
+            priority // Optional: if you want to load it as a priority
+          />
+        )}
       </>
     );
   }

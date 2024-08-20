@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Image } from "next/image";
+import Image from "next/image";
 
 interface AboutUsRow {
   imageSrc: string;
@@ -23,6 +23,8 @@ const AboutUsRow: React.FC<AboutUsRow> = ({
         <Image
           src={imageSrc}
           alt={title}
+          width={800} // Adjust based on your actual image width
+          height={600} // Adjust based on your actual image height
           className="w-full h-auto rounded-md"
         />
       </div>
