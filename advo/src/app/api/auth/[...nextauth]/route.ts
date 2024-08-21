@@ -1,14 +1,19 @@
-// app/api/auth/[...nextauth]/route.ts
-import NextAuth, { SessionStrategy } from "next-auth";
+import NextAuth, { NextAuthOptions, Session } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
+import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { compare } from "bcryptjs";
 
-import clientPromise, { db } from "@/lib/db";
-import { IUser, IUserLogin } from "&/user";
+import prisma from "@/prisma/client"; // Adjust this import to match your Prisma client location
+import { IUser } from "&/user"; // Make sure this interface matches your Prisma User model
 
-const authOptions = {
+interface ISession extends Session {
+  user?: {
+    id?: string;
+  } & Session["user"];
+}
+
+export const authOptions: NextAuthOptions = {
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID as string,
@@ -21,17 +26,22 @@ const authOptions = {
         password: { label: "Password", type: "password" },
       },
       authorize: async (credentials): Promise<IUser | null> => {
-        const user: IUserLogin | null = (await db.collection("User").findOne({
-          username: credentials?.username,
-        })) as unknown as IUserLogin | null;
-        if (user && credentials?.password) {
+        if (!credentials?.username || !credentials?.password) {
+          return null;
+        }
+
+        const user = await prisma.user.findUnique({
+          where: { username: credentials.username },
+        });
+
+        if (user && user.password) {
           const isValid = await compare(credentials.password, user.password);
           if (isValid) {
             return {
-              id: user._id.toString(),
-              name: user.name,
+              id: user.id,
+              name: user.name || undefined,
               email: user.email,
-              image: user.image,
+              image: user.image || undefined,
               emailVerified: user.emailVerified,
             };
           }
@@ -40,14 +50,24 @@ const authOptions = {
       },
     }),
   ],
-  adapter: MongoDBAdapter(Promise.resolve(clientPromise)),
-  secret: process.env.SECRET,
+  adapter: PrismaAdapter(prisma),
+  secret: process.env.NEXTAUTH_SECRET,
   session: {
-    strategy: "jwt" as SessionStrategy,
+    strategy: "jwt",
   },
   pages: {
     signIn: "/auth/signin",
     newUser: "/account",
+  },
+  callbacks: {
+    async session({ session, token }): Promise<ISession> {
+      const usession: ISession = session;
+
+      if (usession.user) {
+        usession.user.id = token.sub;
+      }
+      return session;
+    },
   },
 };
 
