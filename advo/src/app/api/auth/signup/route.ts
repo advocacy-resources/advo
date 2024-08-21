@@ -1,8 +1,9 @@
 import { hash } from "bcryptjs";
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "!/db";
 
-export async function POST(req: NextRequest) {
+import prisma from "@/prisma/client"; // Adjust this import to match your Prisma client location
+
+export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     const { username, password, email } = await req.json();
 
@@ -13,9 +14,22 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const existingUser = await db
-      .collection("User")
-      .findOne({ $or: [{ username }, { email }] });
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        OR: [
+          {
+            username: {
+              equals: username,
+            },
+          },
+          {
+            email: {
+              equals: email,
+            },
+          },
+        ],
+      },
+    });
 
     if (existingUser) {
       return NextResponse.json(
@@ -32,7 +46,9 @@ export async function POST(req: NextRequest) {
       password: hashedPassword,
     };
 
-    await db.collection("User").insertOne(newUser);
+    await prisma.user.create({
+      data: newUser,
+    });
 
     return NextResponse.json(
       { message: "User registered successfully" },

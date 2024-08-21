@@ -1,4 +1,4 @@
-import NextAuth, { NextAuthOptions } from "next-auth";
+import NextAuth, { NextAuthOptions, Session } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
@@ -6,6 +6,12 @@ import { compare } from "bcryptjs";
 
 import prisma from "@/prisma/client"; // Adjust this import to match your Prisma client location
 import { IUser } from "&/user"; // Make sure this interface matches your Prisma User model
+
+interface ISession extends Session {
+  user?: {
+    id?: string;
+  } & Session["user"];
+}
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -33,9 +39,9 @@ export const authOptions: NextAuthOptions = {
           if (isValid) {
             return {
               id: user.id,
-              name: user.name || null,
+              name: user.name || undefined,
               email: user.email,
-              image: user.image || null,
+              image: user.image || undefined,
               emailVerified: user.emailVerified,
             };
           }
@@ -54,9 +60,11 @@ export const authOptions: NextAuthOptions = {
     newUser: "/account",
   },
   callbacks: {
-    async session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.sub!;
+    async session({ session, token }): Promise<ISession> {
+      let usession: ISession = session;
+
+      if (usession.user) {
+        usession.user.id = token.sub;
       }
       return session;
     },
