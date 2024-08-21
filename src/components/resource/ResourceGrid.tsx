@@ -8,9 +8,13 @@ const ResourcesGrid: React.FC = () => {
   const [resources, setResources] = useState<Resource[]>([]);
 
   useEffect(() => {
-    fetch("/api/resources")
-      .then((response) => response.json())
-      .then((data) => setResources(data));
+    const fetchResources = async () => {
+      const response = await fetch("/api/resources");
+      const json = await response.json();
+      setResources(json);
+    };
+
+    fetchResources();
   }, []);
 
   return (
