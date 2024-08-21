@@ -61,7 +61,7 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async session({ session, token }): Promise<ISession> {
-      let usession: ISession = session;
+      const usession: ISession = session;
 
       if (usession.user) {
         usession.user.id = token.sub;
