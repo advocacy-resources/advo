@@ -2,8 +2,8 @@ import prisma from "@/prisma/client"; // adjust the path as necessary
 import { Resource } from "@prisma/client";
 import React from "react";
 
-import Navbar from "#/navbar/Navbar";
-import Footbar from "#/footbar/Footbar";
+import Navbar from "@/components/layout/Navbar";
+import Footbar from "@/components/layout/footbar/Footbar";
 
 interface ResourcePageProps {
   params: { id: string };
@@ -30,7 +30,6 @@ const ResourcePage = async ({ params }: ResourcePageProps) => {
         <div className="container min-h-screen">
           <h1 className="text-3xl font-bold mb-4">{resource.name}</h1>
           <p>{resource.description}</p>
-          {/* Add more fields as necessary */}
         </div>
         <Footbar />
       </div>

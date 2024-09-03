@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import logo from "$/AdvoLogoWhite.png";
+import logo from "/assets/logo.png";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -14,6 +14,7 @@ import {
   SelectGroup,
   SelectLabel,
 } from "@/components/ui/select";
+import prisma from "../../prisma/client";
 
 function Navbar() {
   return (
@@ -24,7 +25,12 @@ function Navbar() {
         <div className="min-h-[50px] flex justify-between items-center px-8 py-4">
           {/* Logo */}
           <div>
-            <Image src={logo} alt="Advo Logo" height={75} />
+            <Image
+              src="/assets/AdvoLogoWhite.png"
+              alt="Advo Logo"
+              height={75}
+              width={75}
+            />
           </div>
 
           {/* Right Section: Submit Button and Avatar */}

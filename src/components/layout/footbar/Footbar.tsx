@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 
-import TermsOfService from "#/footbar/TermsOfService";
+import TermsOfService from "@/components/layout/footbar/TermsOfService";
 
 const currentYear = new Date().getFullYear();
 

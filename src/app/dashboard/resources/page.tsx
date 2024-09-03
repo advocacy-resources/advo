@@ -1,7 +1,7 @@
 import React from "react";
-import ResourcesGrid from "#/resource/ResourceGrid";
-import Navbar from "#/navbar/Navbar";
-import Footer from "#/footbar/Footbar";
+import ResourcesGrid from "@/components/resources/ResourceGrid";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/footbar/Footbar";
 
 const ResourcesPage: React.FC = () => {
   return (
