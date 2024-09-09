@@ -1,6 +1,6 @@
-import { Account, Prisma, User } from "@prisma/client";
-import prisma from "@prisma/client";
-import { Resource } from "@/interfaces/resource";
+import {Resource, Account, Prisma, User } from "@prisma/client";
+import prisma from "@/prisma/client";
+//import { Resource } from "@/interfaces/resource";
 
 // Resource CRUD operations
 export const createResource = async (
