@@ -1,4 +1,4 @@
-import {Resource, Account, Prisma, User } from "@/prisma/client";
+import { Resource, Account, Prisma, User } from "@prisma/client";
 import prisma from "@/prisma/client";
 //import { Resource } from "@/interfaces/resource";
 
