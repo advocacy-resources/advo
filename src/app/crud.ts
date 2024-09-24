@@ -1,6 +1,7 @@
 import { Account, Resource, Prisma, User } from "@prisma/client";
 import prisma from "@/prisma/client";
 
+
 // Resource CRUD operations
 export const createResource = async (
   data: Prisma.ResourceCreateInput,
