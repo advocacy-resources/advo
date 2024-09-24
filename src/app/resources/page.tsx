@@ -1,14 +1,14 @@
 import React from "react";
-import ResourcesGrid from "#/resource/ResourceGrid";
 import Navbar from "#/navbar/Navbar";
 import Footer from "#/footbar/Footbar";
+import SidebarSectionPage from "@/components/sidebar/SidebarSectionPage";
 
 const ResourcesPage: React.FC = () => {
   return (
     <>
       <Navbar />
-      <div className="max-w-6xl mx-auto p-8 min-h-screen">
-        <ResourcesGrid />
+      <div className="mx-auto p-8 min-h-screen">
+        <SidebarSectionPage />
       </div>
       <Footer />
     </>
