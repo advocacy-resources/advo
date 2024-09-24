@@ -33,20 +33,36 @@ const config = {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
       },
-      backgroundImage: {
-        "hero-pattern": "url('/src/assets/AdvoHomeHeroBanner.png')",
-        // Add more custom backgrounds here
-      },
-      colors: {
-        "advo-pink": "#EB59AB",
-        // Add more custom colors here
-      },
-      boxShadow: {
-        glow: "0 0 20px #FDF952", // Custom glow effect
-      },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [
+    require("tailwindcss-animate"),
+    function ({ addUtilities }) {
+      const newUtilities = {
+        ".scrollbar-hide": {
+          /* IE and Edge */
+          "-ms-overflow-style": "none",
+          /* Firefox */
+          "scrollbar-width": "none",
+          /* Safari and Chrome */
+          "&::-webkit-scrollbar": {
+            display: "none",
+          },
+        },
+        ".scrollbar-default": {
+          /* IE and Edge */
+          "-ms-overflow-style": "auto",
+          /* Firefox */
+          "scrollbar-width": "auto",
+          /* Safari and Chrome */
+          "&::-webkit-scrollbar": {
+            display: "block",
+          },
+        },
+      };
+      addUtilities(newUtilities, ["responsive", "hover"]);
+    },
+  ],
 } satisfies Config;
 
 export default config;
