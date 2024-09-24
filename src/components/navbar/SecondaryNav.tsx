@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { Search, ChevronDown } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Image from "next/image";
 import "leaflet/dist/leaflet.css";
 
