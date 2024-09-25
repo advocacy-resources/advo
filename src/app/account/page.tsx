@@ -258,7 +258,9 @@ const AccountPage: React.FC = () => {
             </label>
             <Select
               onValueChange={(value) =>
-                handleInputChange({ target: { name: "gender", value } } as any)
+                handleInputChange({
+                  target: { name: "gender", value },
+                })
               }
               value={userData.gender || undefined}
             >
@@ -269,7 +271,7 @@ const AccountPage: React.FC = () => {
                 <SelectItem value="male">Male</SelectItem>
                 <SelectItem value="female">Female</SelectItem>
                 <SelectItem value="non-binary">Non-binary</SelectItem>
-                // TODO: Add field to specify what other gender is.
+                {/* TODO: Add field to specify what other gender is. */}
                 <SelectItem value="other">Other</SelectItem>
                 <SelectItem value="prefer-not-to-say">
                   Prefer not to say
@@ -417,7 +419,7 @@ const AccountPage: React.FC = () => {
               onValueChange={(value) =>
                 handleInputChange({
                   target: { name: "preferredCommunication", value },
-                } as any)
+                })
               }
               value={userData.preferredCommunication || undefined}
             >

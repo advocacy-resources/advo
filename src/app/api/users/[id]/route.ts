@@ -71,16 +71,16 @@ export async function PUT(
     console.log("Update data received:", updateData);
 
     // Remove fields that shouldn't be updated
-    const {
-      id,
-      createdAt,
-      updatedAt,
-      email,
-      googleId,
-      accounts,
-      sessions,
-      ...safeUpdateData
-    } = updateData;
+    const safeUpdateData = {
+      ...updateData,
+      id: undefined,
+      createdAt: undefined,
+      updatedAt: undefined,
+      email: undefined,
+      googleId: undefined,
+      accounts: undefined,
+      sessions: undefined,
+    };
 
     // Convert date strings to Date objects
     if (safeUpdateData.dateOfBirth) {

@@ -7,8 +7,6 @@ import { Input } from "#/ui/input";
 import { Select } from "#/ui/select";
 import { DatePicker } from "#/ui/date-picker";
 
-
-
 interface UserData {
   name: string;
   email: string;
