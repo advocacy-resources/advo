@@ -1,5 +1,5 @@
 import { ObjectId } from "mongodb";
-import { User } from "next-auth";
+import { User as NextAuthUser } from "next-auth";
 
 type ImageType = string;
 
@@ -18,4 +18,9 @@ export interface IUserLogin {
   name?: string;
   image?: ImageType;
   emailVerified?: boolean;
+}
+
+export interface User extends NextAuthUser {
+  id: string;
+  // Add any other custom properties your user object might have
 }

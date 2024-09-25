@@ -1,7 +1,7 @@
 "use client";
 
-import { redirect } from "next/dist/server/api-utils";
-import { User } from "../../types/User";
+import Image from "next/image";
+import { User } from "&/user";
 import { signOut } from "next-auth/react";
 
 type AccountDetailsProps = {
@@ -15,7 +15,7 @@ export default function AccountDetails({ user }: AccountDetailsProps) {
       <p>User ID: {user.id}</p>
       <p>Welcome, {user.name || "User"}!</p>
       <p>Email: {user.email || "No email provided"}</p>
-      {user.image && <img src={user.image} alt="Profile" />}
+      {user.image && <Image src={user.image} alt="Profile" />}
       {/* Add more account-related content here */}
       <button onClick={() => signOut({ callbackUrl: "/" })}>Sign Out</button>
     </div>

@@ -1,36 +1,28 @@
 import Footbar from "@/components/layout/footbar/Footbar";
 import Navbar from "@/components/layout/Navbar";
-import navImage from "$/AdvoHomeHeroBanner.png";
+
+import MainSearch from "@/components/search/MainSearch";
+
 import Image from "next/image";
-import HomeHero from "@/components/marketing/home/nav/HomeHero";
-import WhyWereHere from "@/components/marketing/home/section/WhyWereHere";
-import OurSolution from "@/components/marketing/home/section/OurSolution";
-import HowCanYouHelp from "@/components/marketing/home/section/HowYouCanHelp";
-import Updates from "@/components/marketing/home/section/Updates";
-import HomeFooter from "@/components/marketing/home/HomeFooter";
 
 export default function Home() {
   return (
     <main className="flex flex-col justify-between h-screen">
-      {/* <Navbar />
+      <Navbar />
       {/* Background Image */}
-      <div className="absolute inset-0">
-        {/* <Image
+      <div className="absolute inset-0 -z-100">
+        <Image
           alt="nav-bg-image"
-          src={navImage}
+          src="/AdvoHomeHeroBanner.png"
           quality={100}
           layout="fill"
           objectFit="cover"
-        /> */}
-        {/* </div> */}
-        {/* <Footbar /> */}
-        <HomeHero />
-        <WhyWereHere />
-        <OurSolution />
-        <HowCanYouHelp />
-        <Updates />
-        <HomeFooter />
+        />
       </div>
+      <div className="absolute inset-0">
+        <MainSearch />
+      </div>
+      <Footbar />
     </main>
   );
 }

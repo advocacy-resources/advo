@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card"; // Ensure this path is correct
 import { Separator } from "@/components/ui/separator";
-import ResourceCard from "@/components/resource/ResourceCard";
+import ResourceCard from "@/components/resources/ResourceCard";
 
 const SidebarContent: React.FC = () => {
   const [resources, setResources] = useState([]);

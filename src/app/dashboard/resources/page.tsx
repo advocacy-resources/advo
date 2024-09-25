@@ -1,8 +1,8 @@
 import React from "react";
-import Footer from "#/footbar/Footbar";
+import Footer from "#/layout/footbar/Footbar";
 
 import SidebarSectionPage from "@/components/sidebar/SidebarSectionPage";
-import SecondaryNav from "@/components/navbar/SecondaryNav";
+import SecondaryNav from "@/components/layout/SecondaryNav";
 
 const ResourcesPage: React.FC = () => {
   return (
