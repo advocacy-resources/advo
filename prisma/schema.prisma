@@ -8,17 +8,28 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  username  String?  @unique
-  email     String   @unique
-  password  String?
-  googleId  String?  @unique
-  name      String?
-  image     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  accounts  Account[]
-  sessions  Session[]
+  id                   String    @id @default(auto()) @map("_id") @db.ObjectId
+  username             String?   @unique
+  email                String    @unique
+  password             String?
+  googleId             String?   @unique
+  name                 String?
+  image                String?
+  dateOfBirth          DateTime?
+  gender               String?
+  pronouns             String?
+  primaryLanguage      String?
+  secondaryLanguages   String[]
+  city                 String?
+  state                String?
+  zipCode              String?
+  phone                String?
+  preferredCommunication String?
+  interests            String[]
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  accounts             Account[]
+  sessions             Session[]
 }
 
 model Account {
