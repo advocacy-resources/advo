@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/prisma/client";
+import Prisma from "@prisma/client";
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,7 +15,7 @@ export async function POST(request: NextRequest) {
       physical,
     });
 
-    let whereConditions: any = {};
+    const whereConditions: Prisma.Prisma.ResourceWhereInput = {};
 
     if (physical) {
       whereConditions.type = { hasSome: [physical] };
@@ -42,7 +43,8 @@ export async function POST(request: NextRequest) {
 
     if (zipCode) {
       whereConditions.address = {
-        path: "$.zipCode",
+        // TODO: Radius of zipcode
+        // path: "$.zipCode",
         equals: zipCode,
       };
     }
