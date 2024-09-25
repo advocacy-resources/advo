@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "../../../prisma/client";
+import prisma from "@/prisma/client";
 
 export async function POST(req: NextRequest) {
   try {
@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error("Error in POST /api/resources:", error);
     return NextResponse.json(
-      { error: (error as Error).message },
+      { error: "Failed to create resource", details: (error as Error).message },
       { status: 500 },
     );
   }
@@ -28,7 +28,7 @@ export async function GET() {
   } catch (error) {
     console.error("Error in GET /api/resources:", error);
     return NextResponse.json(
-      { error: (error as Error).message },
+      { error: "Failed to fetch resources", details: (error as Error).message },
       { status: 500 },
     );
   }

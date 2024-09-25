@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Select,
   SelectTrigger,
@@ -11,115 +12,158 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-const MainSearch = () => {
-  // State variables to manage form input values
-  const [ageRange, setAgeRange] = useState("");
-  const [zipcode, setZipcode] = useState("");
-  const [socialHealth, setSocialHealth] = useState("");
-  const [mentalHealth, setMentalHealth] = useState("");
-  const [physicalHealth, setPhysicalHealth] = useState("");
+interface SearchParams {
+  ageRange: string;
+  zipCode: string;
+  social: string;
+  emotional: string;
+  physical: string;
+}
 
-  // Handle form submission
-  const handleOnSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
-    // Log the form values to the console
-    console.log("Age Range:", ageRange);
-    console.log("Zipcode:", zipcode);
-    console.log("Social Health:", socialHealth);
-    console.log("Mental Health:", mentalHealth);
-    console.log("Physical Health:", physicalHealth);
+const MainSearch: React.FC = () => {
+  const [searchParams, setSearchParams] = useState<SearchParams>({
+    ageRange: "",
+    zipCode: "",
+    social: "",
+    emotional: "",
+    physical: "",
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
-    // Reset the form values
-    setAgeRange("");
-    setZipcode("");
-    setSocialHealth("");
-    setMentalHealth("");
-    setPhysicalHealth("");
+  const handleInputChange = (field: keyof SearchParams, value: string) => {
+    setSearchParams((prev) => ({ ...prev, [field]: value }));
   };
 
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    // Filter out empty values
+    const filteredParams = Object.entries(searchParams).reduce(
+      (acc, [key, value]) => {
+        if (value !== "") {
+          acc[key] = value;
+        }
+        return acc;
+      },
+      {} as Record<string, string>,
+    );
+
+    const queryString = new URLSearchParams(filteredParams).toString();
+    router.push(`/search-results?${queryString}`);
+  };
+
+  const ageRangeOptions = [
+    "0-12",
+    "13-17",
+    "18-24",
+    "25-34",
+    "35-44",
+    "45-54",
+    "55+",
+  ];
+
+  const socialOptions = [
+    "FRIENDSHIPS / PEER RELATIONSHIPS",
+    "ROMANTIC / SEXUAL RELATIONSHIPS",
+    "FAMILY",
+    "BULLYING (IN PERSON AND ONLINE)",
+    "SCHOOL",
+    "RACIAL & CULTURAL IDENTITY",
+    "LGBTQ+ IDENTITY",
+    "CHRONIC ILLNESS & DISABILITY",
+    "SOCIAL MEDIA & MEDIA LITERACY",
+    "COMMUNITY ENGAGEMENT",
+  ];
+
+  const emotionalOptions = [
+    "MENTAL HEALTH",
+    "COPING SKILLS",
+    "SELF IMAGE",
+    "GRIEF AND LOSS",
+    "ADDICTION & SUBSTANCE ABUSE",
+    "INTERNET & TECHNOLOGY",
+    "ABUSE",
+    "SCHOOL",
+    "CHRONIC ILLNESS & DISABILITY",
+  ];
+
+  const physicalOptions = [
+    "NUTRITION",
+    "DISORDERED EATING",
+    "FITNESS & EXERCISE",
+    "SEXUAL HEALTH",
+    "TRANSGENDER HEALTH",
+    "SLEEP",
+    "GENERAL PHYSICAL HEALTH",
+    "CHRONIC ILLNESS & DISABILITY",
+  ];
+
   return (
-    <>
-      <div className="w-full py-8 bg-gray-300">
-        <div className="max-w-[80%] mx-auto py-36">
-          <h3 className="text-center font-bold text-6xl">Lorem Ipsum</h3>
-          <p className="text-center my-8">
-            Lorem ipsum dolor sit amet consectetur, adipisicing elit. Impedit,
-            voluptatum pariatur possimus, adipisci iste a provident amet
-            repellendus quia esse blanditiis perspiciatis nemo hic magni, eius
-            consectetur molestias consequuntur assumenda!
-          </p>
-          <form
-            onSubmit={handleOnSubmit}
-            className="flex flex-col sm:flex-row justify-center items-center gap-4 py-4"
-          >
-            {/* Age Range Select */}
-            <Select value={ageRange} onValueChange={setAgeRange}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Age Range" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="18-25">18-25</SelectItem>
-                <SelectItem value="26-35">26-35</SelectItem>
-                <SelectItem value="36-45">36-45</SelectItem>
-                <SelectItem value="46-55">46-55</SelectItem>
-                <SelectItem value="56+">56+</SelectItem>
-              </SelectContent>
-            </Select>
+    <form onSubmit={handleSearch} className="space-y-4">
+      <Select onValueChange={(value) => handleInputChange("ageRange", value)}>
+        <SelectTrigger>
+          <SelectValue placeholder="Age Range" />
+        </SelectTrigger>
+        <SelectContent>
+          {ageRangeOptions.map((option) => (
+            <SelectItem key={option} value={option}>
+              {option}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
 
-            {/* Zipcode Input */}
-            <Input
-              className="w-full sm:min-w-1/5"
-              placeholder="Zipcode"
-              value={zipcode}
-              onChange={(e) => setZipcode(e.target.value)}
-            />
+      <Input
+        placeholder="Zip Code"
+        value={searchParams.zipCode}
+        onChange={(e) => handleInputChange("zipCode", e.target.value)}
+      />
 
-            {/* Social Health Select */}
-            <Select value={socialHealth} onValueChange={setSocialHealth}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Social Health" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="social-support">Social Support</SelectItem>
-                <SelectItem value="community-engagement">
-                  Community Engagement
-                </SelectItem>
-                <SelectItem value="relationships">Relationships</SelectItem>
-              </SelectContent>
-            </Select>
+      <Select onValueChange={(value) => handleInputChange("social", value)}>
+        <SelectTrigger>
+          <SelectValue placeholder="Social" />
+        </SelectTrigger>
+        <SelectContent>
+          {socialOptions.map((option) => (
+            <SelectItem key={option} value={option}>
+              {option}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
 
-            {/* Mental Health Select */}
-            <Select value={mentalHealth} onValueChange={setMentalHealth}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Mental Health" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="therapy">Therapy</SelectItem>
-                <SelectItem value="counseling">Counseling</SelectItem>
-                <SelectItem value="support-groups">Support Groups</SelectItem>
-              </SelectContent>
-            </Select>
+      <Select onValueChange={(value) => handleInputChange("emotional", value)}>
+        <SelectTrigger>
+          <SelectValue placeholder="Emotional" />
+        </SelectTrigger>
+        <SelectContent>
+          {emotionalOptions.map((option) => (
+            <SelectItem key={option} value={option}>
+              {option}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
 
-            {/* Physical Health Select */}
-            <Select value={physicalHealth} onValueChange={setPhysicalHealth}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Physical Health" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="fitness">Fitness</SelectItem>
-                <SelectItem value="nutrition">Nutrition</SelectItem>
-                <SelectItem value="medical">Medical</SelectItem>
-              </SelectContent>
-            </Select>
+      <Select onValueChange={(value) => handleInputChange("physical", value)}>
+        <SelectTrigger>
+          <SelectValue placeholder="Physical" />
+        </SelectTrigger>
+        <SelectContent>
+          {physicalOptions.map((option) => (
+            <SelectItem key={option} value={option}>
+              {option}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
 
-            {/* Submit Button */}
-            <div className="flex justify-center mt-4">
-              <Button type="submit">GET STARTED</Button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </>
+      <Button type="submit" disabled={isLoading}>
+        {isLoading ? "Searching..." : "Search"}
+      </Button>
+    </form>
   );
 };
 

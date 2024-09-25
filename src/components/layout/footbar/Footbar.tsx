@@ -7,9 +7,9 @@ const currentYear = new Date().getFullYear();
 
 export default function Footbar() {
   return (
-    <footer className="container mx-auto grid grid-cols-3 text-white z-10">
+    <footer className="container mx-auto grid grid-cols-3">
       {/* Footer Links */}
-      <div className="">
+      <div className="bg-white-800">
         <Link className="text-sm" href="/">
           Privacy Policy
         </Link>
@@ -33,9 +33,9 @@ export default function Footbar() {
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
           >
             {" "}
             <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />{" "}
@@ -50,9 +50,9 @@ export default function Footbar() {
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
           >
             {" "}
             <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />{" "}
