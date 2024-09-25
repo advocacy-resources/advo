@@ -1,36 +1,38 @@
 "use client";
 
 import Image from "next/image";
-import logo from "$/AdvoLogoWhite.png";
-import { Button } from "../ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import MainSearch from "@/components/search/MainSearch";
-
+import { Button } from "@/components/ui/button";
+import Logo from "../../assets/myAdvo-peachWhite.svg";
+import Ellipse from "../../assets/MoreEllipse.svg";
+import Exit from "../../assets/Exit.svg";
 function Navbar() {
   return (
-    <nav className="relative min-h-[40%] text-advo-pink">
-      <div className="relative z-10">
-        {/* Top Section: Logo and Buttons */}
-        <div className="min-h-[50px] flex justify-between items-center px-8 py-4">
-          <div>
-            <Image src={logo} alt="Advo Logo" height={75} />
-          </div>
-          <div className="flex flex-row gap-8">
-            <Button className="text-white bg-advo-pink hover:bg-[#FDF952] hover:text-black hover:shadow-glow">
-              Submit a Resource
-            </Button>
-            <Avatar>
-              <AvatarImage src="https://github.com/shadcn.png" />
-              <AvatarFallback>CN</AvatarFallback>
-            </Avatar>
-          </div>
-        </div>
-
-        {/* Main Content Section */}
-        <div className="px-4 py-12">
-          <h1 className="text-center text-6xl mb-8">Find Support Today!</h1>
-          <MainSearch />
-        </div>
+    <nav className="relative min-h-[40%] bg-slate-800 text-white">
+      {/* Navbar Content */}
+      <div id="nav-container" className="flex flex-row justify-between px-8">
+        <Image src={Exit} alt="Exit." height={30} className="rotate-180" />
+        <Image src={Logo} alt="The myAdvo Logo." height={60} />
+        <Image src={Ellipse} alt="More Info." height={40} />
+      </div>
+      <div className="text-center py-4 px-6">
+        <h1 className="text-2xl pb-3 font-bold tracking-widest">WELCOME!</h1>
+        <hr></hr>
+      </div>
+      <div className="flex flex-row px-2 justify-evenly">
+        <Button variant="mobile-menu" size="lg" id="social">
+          <span className="inline-block -skew-x-6">SOCIAL</span>
+        </Button>
+        <Button variant="mobile-menu" size="lg" id="mental">
+          <span className="inline-block -skew-x-6">MENTAL</span>
+        </Button>
+        <Button variant="mobile-menu" size="lg" id="physical">
+          <span className="inline-block -skew-x-6">PHYSICAL</span>
+        </Button>
+      </div>
+      <div className="text-center py-4">
+        <p>
+          <a>more filters...</a>
+        </p>
       </div>
     </nav>
   );
