@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from "#/ui/select";
 import { DatePicker } from "#/ui/date-picker";
-import Navbar from "@/components/navbar/Navbar";
+import Navbar from "@/components/layout/Navbar";
 import { useToast } from "@/components/ui/use-toast";
 
 const placeholderUrl = "https://via.placeholder.com/100";
