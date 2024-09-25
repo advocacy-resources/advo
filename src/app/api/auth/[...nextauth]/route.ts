@@ -13,12 +13,8 @@ interface ISession extends Session {
   } & Session["user"];
 }
 
-const authOptions: NextAuthOptions = {
+export const authOptions: NextAuthOptions = {
   providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID as string,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-    }),
     CredentialsProvider({
       name: "Credentials",
       credentials: {
@@ -42,7 +38,6 @@ const authOptions: NextAuthOptions = {
               name: user.name || undefined,
               email: user.email,
               image: user.image || undefined,
-              emailVerified: user.emailVerified,
             };
           }
         }
