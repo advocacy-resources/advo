@@ -1,15 +1,28 @@
 import React from "react";
-import Image from "next/image";
 import prisma from "@/prisma/client";
 import { Resource } from "@prisma/client";
-import SecondaryNavbar from "#/navbar/SecondaryNav";
-import Footbar from "#/footbar/Footbar";
+import Navbar from "#/layout/Navbar";
+import Footbar from "#/layout/footbar/Footbar";
 import SidebarMap from "@/components/sidebar/SidebarMap";
 import geocodeAddress from "@/components/utils/geocode-address";
 import "leaflet/dist/leaflet.css";
 
 interface ResourcePageProps {
   params: { id: string };
+}
+
+interface IAddress {
+  street: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  country: string;
+}
+
+interface IContact {
+  phone: string;
+  email: string;
+  website: string;
 }
 
 const fetchResource = async (id: string): Promise<Resource | null> => {
@@ -26,24 +39,21 @@ const ResourcePage = async ({ params }: ResourcePageProps) => {
     return <div>Resource not found</div>;
   }
 
-  const fullAddress = `${resource.address.street}, ${resource.address.city}, ${resource.address.state} ${resource.address.zipCode}, ${resource.address.country}`;
+  const jsonAddress: IAddress = resource?.address as unknown as IAddress;
+  const jsonContact: IContact = resource?.contact as unknown as IContact;
+  let fullAddress = "";
+
+  if (jsonAddress)
+    fullAddress = `${jsonAddress.street}, ${jsonAddress.city}, ${jsonAddress.state} ${jsonAddress.zipCode}, ${jsonAddress.country}`;
+
   const { latitude, longitude } = await geocodeAddress(fullAddress);
 
   return (
     <div>
-      <SecondaryNavbar />
-      {/* Hero Section */}
-      <div className="relative h-[40vh] w-full">
-        <Image
-          src="/images/advo-help-banner.png"
-          alt="Resource Background Image"
-          layout="fill"
-          objectFit="cover"
-          className="objectCover"
-        />
-        <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <h1 className="text-white text-5xl font-bold">{resource.name}</h1>
-        </div>
+      <Navbar />
+      <div className="max-w-4xl mx-auto p-8 ">
+        <h1 className="text-3xl font-bold mb-4">{resource.name}</h1>
+        <p>{resource.description}</p>
       </div>
 
       {/* Main Content Section */}
@@ -59,18 +69,18 @@ const ResourcePage = async ({ params }: ResourcePageProps) => {
           <section>
             <h2 className="text-2xl font-semibold mb-2">Contact Information</h2>
             <p className="text-lg text-gray-700">
-              <strong>Phone:</strong> {resource.contact.phone}
+              <strong>Phone:</strong> {jsonContact.phone}
             </p>
             <p className="text-lg text-gray-700">
-              <strong>Email:</strong> {resource.contact.email}
+              <strong>Email:</strong> {jsonContact.email}
             </p>
             <p className="text-lg text-gray-700">
               <strong>Website:</strong>{" "}
               <a
-                href={resource.contact.website}
+                href={jsonContact.website}
                 className="text-blue-600 hover:underline"
               >
-                {resource.contact.website}
+                {jsonContact.website}
               </a>
             </p>
           </section>
@@ -79,9 +89,8 @@ const ResourcePage = async ({ params }: ResourcePageProps) => {
           <section>
             <h2 className="text-2xl font-semibold mb-2">Address</h2>
             <p className="text-lg text-gray-700 mb-4">
-              {resource.address.street}, {resource.address.city},{" "}
-              {resource.address.state} {resource.address.zipCode},{" "}
-              {resource.address.country}
+              {jsonAddress.street}, {jsonAddress.city}, {jsonAddress.state}{" "}
+              {jsonAddress.zipCode}, {jsonAddress.country}
             </p>
             {latitude !== 0 && longitude !== 0 ? (
               <SidebarMap lat={latitude} lon={longitude} />
@@ -93,7 +102,7 @@ const ResourcePage = async ({ params }: ResourcePageProps) => {
           </section>
 
           {/* Operating Hours */}
-          <section>
+          {/* <section>
             <h2 className="text-2xl font-semibold mb-2">Operating Hours</h2>
             <ul className="list-disc list-inside text-lg text-gray-700">
               {Object.entries(resource.operatingHours).map(([day, hours]) => (
@@ -102,7 +111,7 @@ const ResourcePage = async ({ params }: ResourcePageProps) => {
                 </li>
               ))}
             </ul>
-          </section>
+          </section> */}
 
           {/* Services Provided */}
           <section>
@@ -115,14 +124,14 @@ const ResourcePage = async ({ params }: ResourcePageProps) => {
           </section>
 
           {/* Additional Information */}
-          {resource.additionalInfo && (
+          {/* {resource.additionalInfo && (
             <section>
               <h2 className="text-2xl font-semibold mb-2">
                 Additional Information
               </h2>
               <p className="text-lg text-gray-700">{resource.additionalInfo}</p>
             </section>
-          )}
+          )} */}
         </div>
       </div>
       <Footbar />

@@ -66,7 +66,7 @@ export default function SearchResults() {
         <ul className="space-y-4">
           {results.map((result) => (
             <li key={result.id}>
-              <Link href={`/resources/${result.id}`}>
+              <Link href={`/dashboard/resources/${result.id}`}>
                 <div className="border p-4 rounded-lg hover:bg-gray-100 transition-colors duration-200 cursor-pointer">
                   <h2 className="text-xl font-semibold">{result.name}</h2>
                   <p>{result.description}</p>

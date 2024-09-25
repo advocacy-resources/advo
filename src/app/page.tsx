@@ -1,7 +1,8 @@
-import Footbar from "@/components/footbar/Footbar";
-import Navbar from "@/components/navbar/Navbar";
+import Footbar from "@/components/layout/footbar/Footbar";
+import Navbar from "@/components/layout/Navbar";
 
-import navImage from "$/AdvoHomeHeroBanner.png";
+import MainSearch from "@/components/search/MainSearch";
+
 import Image from "next/image";
 
 export default function Home() {
@@ -9,14 +10,17 @@ export default function Home() {
     <main className="flex flex-col justify-between h-screen">
       <Navbar />
       {/* Background Image */}
-      <div className="absolute inset-0">
+      <div className="absolute inset-0 -z-100">
         <Image
           alt="nav-bg-image"
-          src={navImage}
+          src="/AdvoHomeHeroBanner.png"
           quality={100}
           layout="fill"
           objectFit="cover"
         />
+      </div>
+      <div className="absolute inset-0">
+        <MainSearch />
       </div>
       <Footbar />
     </main>

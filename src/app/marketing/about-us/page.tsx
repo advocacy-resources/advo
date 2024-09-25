@@ -1,7 +1,7 @@
 import React from "react";
-import Navbar from "#/navbar/Navbar";
+import Navbar from "#/layout/Navbar";
 import PageHeading from "#/utils/PageHeading";
-import AboutUsRow from "#/about-us/AboutUsRow";
+import AboutUsRow from "@/components/marketing/about-us/AboutUsRow";
 
 const About: React.FC = () => {
   return (
