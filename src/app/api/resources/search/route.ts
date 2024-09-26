@@ -56,7 +56,6 @@ export async function POST(request: NextRequest) {
     });
 
     console.log(`Found ${resources.length} resources`);
-    console.log("Resources:", JSON.stringify(resources, null, 2));
 
     const processedResources = resources.map((resource) => ({
       id: resource.id,

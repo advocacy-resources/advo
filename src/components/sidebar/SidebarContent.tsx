@@ -1,77 +1,12 @@
 // SidebarContent.tsx
-import React, { useEffect, useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import ResourceCard from "@/components/resources/ResourceCard";
-import { Resource, OperatingHours } from "@/interfaces/resource";
-import { ApiResource } from "@/interfaces/apiResource"; // Import the API resource interface
+import SearchResultsPage from "@/app/search-results/page";
 
-const SidebarContent: React.FC = () => {
-  const [resources, setResources] = useState<Resource[]>([]);
+import React from "react";
 
-  useEffect(() => {
-    const fetchResources = async () => {
-      try {
-        const response = await fetch("/api/resources");
-        const data: ApiResource[] = await response.json();
-
-        const transformedData: Resource[] = data.map(
-          (apiResource): Resource => {
-            // Transform operatingHours from array to object
-            const operatingHoursObject: OperatingHours = {
-              monday: { open: "", close: "" },
-              tuesday: { open: "", close: "" },
-              wednesday: { open: "", close: "" },
-              thursday: { open: "", close: "" },
-              friday: { open: "", close: "" },
-              saturday: { open: "", close: "" },
-              sunday: { open: "", close: "" },
-            };
-
-            apiResource.operatingHours.forEach((dayHours) => {
-              const day = dayHours.day; // DayOfWeek type
-              operatingHoursObject[day] = {
-                open: dayHours.open,
-                close: dayHours.close,
-              };
-            });
-
-            // Construct the Resource object
-            const resource: Resource = {
-              ...apiResource,
-              operatingHours: operatingHoursObject,
-              createdAt: new Date(apiResource.createdAt),
-              updatedAt: new Date(apiResource.updatedAt),
-            };
-
-            return resource;
-          },
-        );
-
-        setResources(transformedData);
-      } catch (error) {
-        console.error("Error fetching resources:", error);
-      }
-    };
-
-    fetchResources();
-  }, []);
-
+export default function SidebarContent() {
   return (
-    <div className="col-span-6 bg-white max-h-screen overflow-y-auto py-2 scrollbar-hide">
-      <h1 className="text-2xl font-bold mb-4 px-4">Resources</h1>
-      <div className="space-y-4">
-        {resources.map((resource) => (
-          <Card key={resource.id} className="w-full mb-2">
-            <CardContent className="p-4">
-              <ResourceCard resource={resource} />
-            </CardContent>
-            <Separator />
-          </Card>
-        ))}
-      </div>
+    <div>
+      <SearchResultsPage />
     </div>
   );
-};
-
-export default SidebarContent;
+}
