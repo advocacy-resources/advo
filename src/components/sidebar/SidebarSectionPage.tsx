@@ -1,9 +1,13 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import SidebarFIlters from "../sidebar/SidebarFilters";
 import SidebarContent from "../sidebar/SidebarContent";
-import SidebarMap from "../sidebar/SidebarMap";
 import "leaflet/dist/leaflet.css";
+
+const SidebarMap = dynamic(() => import("../sidebar/SidebarMap"), {
+  ssr: false,
+});
 
 export default function SidebarSectionPage() {
   return (

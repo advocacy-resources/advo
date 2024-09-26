@@ -1,8 +1,16 @@
 import React from "react";
-import Footer from "#/layout/footbar/Footbar";
+import dynamic from "next/dynamic";
 
-import SidebarSectionPage from "@/components/sidebar/SidebarSectionPage";
-import SecondaryNav from "@/components/layout/SecondaryNav";
+const SecondaryNav = dynamic(() => import("@/components/layout/SecondaryNav"), {
+  ssr: false,
+});
+const SidebarSectionPage = dynamic(
+  () => import("@/components/sidebar/SidebarSectionPage"),
+  { ssr: false },
+);
+const Footer = dynamic(() => import("#/layout/footbar/Footbar"), {
+  ssr: false,
+});
 
 const ResourcesPage: React.FC = () => {
   return (
