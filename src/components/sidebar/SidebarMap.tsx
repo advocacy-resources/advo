@@ -44,8 +44,6 @@ export default function MapComponent({ lat, lon }: MapComponentProps) {
 
   useEffect(() => {
     // Import Leaflet CSS
-    LeafletCSS;
-
     // Setup Leaflet
     setupLeaflet();
 
