@@ -118,7 +118,7 @@ const PreferencesForm: React.FC<PreferencesFormProps> = ({
           onValueChange={(value) =>
             handleInputChange({
               target: { name: "preferredCommunication", value },
-            } as any)
+            } as React.ChangeEvent<HTMLInputElement>)
           }
           value={userData.preferredCommunication || undefined}
         >

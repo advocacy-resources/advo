@@ -2,17 +2,17 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Resource } from "&/resource";
-import { Button } from "#/ui/button";
-import { Input } from "#/ui/input";
-import { Textarea } from "#/ui/textarea";
+import { Resource, OperatingHours } from "@/interfaces/resource"; // Adjust the import path accordingly
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectTrigger,
   SelectValue,
   SelectContent,
   SelectItem,
-} from "#/ui/select";
+} from "@/components/ui/select";
 
 type FormData = Omit<Resource, "id" | "createdAt" | "updatedAt"> & {
   category: string[];
@@ -25,7 +25,7 @@ type NestedKeys =
   | "ratings"
   | "geoLocation";
 
-const ResourceForm = () => {
+const ResourceForm: React.FC = () => {
   const [formData, setFormData] = useState<FormData>({
     name: "",
     description: "",
@@ -46,27 +46,13 @@ const ResourceForm = () => {
       longitude: 0,
     },
     operatingHours: {
-      monday: "",
-      tuesday: "",
-      wednesday: "",
-      thursday: "",
-      friday: "",
-      saturday: "",
-      sunday: "",
-      mondayOpen: "",
-      mondayClose: "",
-      tuesdayOpen: "",
-      tuesdayClose: "",
-      wednesdayOpen: "",
-      wednesdayClose: "",
-      thursdayOpen: "",
-      thursdayClose: "",
-      fridayOpen: "",
-      fridayClose: "",
-      saturdayOpen: "",
-      saturdayClose: "",
-      sundayOpen: "",
-      sundayClose: "",
+      monday: { open: "", close: "" },
+      tuesday: { open: "", close: "" },
+      wednesday: { open: "", close: "" },
+      thursday: { open: "", close: "" },
+      friday: { open: "", close: "" },
+      saturday: { open: "", close: "" },
+      sunday: { open: "", close: "" },
     },
     eligibilityCriteria: "",
     servicesProvided: [],
@@ -119,6 +105,23 @@ const ResourceForm = () => {
     setFormData((prevData) => ({
       ...prevData,
       [field]: value.split(", "),
+    }));
+  };
+
+  const handleOperatingHoursChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    day: keyof OperatingHours,
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      operatingHours: {
+        ...prevData.operatingHours,
+        [day]: {
+          ...prevData.operatingHours[day],
+          [name]: value,
+        },
+      },
     }));
   };
 
@@ -205,6 +208,8 @@ const ResourceForm = () => {
       <h1 className="text-2xl font-bold my-4 text-center">
         Create a new resource
       </h1>
+
+      {/* Name */}
       <Input
         className="block text-sm font-medium text-gray-700 mb-4"
         type="text"
@@ -213,6 +218,8 @@ const ResourceForm = () => {
         onChange={handleChange}
         placeholder="e.g. Advocacy Resources, Inc."
       />
+
+      {/* Description */}
       <Textarea
         name="description"
         value={formData.description}
@@ -221,6 +228,7 @@ const ResourceForm = () => {
         className="resize-none mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
       />
 
+      {/* Category and Type */}
       <h3 className="my-4 text-center">Category and Type</h3>
       <div className="space-y-4">
         <Select onValueChange={handleCategoryChange}>
@@ -265,6 +273,7 @@ const ResourceForm = () => {
         </div>
       )}
 
+      {/* Contact Information */}
       <h3 className="my-4 text-center">Contact Information</h3>
       <div className="flex flex-col gap-4">
         <Input
@@ -290,6 +299,7 @@ const ResourceForm = () => {
         />
       </div>
 
+      {/* Address */}
       <h3 className="my-4 text-center">Address</h3>
       <div className="flex flex-col gap-4">
         <Input
@@ -329,149 +339,35 @@ const ResourceForm = () => {
         />
       </div>
 
+      {/* Operating Hours */}
       <h3 className="my-4 text-center">Operating Hours</h3>
       <div className="space-y-4">
-        <div className="flex items-center gap-4">
-          <h4 className="w-24 text-right">Monday</h4>
-          <Input
-            type="text"
-            name="mondayOpen"
-            value={formData.operatingHours.mondayOpen}
-            onChange={(e) => handleNestedChange(e, "operatingHours")}
-            placeholder="Open"
-            className="w-32"
-          />
-          <Input
-            type="text"
-            name="mondayClose"
-            value={formData.operatingHours.mondayClose}
-            onChange={(e) => handleNestedChange(e, "operatingHours")}
-            placeholder="Close"
-            className="w-32"
-          />
-        </div>
-
-        <div className="flex items-center gap-4">
-          <h4 className="w-24 text-right">Tuesday</h4>
-          <Input
-            type="text"
-            name="tuesdayOpen"
-            value={formData.operatingHours.tuesdayOpen}
-            onChange={(e) => handleNestedChange(e, "operatingHours")}
-            placeholder="Open"
-            className="w-32"
-          />
-          <Input
-            type="text"
-            name="tuesdayClose"
-            value={formData.operatingHours.tuesdayClose}
-            onChange={(e) => handleNestedChange(e, "operatingHours")}
-            placeholder="Close"
-            className="w-32"
-          />
-        </div>
-
-        <div className="flex items-center gap-4">
-          <h4 className="w-24 text-right">Wednesday</h4>
-          <Input
-            type="text"
-            name="wednesdayOpen"
-            value={formData.operatingHours.wednesdayOpen}
-            onChange={(e) => handleNestedChange(e, "operatingHours")}
-            placeholder="Open"
-            className="w-32"
-          />
-          <Input
-            type="text"
-            name="wednesdayClose"
-            value={formData.operatingHours.wednesdayClose}
-            onChange={(e) => handleNestedChange(e, "operatingHours")}
-            placeholder="Close"
-            className="w-32"
-          />
-        </div>
-
-        <div className="flex items-center gap-4">
-          <h4 className="w-24 text-right">Thursday</h4>
-          <Input
-            type="text"
-            name="thursdayOpen"
-            value={formData.operatingHours.thursdayOpen}
-            onChange={(e) => handleNestedChange(e, "operatingHours")}
-            placeholder="Open"
-            className="w-32"
-          />
-          <Input
-            type="text"
-            name="thursdayClose"
-            value={formData.operatingHours.thursdayClose}
-            onChange={(e) => handleNestedChange(e, "operatingHours")}
-            placeholder="Close"
-            className="w-32"
-          />
-        </div>
-
-        <div className="flex items-center gap-4">
-          <h4 className="w-24 text-right">Friday</h4>
-          <Input
-            type="text"
-            name="fridayOpen"
-            value={formData.operatingHours.fridayOpen}
-            onChange={(e) => handleNestedChange(e, "operatingHours")}
-            placeholder="Open"
-            className="w-32"
-          />
-          <Input
-            type="text"
-            name="fridayClose"
-            value={formData.operatingHours.fridayClose}
-            onChange={(e) => handleNestedChange(e, "operatingHours")}
-            placeholder="Close"
-            className="w-32"
-          />
-        </div>
-
-        <div className="flex items-center gap-4">
-          <h4 className="w-24 text-right">Saturday</h4>
-          <Input
-            type="text"
-            name="saturdayOpen"
-            value={formData.operatingHours.saturdayOpen}
-            onChange={(e) => handleNestedChange(e, "operatingHours")}
-            placeholder="Open"
-            className="w-32"
-          />
-          <Input
-            type="text"
-            name="saturdayClose"
-            value={formData.operatingHours.saturdayClose}
-            onChange={(e) => handleNestedChange(e, "operatingHours")}
-            placeholder="Close"
-            className="w-32"
-          />
-        </div>
-
-        <div className="flex items-center gap-4">
-          <h4 className="w-24 text-right">Sunday</h4>
-          <Input
-            type="text"
-            name="sundayOpen"
-            value={formData.operatingHours.sundayOpen}
-            onChange={(e) => handleNestedChange(e, "operatingHours")}
-            placeholder="Open"
-            className="w-32"
-          />
-          <Input
-            type="text"
-            name="sundayClose"
-            value={formData.operatingHours.sundayClose}
-            onChange={(e) => handleNestedChange(e, "operatingHours")}
-            placeholder="Close"
-            className="w-32"
-          />
-        </div>
+        {(Object.keys(formData.operatingHours) as (keyof OperatingHours)[]).map(
+          (day) => (
+            <div className="flex items-center gap-4" key={day}>
+              <h4 className="w-24 text-right capitalize">{day}</h4>
+              <Input
+                type="text"
+                name="open"
+                value={formData.operatingHours[day].open}
+                onChange={(e) => handleOperatingHoursChange(e, day)}
+                placeholder="Open"
+                className="w-32"
+              />
+              <Input
+                type="text"
+                name="close"
+                value={formData.operatingHours[day].close}
+                onChange={(e) => handleOperatingHoursChange(e, day)}
+                placeholder="Close"
+                className="w-32"
+              />
+            </div>
+          ),
+        )}
       </div>
 
+      {/* Eligibility Criteria */}
       <h3 className="my-4 text-center">Eligibility Criteria</h3>
       <div className="mb-4">
         <Input
@@ -484,6 +380,7 @@ const ResourceForm = () => {
         />
       </div>
 
+      {/* Services Provided */}
       <div className="mb-4">
         <label className="block text-sm font-medium text-gray-700 text-center">
           Services Provided
@@ -498,6 +395,7 @@ const ResourceForm = () => {
         />
       </div>
 
+      {/* Target Audience */}
       <div className="mb-4">
         <label className="block text-sm font-medium text-gray-700 text-center">
           Target Audience
@@ -512,6 +410,7 @@ const ResourceForm = () => {
         />
       </div>
 
+      {/* Accessibility Features */}
       <div className="mb-4">
         <label className="block text-sm font-medium text-gray-700 text-center">
           Accessibility Features
@@ -526,6 +425,7 @@ const ResourceForm = () => {
         />
       </div>
 
+      {/* Cost */}
       <div className="mb-4">
         <label className="block text-sm font-medium text-gray-700 text-center">
           Cost
@@ -540,6 +440,7 @@ const ResourceForm = () => {
         />
       </div>
 
+      {/* Policies */}
       <div className="mb-4">
         <label className="block text-sm font-medium text-gray-700 text-center">
           Policies
@@ -554,6 +455,7 @@ const ResourceForm = () => {
         />
       </div>
 
+      {/* Tags */}
       <div className="mb-4">
         <label className="block text-sm font-medium text-gray-700 text-center">
           Tags
@@ -568,10 +470,9 @@ const ResourceForm = () => {
         />
       </div>
 
+      {/* Submit Button */}
       <div className="flex justify-center">
-        <Button className="" type="submit">
-          Create Resource
-        </Button>
+        <Button type="submit">Create Resource</Button>
       </div>
     </form>
   );

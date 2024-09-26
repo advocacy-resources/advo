@@ -7,7 +7,7 @@ import {
   ClientSafeProvider,
 } from "next-auth/react";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -21,14 +21,15 @@ const SignIn: React.FC<SignInProps> = ({ providers }) => {
   const [error, setError] = useState("");
   const { status, data: session } = useSession();
   const router = useRouter();
+  const pathname = usePathname(); // Use `usePathname` to get the current path
 
   useEffect(() => {
     if (status === "authenticated" && session) {
-      if (router.pathname !== "/dashboard/account") {
+      if (pathname !== "/dashboard/account") {
         router.push("/dashboard/account");
       }
     }
-  }, [status, session, router]);
+  }, [status, session, router, pathname]); // Add pathname as a dependency
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();

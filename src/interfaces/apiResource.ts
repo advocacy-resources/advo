@@ -1,21 +1,24 @@
-// src/interfaces/resource.ts
+// src/interfaces/apiResource.ts
 
-export interface DayHours {
+// Define the days of the week
+export type DayOfWeek =
+  | "monday"
+  | "tuesday"
+  | "wednesday"
+  | "thursday"
+  | "friday"
+  | "saturday"
+  | "sunday";
+
+// Define the structure of each day's hours in the API response
+export interface ApiDayHours {
+  day: DayOfWeek;
   open: string;
   close: string;
 }
 
-export interface OperatingHours {
-  monday: DayHours;
-  tuesday: DayHours;
-  wednesday: DayHours;
-  thursday: DayHours;
-  friday: DayHours;
-  saturday: DayHours;
-  sunday: DayHours;
-}
-
-export interface Resource {
+// Define the API response resource interface
+export interface ApiResource {
   id: string;
   name: string;
   description: string;
@@ -35,7 +38,7 @@ export interface Resource {
     latitude: number;
     longitude: number;
   };
-  operatingHours: OperatingHours; // Use the exported OperatingHours interface
+  operatingHours: ApiDayHours[]; // Operating hours as an array
   eligibilityCriteria: string;
   servicesProvided: string[];
   targetAudience: string[];
@@ -51,6 +54,6 @@ export interface Resource {
   };
   policies: string[];
   tags: string[];
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string; // Adjust to string if dates are strings in the API response
+  updatedAt: string;
 }

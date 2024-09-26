@@ -1,26 +1,22 @@
-import React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
 import { within, userEvent } from "@storybook/test";
-import ResourceForm from "#/resource/ResourceForm";
-import { useRouter } from "next/navigation";
+import ResourceForm from "@/components/resources/ResourceForm";
+import { jest } from "@jest/globals";
 
 // Mock the useRouter hook
-const mockUseRouter = () => ({
-  push: () => {},
+const mockUseRouter = jest.fn(() => ({
+  push: jest.fn(),
   // Add any other router methods you use in your component
-});
+}));
 
-// Create a decorator to provide the mocked router
-const withMockedRouter = (Story: React.ComponentType) => {
-  // @ts-expect-error: Unreachable code error
-  useRouter.mockImplementation(mockUseRouter);
-  return <Story />;
-};
+// Mock the next/navigation module
+jest.mock("next/navigation", () => ({
+  useRouter: () => mockUseRouter(),
+}));
 
 const meta: Meta<typeof ResourceForm> = {
   title: "Forms/ResourceForm",
   component: ResourceForm,
-  decorators: [withMockedRouter], // Add the decorator here
   parameters: {
     layout: "centered",
   },
@@ -100,13 +96,3 @@ export const Filled: Story = {
     );
   },
 };
-
-// If you're using Jest, include this mock
-if (typeof jest !== "undefined") {
-  jest.mock("next/navigation", () => ({
-    useRouter: () => ({
-      push: jest.fn(),
-      // Add other router methods you use
-    }),
-  }));
-}

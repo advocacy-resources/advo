@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import Navbar from "@/components/layout/Navbar";
 import { Button } from "@/components/ui/button";
 import { useUserData } from "@/hooks/useUserData";
-import ProfileImage from "@/components/profileImage";
+import ProfileImage from "@/components/ProfileImage";
 import PersonalInfoForm from "@/components/user/PersonalInfoForm";
 import ContactInfoForm from "@/components/user/ContactInfoForm";
 import PreferencesForm from "@/components/user/PreferencesForm";

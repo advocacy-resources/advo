@@ -4,8 +4,19 @@ import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { Button } from "#/ui/button";
 import { Input } from "#/ui/input";
-import { Select } from "#/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "#/ui/select";
 import { DatePicker } from "#/ui/date-picker";
+
+interface UserSettingsScreenProps {
+  userData: UserData;
+  setUserData: React.Dispatch<React.SetStateAction<UserData>>;
+}
 
 interface UserData {
   name: string;
@@ -24,37 +35,19 @@ interface UserData {
   interests: string[];
 }
 
-const initialUserData: UserData = {
-  name: "",
-  email: "",
-  dateOfBirth: null,
-  gender: "",
-  pronouns: "",
-  primaryLanguage: "",
-  secondaryLanguages: [""],
-  city: "",
-  state: "",
-  zipCode: "",
-  country: "",
-  phone: "",
-  preferredCommunication: "",
-  interests: [""],
-};
-
-const UserSettingsScreen: React.FC = () => {
-  interface SessionUser {
+interface Session {
+  user?: {
     id: string;
-    name?: string | null;
-    email?: string | null;
-    image?: string | null;
-  }
+    name: string;
+    email: string;
+  };
+}
 
-  interface Session {
-    user?: SessionUser;
-  }
-
+export function UserSettingsScreen({
+  userData,
+  setUserData,
+}: UserSettingsScreenProps) {
   const { data: session } = useSession() as { data: Session | null };
-  const [userData, setUserData] = useState<UserData>(initialUserData);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -63,9 +56,11 @@ const UserSettingsScreen: React.FC = () => {
       if (session?.user?.id) {
         try {
           const response = await fetch(`/api/users/${session.user.id}`);
+          if (!response.ok) {
+            throw new Error("Failed to fetch user data");
+          }
           const data = await response.json();
 
-          // Convert date strings to Date objects
           if (data.dateOfBirth) {
             data.dateOfBirth = new Date(data.dateOfBirth);
           }
@@ -80,12 +75,17 @@ const UserSettingsScreen: React.FC = () => {
     };
 
     fetchUserData();
-  }, [session]);
+  }, [session, setUserData]);
 
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-  ) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+    setUserData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
+  const handleSelectChange = (name: keyof UserData) => (value: string) => {
     setUserData((prevData) => ({
       ...prevData,
       [name]: value,
@@ -193,16 +193,22 @@ const UserSettingsScreen: React.FC = () => {
             Gender
           </label>
           <Select
-            name="gender"
+            onValueChange={handleSelectChange("gender")}
             value={userData.gender}
-            onChange={handleInputChange}
           >
-            <option value="">Select gender</option>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-            <option value="non-binary">Non-binary</option>
-            <option value="other">Other</option>
-            <option value="prefer-not-to-say">Prefer not to say</option>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select gender" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">Select gender</SelectItem>
+              <SelectItem value="male">Male</SelectItem>
+              <SelectItem value="female">Female</SelectItem>
+              <SelectItem value="non-binary">Non-binary</SelectItem>
+              <SelectItem value="other">Other</SelectItem>
+              <SelectItem value="prefer-not-to-say">
+                Prefer not to say
+              </SelectItem>
+            </SelectContent>
           </Select>
         </div>
 
@@ -338,14 +344,18 @@ const UserSettingsScreen: React.FC = () => {
             Preferred Communication Method
           </label>
           <Select
-            name="preferredCommunication"
+            onValueChange={handleSelectChange("preferredCommunication")}
             value={userData.preferredCommunication}
-            onChange={handleInputChange}
           >
-            <option value="">Select preference</option>
-            <option value="email">Email</option>
-            <option value="phone">Phone</option>
-            <option value="text">Text Message</option>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select preference" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">Select preference</SelectItem>
+              <SelectItem value="email">Email</SelectItem>
+              <SelectItem value="phone">Phone</SelectItem>
+              <SelectItem value="text">Text Message</SelectItem>
+            </SelectContent>
           </Select>
         </div>
 
@@ -385,6 +395,6 @@ const UserSettingsScreen: React.FC = () => {
       </div>
     </div>
   );
-};
+}
 
 export default UserSettingsScreen;

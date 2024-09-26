@@ -67,14 +67,13 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({
         >
           Date of Birth
         </label>
-        <DatePicker
-          id="dateOfBirth"
-          selected={
-            userData.dateOfBirth ? new Date(userData.dateOfBirth) : null
-          }
-          onChange={handleDateChange}
-          placeholderText="Select date of birth"
-        />
+        <div id="dateOfBirth">
+          <DatePicker
+            value={userData.dateOfBirth ? new Date(userData.dateOfBirth) : null}
+            onChange={handleDateChange}
+            placeholderText="Select date of birth"
+          />
+        </div>
       </div>
 
       {/* Gender */}
@@ -89,7 +88,7 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({
           onValueChange={(value) =>
             handleInputChange({
               target: { name: "gender", value },
-            } as any)
+            } as React.ChangeEvent<HTMLInputElement>)
           }
           value={userData.gender || undefined}
         >

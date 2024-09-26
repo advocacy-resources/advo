@@ -12,7 +12,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { TOAST_REMOVE_DELAY } from "@/components/ui/use-toast";
 
 export function Toaster() {
-  const { toasts } = useToast({ title: "", description: "" });
+  const { toasts } = useToast();
 
   return (
     <div className="absolute max-w-full">

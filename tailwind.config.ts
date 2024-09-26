@@ -47,10 +47,6 @@ const config: Config = {
       textShadow: {
         glow: "0 0 5px #FDF952, 0 0 10px #FDF952, 0 0 15px #FDF952, 0 0 20px #FDF952",
       },
-      // fontFamily: {
-      //   "anonymous-pro": ["var(--font-anonymous-pro)", "monospace"],
-      //   univers: ["var(--font-univers)", "sans-serif"],
-      // },
     },
   },
   plugins: [
@@ -99,7 +95,7 @@ const config: Config = {
           },
         },
       };
-      addUtilities(newUtilities, ["responsive", "hover"]);
+      addUtilities(newUtilities);
     }),
   ],
 } satisfies Config;
