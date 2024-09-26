@@ -1,5 +1,7 @@
 import "./globals.css";
 import NextAuthProvider from "@/components/utils/SessionProvider";
+import { Analytics } from "@vercel/analytics/react";
+
 export default function RootLayout({
   children,
 }: {
@@ -9,6 +11,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <NextAuthProvider>{children}</NextAuthProvider>
+        <Analytics />
       </body>
     </html>
   );
