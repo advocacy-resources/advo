@@ -128,7 +128,7 @@ const SignIn: React.FC<SignInProps> = ({ providers }) => {
               Object.values(providers).map((provider) =>
                 provider.name !== "Credentials" ? (
                   <div key={provider.name} className="flex justify-center">
-                    <button
+                    <Button
                       onClick={() =>
                         signIn(provider.id, {
                           callbackUrl: "/dashboard/account",
@@ -139,7 +139,7 @@ const SignIn: React.FC<SignInProps> = ({ providers }) => {
                       <span className="inline-block transform skew-x-[18deg]">
                         Sign in with {provider.name}
                       </span>
-                    </button>
+                    </Button>
                   </div>
                 ) : null,
               )}
@@ -149,7 +149,7 @@ const SignIn: React.FC<SignInProps> = ({ providers }) => {
               href="/auth/register"
               className="text-sm text-indigo-600 hover:text-indigo-500"
             >
-              Don't have an account? Sign Up
+              Don&apos;t have an account? Sign Up
             </Link>
             <Link
               href="/auth/change-password"
