@@ -1,10 +1,11 @@
 "use client";
 
-import { useSession, signOut, signIn } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import Logo from "../../assets/myAdvo-peachWhite.svg";
 import Exit from "../../assets/Exit.svg";
+import router from "next/router";
 
 function Navbar() {
   const { data: session } = useSession(); // Getting the session data
@@ -14,7 +15,7 @@ function Navbar() {
   };
 
   const handleSignIn = () => {
-    signIn(); // This triggers sign-in using NextAuth
+    router.push("/auth/signin"); // Redirects to custom sign-in page
   };
 
   return (
