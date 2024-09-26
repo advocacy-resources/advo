@@ -1,8 +1,8 @@
 import { compare } from "bcryptjs";
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import prisma from "@/prisma/client"; // Adjust to your client location
-import { IUser } from "@/interfaces/user"; // Import your IUser interface
+import prisma from "@/prisma/client";
+import { IUser } from "@/interfaces/user";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -13,49 +13,72 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
       authorize: async (credentials): Promise<IUser | null> => {
+        console.log("Authorize function called");
         if (!credentials?.email || !credentials?.password) {
+          console.log("Missing email or password");
           return null;
         }
 
-        // Find user in the database using the email
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email },
-        });
+        try {
+          console.log(
+            `Attempting to find user with email: ${credentials.email}`,
+          );
+          const user = await prisma.user.findUnique({
+            where: { email: credentials.email },
+          });
 
-        // If user is found and user.password exists and is valid
-        if (user && user.password && credentials.password) {
+          if (!user) {
+            console.log(`No user found with email: ${credentials.email}`);
+            return null;
+          }
+
+          console.log(`User found: ${user.id}`);
+
+          if (!user.password) {
+            console.log(`User ${user.id} has no password set`);
+            return null;
+          }
+
+          console.log("Comparing passwords");
           const isValid = await compare(credentials.password, user.password);
+
           if (isValid) {
-            // Return the user object adhering to the IUser interface
+            console.log(`Password valid for user: ${user.id}`);
             return {
-              id: user.id, // Assuming Prisma uses string id
+              id: user.id,
               name: user.name,
               email: user.email,
               image: user.image || undefined,
             } as IUser;
+          } else {
+            console.log(`Invalid password for user: ${user.id}`);
           }
+        } catch (error) {
+          console.error("Error in authorize function:", error);
         }
+
         return null;
       },
     }),
   ],
   callbacks: {
     async session({ session, token }) {
-      // Ensure the session user includes the id
+      console.log("Session callback called");
       session.user = {
         ...session.user,
-        id: token.sub as string, // Add the id to session.user
+        id: token.sub as string,
       };
       return session;
     },
     async jwt({ token, user }) {
-      // Add the user id to the JWT token
+      console.log("JWT callback called");
       if (user) {
         token.sub = user.id;
       }
       return token;
     },
   },
+  debug: true, // Enable debug messages
 };
 
 export default authOptions;
