@@ -1,34 +1,14 @@
+import { NextResponse } from "next/server";
 import { hash } from "bcryptjs";
-import { NextRequest, NextResponse } from "next/server";
+import prisma from "@/prisma/client";
 
-import prisma from "@/prisma/client"; // Adjust this import to match your Prisma client location
-
-export async function POST(req: NextRequest): Promise<NextResponse> {
+export async function POST(req: Request) {
   try {
-    const { username, password, email } = await req.json();
+    const { email, password, username } = await req.json();
 
-    if (!username || !password || !email) {
-      return NextResponse.json(
-        { message: "Missing required fields" },
-        { status: 400 },
-      );
-    }
-
-    const existingUser = await prisma.user.findFirst({
-      where: {
-        OR: [
-          {
-            username: {
-              equals: username,
-            },
-          },
-          {
-            email: {
-              equals: email,
-            },
-          },
-        ],
-      },
+    // Check if user already exists
+    const existingUser = await prisma.user.findUnique({
+      where: { email },
     });
 
     if (existingUser) {
@@ -38,26 +18,26 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       );
     }
 
+    // Hash the password
     const hashedPassword = await hash(password, 10);
 
-    const newUser = {
-      username,
-      email,
-      password: hashedPassword,
-    };
-
-    await prisma.user.create({
-      data: newUser,
+    // Create new user
+    const user = await prisma.user.create({
+      data: {
+        email,
+        password: hashedPassword,
+        name: username,
+      },
     });
 
     return NextResponse.json(
-      { message: "User registered successfully" },
+      { message: "User created successfully", userId: user.id },
       { status: 201 },
     );
   } catch (error) {
-    console.error(error);
+    console.error("Error in signup:", error);
     return NextResponse.json(
-      { message: "Internal Server Error" },
+      { message: "An error occurred during signup" },
       { status: 500 },
     );
   }

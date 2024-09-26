@@ -13,13 +13,18 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
       authorize: async (credentials): Promise<IUser | null> => {
-        console.log("Authorize function called");
+        console.log("Authorize function called with credentials:", credentials);
+
         if (!credentials?.email || !credentials?.password) {
           console.log("Missing email or password");
           return null;
         }
 
         try {
+          // Test database connection
+          await prisma.user.count();
+          console.log("Database connection successful");
+
           console.log(
             `Attempting to find user with email: ${credentials.email}`,
           );
@@ -40,7 +45,10 @@ export const authOptions: NextAuthOptions = {
           }
 
           console.log("Comparing passwords");
+          console.log("Stored password hash:", user.password);
+          console.log("Provided password:", credentials.password);
           const isValid = await compare(credentials.password, user.password);
+          console.log("Password comparison result:", isValid);
 
           if (isValid) {
             console.log(`Password valid for user: ${user.id}`);
@@ -78,7 +86,7 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
   },
-  debug: true, // Enable debug messages
+  debug: true, // TODO: Remember to disable this in production
 };
 
 export default authOptions;

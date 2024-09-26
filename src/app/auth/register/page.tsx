@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const SignUpPage: React.FC = () => {
   const [username, setUsername] = useState("");
@@ -9,6 +10,7 @@ const SignUpPage: React.FC = () => {
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const router = useRouter();
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,9 +27,11 @@ const SignUpPage: React.FC = () => {
 
     if (response.ok) {
       setSuccess("User registered successfully!");
+      // Redirect to sign-in page after successful registration
+      setTimeout(() => router.push("/auth/signin"), 2000);
     } else {
       const data = await response.json();
-      setError(data.message);
+      setError(data.message || "An error occurred during registration");
     }
   };
 
@@ -99,7 +103,13 @@ const SignUpPage: React.FC = () => {
           </button>
         </form>
         <p className="text-center text-sm text-gray-600 mt-4">
-          Already have an account? <Link href="/auth/signin">Sign In</Link>
+          Already have an account?{" "}
+          <Link
+            href="/auth/signin"
+            className="text-indigo-600 hover:text-indigo-500"
+          >
+            Sign In
+          </Link>
         </p>
       </div>
     </div>

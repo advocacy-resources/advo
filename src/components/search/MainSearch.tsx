@@ -160,9 +160,12 @@ const MainSearch: React.FC = () => {
         </SelectContent>
       </Select>
 
-      <Button type="submit" disabled={isLoading}>
-        {isLoading ? "Searching..." : "Search"}
-      </Button>
+      {/* Center the search button */}
+      <div className="flex justify-center">
+        <Button type="submit" disabled={isLoading}>
+          {isLoading ? "Searching..." : "Search"}
+        </Button>
+      </div>
     </form>
   );
 };

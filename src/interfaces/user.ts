@@ -16,6 +16,7 @@ export interface IUserLogin {
 
 // Interface for the user in NextAuth, extending NextAuth's User and adapting from MongoDB
 export interface IUser extends NextAuthUser {
+  password(currentPassword: any, password: any): unknown;
   id: string; // NextAuth expects a string ID, not ObjectId
   name?: string;
   email: string;
