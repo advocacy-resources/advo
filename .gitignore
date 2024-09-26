@@ -47,3 +47,5 @@ pnpm-lock.yaml
 
 # build
 dist
+
+/prisma/generated/
