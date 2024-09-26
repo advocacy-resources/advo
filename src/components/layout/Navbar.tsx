@@ -5,10 +5,10 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import Logo from "../../assets/myAdvo-peachWhite.svg";
 import Exit from "../../assets/Exit.svg";
-import router from "next/router";
-
+import { useRouter } from "next/navigation";
 function Navbar() {
   const { data: session } = useSession(); // Getting the session data
+  const router = useRouter(); // Correctly initialize useRouter at the top level
 
   const handleSignOut = () => {
     signOut(); // This triggers sign-out using NextAuth
@@ -19,7 +19,7 @@ function Navbar() {
   };
 
   return (
-    <nav className="relative min-h-[40%] bg-slate-800 text-white">
+    <nav className="relative min-h-[40%] bg-slate-800 text-white pt-8">
       {/* Navbar Content */}
       <div id="nav-container" className="flex flex-row justify-between px-8">
         <Image src={Exit} alt="Exit." height={30} className="rotate-180" />
