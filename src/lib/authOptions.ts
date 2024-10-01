@@ -47,7 +47,6 @@ export const authOptions: NextAuthOptions = {
               id: user.id,
               name: user.name,
               email: user.email,
-              image: user.image || undefined,
             } as IUser;
           } else {
             console.log("Authorization failed: Invalid password.");

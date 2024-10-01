@@ -3,20 +3,13 @@ import { useToast } from "@/components/ui/use-toast";
 
 export interface UserData {
   id: string;
-  username: string | null;
   email: string;
+  phone: string;
   name: string | null;
-  image: string | null;
-  dateOfBirth: string | null;
-  gender: string | null;
-  pronouns: string | null;
-  primaryLanguage: string | null;
-  secondaryLanguages: string[];
   city: string | null;
   state: string | null;
   zipCode: string | null;
-  phone: string | null;
-  preferredCommunication: string | null;
+  favorites: string[];
   interests: string[];
   createdAt: string;
   updatedAt: string;

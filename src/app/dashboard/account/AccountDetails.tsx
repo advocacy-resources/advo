@@ -5,10 +5,8 @@ import { useSession } from "next-auth/react";
 import Navbar from "@/components/layout/Navbar";
 import { Button } from "@/components/ui/button";
 import { useUserData } from "@/hooks/useUserData";
-import ProfileImage from "@/components/ProfileImage";
 import PersonalInfoForm from "@/components/user/PersonalInfoForm";
 import ContactInfoForm from "@/components/user/ContactInfoForm";
-import PreferencesForm from "@/components/user/PreferencesForm";
 
 const AccountDetails: React.FC = () => {
   const { data: session } = useSession();
@@ -53,7 +51,6 @@ const AccountDetails: React.FC = () => {
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-2xl font-bold mb-6">Account Settings</h1>
         <div className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-          <ProfileImage image={userData.image} />
           <PersonalInfoForm
             userData={userData}
             handleInputChange={handleInputChange}
@@ -61,11 +58,6 @@ const AccountDetails: React.FC = () => {
           />
           <ContactInfoForm
             userData={userData}
-            handleInputChange={handleInputChange}
-          />
-          <PreferencesForm
-            userData={userData}
-            setUserData={setUserData}
             handleInputChange={handleInputChange}
           />
           <div className="mb-4">

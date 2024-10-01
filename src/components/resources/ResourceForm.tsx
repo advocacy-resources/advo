@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Resource, OperatingHours } from "@/interfaces/resource"; // Adjust the import path accordingly
+import { Resource } from "@/interfaces/resource"; // Adjust the import path accordingly
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -14,23 +14,16 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 
-type FormData = Omit<Resource, "id" | "createdAt" | "updatedAt"> & {
-  category: string[];
-};
-
-type NestedKeys =
-  | "contact"
-  | "address"
-  | "operatingHours"
-  | "ratings"
-  | "geoLocation";
+type FormData = Omit<
+  Resource,
+  "id" | "createdAt" | "updatedAt" | "favoriteCount"
+>;
 
 const ResourceForm: React.FC = () => {
   const [formData, setFormData] = useState<FormData>({
     name: "",
     description: "",
     category: [],
-    type: [],
     contact: {
       phone: "",
       email: "",
@@ -40,10 +33,6 @@ const ResourceForm: React.FC = () => {
       street: "",
       city: "",
       state: "",
-      zipCode: "",
-      country: "",
-      latitude: 0,
-      longitude: 0,
     },
     operatingHours: {
       monday: { open: "", close: "" },
@@ -54,21 +43,6 @@ const ResourceForm: React.FC = () => {
       saturday: { open: "", close: "" },
       sunday: { open: "", close: "" },
     },
-    eligibilityCriteria: "",
-    servicesProvided: [],
-    targetAudience: [],
-    accessibilityFeatures: [],
-    cost: "",
-    ratings: {
-      averageRating: 0,
-      numberOfReviews: 0,
-    },
-    geoLocation: {
-      latitude: 0,
-      longitude: 0,
-    },
-    policies: [],
-    tags: [],
   });
 
   const router = useRouter();
@@ -83,9 +57,11 @@ const ResourceForm: React.FC = () => {
     }));
   };
 
+  type NestedSections = "contact" | "address" | "operatingHours";
+
   const handleNestedChange = (
     e: React.ChangeEvent<HTMLInputElement>,
-    section: NestedKeys,
+    section: NestedSections,
   ) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -97,48 +73,10 @@ const ResourceForm: React.FC = () => {
     }));
   };
 
-  const handleArrayChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    field: keyof FormData,
-  ) => {
-    const { value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [field]: value.split(", "),
-    }));
-  };
-
-  const handleOperatingHoursChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    day: keyof OperatingHours,
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      operatingHours: {
-        ...prevData.operatingHours,
-        [day]: {
-          ...prevData.operatingHours[day],
-          [name]: value,
-        },
-      },
-    }));
-  };
-
   const handleCategoryChange = (value: string) => {
     setFormData((prevData) => ({
       ...prevData,
       category: [value],
-      type: [], // Reset type when category changes
-    }));
-  };
-
-  const handleTypeChange = (value: string) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      type: prevData.type.includes(value)
-        ? prevData.type.filter((t) => t !== value)
-        : [...prevData.type, value],
     }));
   };
 
@@ -162,43 +100,7 @@ const ResourceForm: React.FC = () => {
     }
   };
 
-  const categories = ["SOCIAL", "EMOTIONAL", "PHYSICAL"];
-
-  const typeOptions = {
-    SOCIAL: [
-      "FRIENDSHIPS / PEER RELATIONSHIPS",
-      "ROMANTIC / SEXUAL RELATIONSHIPS",
-      "FAMILY",
-      "BULLYING (IN PERSON AND ONLINE)",
-      "SCHOOL",
-      "RACIAL & CULTURAL IDENTITY",
-      "LGBTQ+ IDENTITY",
-      "CHRONIC ILLNESS & DISABILITY",
-      "SOCIAL MEDIA & MEDIA LITERACY",
-      "COMMUNITY ENGAGEMENT",
-    ],
-    EMOTIONAL: [
-      "MENTAL HEALTH",
-      "COPING SKILLS",
-      "SELF IMAGE",
-      "GRIEF AND LOSS",
-      "ADDICTION & SUBSTANCE ABUSE",
-      "INTERNET & TECHNOLOGY",
-      "ABUSE",
-      "SCHOOL",
-      "CHRONIC ILLNESS & DISABILITY",
-    ],
-    PHYSICAL: [
-      "NUTRITION",
-      "DISORDERED EATING",
-      "FITNESS & EXERCISE",
-      "SEXUAL HEALTH",
-      "TRANSGENDER HEALTH",
-      "SLEEP",
-      "GENERAL PHYSICAL HEALTH",
-      "CHRONIC ILLNESS & DISABILITY",
-    ],
-  };
+  const categories = ["SOCIAL", "MENTAL", "PHYSICAL"];
 
   return (
     <form
@@ -228,50 +130,20 @@ const ResourceForm: React.FC = () => {
         className="resize-none mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
       />
 
-      {/* Category and Type */}
-      <h3 className="my-4 text-center">Category and Type</h3>
-      <div className="space-y-4">
-        <Select onValueChange={handleCategoryChange}>
-          <SelectTrigger>
-            <SelectValue placeholder="Select Category" />
-          </SelectTrigger>
-          <SelectContent>
-            {categories.map((category) => (
-              <SelectItem key={category} value={category}>
-                {category}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        {formData.category.length > 0 && (
-          <Select onValueChange={handleTypeChange}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select Type" />
-            </SelectTrigger>
-            <SelectContent>
-              {typeOptions[
-                formData.category[0] as keyof typeof typeOptions
-              ].map((type) => (
-                <SelectItem key={type} value={type}>
-                  {type}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        )}
-      </div>
-
-      {formData.type.length > 0 && (
-        <div className="mt-2">
-          <h4 className="font-semibold">Selected Types:</h4>
-          <ul className="list-disc list-inside">
-            {formData.type.map((type) => (
-              <li key={type}>{type}</li>
-            ))}
-          </ul>
-        </div>
-      )}
+      {/* Category */}
+      <h3 className="my-4 text-center">Category</h3>
+      <Select onValueChange={handleCategoryChange}>
+        <SelectTrigger>
+          <SelectValue placeholder="Select Category" />
+        </SelectTrigger>
+        <SelectContent>
+          {categories.map((category) => (
+            <SelectItem key={category} value={category}>
+              {category}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
 
       {/* Contact Information */}
       <h3 className="my-4 text-center">Contact Information</h3>
@@ -323,151 +195,36 @@ const ResourceForm: React.FC = () => {
           onChange={(e) => handleNestedChange(e, "address")}
           placeholder="State"
         />
-        <Input
-          type="text"
-          name="zipCode"
-          value={formData.address.zipCode}
-          onChange={(e) => handleNestedChange(e, "address")}
-          placeholder="Zip Code"
-        />
-        <Input
-          type="text"
-          name="country"
-          value={formData.address.country}
-          onChange={(e) => handleNestedChange(e, "address")}
-          placeholder="Country"
-        />
       </div>
 
       {/* Operating Hours */}
       <h3 className="my-4 text-center">Operating Hours</h3>
       <div className="space-y-4">
-        {(Object.keys(formData.operatingHours) as (keyof OperatingHours)[]).map(
-          (day) => (
-            <div className="flex items-center gap-4" key={day}>
-              <h4 className="w-24 text-right capitalize">{day}</h4>
-              <Input
-                type="text"
-                name="open"
-                value={formData.operatingHours[day].open}
-                onChange={(e) => handleOperatingHoursChange(e, day)}
-                placeholder="Open"
-                className="w-32"
-              />
-              <Input
-                type="text"
-                name="close"
-                value={formData.operatingHours[day].close}
-                onChange={(e) => handleOperatingHoursChange(e, day)}
-                placeholder="Close"
-                className="w-32"
-              />
-            </div>
-          ),
-        )}
-      </div>
-
-      {/* Eligibility Criteria */}
-      <h3 className="my-4 text-center">Eligibility Criteria</h3>
-      <div className="mb-4">
-        <Input
-          type="text"
-          name="eligibilityCriteria"
-          value={formData.eligibilityCriteria}
-          onChange={handleChange}
-          placeholder="e.g. Serves individuals under 25 years old"
-          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-        />
-      </div>
-
-      {/* Services Provided */}
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700 text-center">
-          Services Provided
-        </label>
-        <Input
-          type="text"
-          name="servicesProvided"
-          value={formData.servicesProvided.join(", ")}
-          onChange={(e) => handleArrayChange(e, "servicesProvided")}
-          placeholder="e.g. Rental Assistance, Counseling"
-          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-        />
-      </div>
-
-      {/* Target Audience */}
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700 text-center">
-          Target Audience
-        </label>
-        <Input
-          type="text"
-          name="targetAudience"
-          value={formData.targetAudience.join(", ")}
-          onChange={(e) => handleArrayChange(e, "targetAudience")}
-          placeholder="e.g. Women, Homeless Youth"
-          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-        />
-      </div>
-
-      {/* Accessibility Features */}
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700 text-center">
-          Accessibility Features
-        </label>
-        <Input
-          type="text"
-          name="accessibilityFeatures"
-          value={formData.accessibilityFeatures.join(", ")}
-          onChange={(e) => handleArrayChange(e, "accessibilityFeatures")}
-          placeholder="e.g. Wheelchair Accessible, Sign Language Interpreter"
-          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-        />
-      </div>
-
-      {/* Cost */}
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700 text-center">
-          Cost
-        </label>
-        <Input
-          type="text"
-          name="cost"
-          value={formData.cost}
-          onChange={handleChange}
-          placeholder="e.g. Free, $40 / month, Sliding scale"
-          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-        />
-      </div>
-
-      {/* Policies */}
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700 text-center">
-          Policies
-        </label>
-        <Input
-          type="text"
-          name="policies"
-          value={formData.policies.join(", ")}
-          onChange={(e) => handleArrayChange(e, "policies")}
-          placeholder="e.g. Gender Affirming, Confidentiality"
-          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-        />
-      </div>
-
-      {/* Tags */}
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700 text-center">
-          Tags
-        </label>
-        <Input
-          type="text"
-          name="tags"
-          value={formData.tags.join(", ")}
-          onChange={(e) => handleArrayChange(e, "tags")}
-          placeholder="e.g. LGBTQ+, Mental Health, Housing"
-          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-        />
+        {(
+          Object.keys(
+            formData.operatingHours,
+          ) as (keyof FormData["operatingHours"])[]
+        ).map((day) => (
+          <div className="flex items-center gap-4" key={day}>
+            <h4 className="w-24 text-right capitalize">{day}</h4>
+            <Input
+              type="text"
+              name="open"
+              value={formData.operatingHours[day].open}
+              onChange={(e) => handleNestedChange(e, "operatingHours")}
+              placeholder="Open"
+              className="w-32"
+            />
+            <Input
+              type="text"
+              name="close"
+              value={formData.operatingHours[day].close}
+              onChange={(e) => handleNestedChange(e, "operatingHours")}
+              placeholder="Close"
+              className="w-32"
+            />
+          </div>
+        ))}
       </div>
 
       {/* Submit Button */}

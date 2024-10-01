@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/authOptions";
 import prisma from "@/prisma/client";
 
+// GET: Fetch user by ID
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } },
@@ -14,27 +15,15 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const userId = params.id;
-
     const user = await prisma.user.findUnique({
-      where: { id: userId },
+      where: { id: params.id },
       select: {
         id: true,
-        username: true,
         email: true,
         name: true,
-        image: true,
-        dateOfBirth: true,
-        gender: true,
-        pronouns: true,
-        primaryLanguage: true,
-        secondaryLanguages: true,
         city: true,
         state: true,
-        zipCode: true,
-        phone: true,
-        preferredCommunication: true,
-        interests: true,
+        favorites: true, // Array of Resource IDs the user has favorited
         createdAt: true,
         updatedAt: true,
       },
@@ -54,6 +43,7 @@ export async function GET(
   }
 }
 
+// PUT: Update user by ID
 export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string } },
@@ -65,59 +55,28 @@ export async function PUT(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const userId = params.id;
-
     const updateData = await request.json();
     console.log("Update data received:", updateData);
 
-    // Remove fields that shouldn't be updated
     const safeUpdateData = {
-      ...updateData,
-      id: undefined,
-      createdAt: undefined,
-      updatedAt: undefined,
-      email: undefined,
-      googleId: undefined,
-      accounts: undefined,
-      sessions: undefined,
+      name: updateData.name ?? undefined,
+      city: updateData.city ?? undefined,
+      state: updateData.state ?? undefined,
+      favorites: Array.isArray(updateData.favorites)
+        ? updateData.favorites
+        : [],
     };
 
-    // Convert date strings to Date objects
-    if (safeUpdateData.dateOfBirth) {
-      safeUpdateData.dateOfBirth = new Date(safeUpdateData.dateOfBirth);
-    }
-
-    // Ensure secondaryLanguages and interests are arrays
-    if (
-      safeUpdateData.secondaryLanguages &&
-      !Array.isArray(safeUpdateData.secondaryLanguages)
-    ) {
-      safeUpdateData.secondaryLanguages = [];
-    }
-    if (safeUpdateData.interests && !Array.isArray(safeUpdateData.interests)) {
-      safeUpdateData.interests = [];
-    }
-
     const updatedUser = await prisma.user.update({
-      where: { id: userId },
+      where: { id: params.id },
       data: safeUpdateData,
       select: {
         id: true,
-        username: true,
         email: true,
         name: true,
-        image: true,
-        dateOfBirth: true,
-        gender: true,
-        pronouns: true,
-        primaryLanguage: true,
-        secondaryLanguages: true,
         city: true,
         state: true,
-        zipCode: true,
-        phone: true,
-        preferredCommunication: true,
-        interests: true,
+        favorites: true,
         updatedAt: true,
       },
     });
@@ -125,19 +84,13 @@ export async function PUT(
     return NextResponse.json(updatedUser);
   } catch (error) {
     console.error("Error in PUT /api/users/[id]:", error);
-    if (error instanceof Error) {
-      return NextResponse.json(
-        { error: "Internal Server Error", details: error.message },
-        { status: 500 },
-      );
-    } else {
-      return NextResponse.json(
-        {
-          error: "Internal Server Error",
-          details: "An unknown error occurred",
-        },
-        { status: 500 },
-      );
-    }
+    return NextResponse.json(
+      {
+        error: "Internal Server Error",
+        details:
+          error instanceof Error ? error.message : "An unknown error occurred",
+      },
+      { status: 500 },
+    );
   }
 }

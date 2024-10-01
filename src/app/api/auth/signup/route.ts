@@ -4,7 +4,7 @@ import prisma from "@/prisma/client";
 
 export async function POST(req: Request) {
   try {
-    const { email, password, username } = await req.json();
+    const { email, password } = await req.json();
 
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
@@ -26,7 +26,6 @@ export async function POST(req: Request) {
       data: {
         email,
         password: hashedPassword,
-        name: username,
       },
     });
 

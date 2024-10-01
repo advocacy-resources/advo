@@ -8,6 +8,7 @@ type ImageType = string;
 export interface IUserLogin {
   _id: ObjectId; // MongoDB uses ObjectId
   email: string;
+  phone?: string;
   password: string;
   name?: string;
   image?: ImageType;
