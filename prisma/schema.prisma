@@ -30,7 +30,7 @@ model Resource {
   id             String   @id @default(auto()) @map("_id") @db.ObjectId
   name           String
   description    String
-  category       String[]
+  category       Category
   contact        Json
   address        String
   operatingHours Json
