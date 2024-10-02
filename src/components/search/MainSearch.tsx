@@ -11,22 +11,25 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Category } from "@prisma/client";
 
 interface SearchParams {
   ageRange: string;
   zipCode: string;
-  social: string;
-  emotional: string;
-  physical: string;
+  category: Category;
+  // social: string;
+  // emotional: string;
+  // physical: string;
 }
 
 const MainSearch: React.FC = () => {
   const [searchParams, setSearchParams] = useState<SearchParams>({
     ageRange: "",
     zipCode: "",
-    social: "",
-    emotional: "",
-    physical: "",
+    category: Category.MENTAL,
+    // social: "",
+    // emotional: "",
+    // physical: "",
   });
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
@@ -121,7 +124,11 @@ const MainSearch: React.FC = () => {
         onChange={(e) => handleInputChange("zipCode", e.target.value)}
       />
 
-      <Select onValueChange={(value) => handleInputChange("social", value)}>
+      <Select
+        onValueChange={(value) =>
+          handleInputChange("category", Category.SOCIAL)
+        }
+      >
         <SelectTrigger>
           <SelectValue placeholder="Social" />
         </SelectTrigger>
@@ -134,9 +141,13 @@ const MainSearch: React.FC = () => {
         </SelectContent>
       </Select>
 
-      <Select onValueChange={(value) => handleInputChange("emotional", value)}>
+      <Select
+        onValueChange={(value) =>
+          handleInputChange("category", Category.MENTAL)
+        }
+      >
         <SelectTrigger>
-          <SelectValue placeholder="Emotional" />
+          <SelectValue placeholder="Mental" />
         </SelectTrigger>
         <SelectContent>
           {emotionalOptions.map((option) => (
@@ -147,7 +158,11 @@ const MainSearch: React.FC = () => {
         </SelectContent>
       </Select>
 
-      <Select onValueChange={(value) => handleInputChange("physical", value)}>
+      <Select
+        onValueChange={(value) =>
+          handleInputChange("category", Category.PHYSICAL)
+        }
+      >
         <SelectTrigger>
           <SelectValue placeholder="Physical" />
         </SelectTrigger>

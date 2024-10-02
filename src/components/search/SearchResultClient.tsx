@@ -25,9 +25,10 @@ export default function SearchResultsClient() {
       const params = {
         ageRange: searchParams.get("ageRange") || "",
         zipCode: searchParams.get("zipCode") || "",
-        social: searchParams.get("social") || "",
-        emotional: searchParams.get("emotional") || "",
-        physical: searchParams.get("physical") || "",
+        category: searchParams.get("category") || "",
+        // social: searchParams.get("social") || "",
+        // emotional: searchParams.get("emotional") || "",
+        // physical: searchParams.get("physical") || "",
       };
 
       try {

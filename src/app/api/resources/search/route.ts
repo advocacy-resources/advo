@@ -1,49 +1,33 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/prisma/client";
-import Prisma from "@prisma/client";
+import { Prisma } from "@prisma/client";
+import { Category } from "@prisma/client";
 
 export async function POST(request: NextRequest) {
   try {
-    const { ageRange, zipCode, social, emotional, physical } =
-      await request.json();
+    const { ageRange, zipCode, category } = await request.json();
 
     console.log("Received search params:", {
       ageRange,
       zipCode,
-      social,
-      emotional,
-      physical,
+      // social,
+      // emotional,
+      // physical,
     });
 
-    const whereConditions: Prisma.Prisma.ResourceWhereInput = {};
+    // Initialize the where conditions for filtering
+    const whereConditions: Prisma.ResourceWhereInput = {
+      // Initialize the category filter to handle multiple category types
+      category: {
+        in: [category],
+      },
+    };
 
-    if (physical) {
-      whereConditions.type = { hasSome: [physical] };
-    }
+    // Filter based on age range (assumed to be in targetAudience field)
 
-    if (social) {
-      whereConditions.category = { hasSome: ["SOCIAL"] };
-      whereConditions.type = {
-        ...(whereConditions.type || {}),
-        hasSome: [social],
-      };
-    }
-
-    if (emotional) {
-      whereConditions.category = { hasSome: ["EMOTIONAL"] };
-      whereConditions.type = {
-        ...(whereConditions.type || {}),
-        hasSome: [emotional],
-      };
-    }
-
-    if (ageRange) {
-      whereConditions.targetAudience = { hasSome: [ageRange] };
-    }
-
+    // Filter based on zip code (assuming zipCode is in the address JSON field)
     if (zipCode) {
       whereConditions.address = {
-        // TODO: Radius of zipcode
         // path: "$.zipCode",
         equals: zipCode,
       };
@@ -51,32 +35,25 @@ export async function POST(request: NextRequest) {
 
     console.log("Search conditions:", JSON.stringify(whereConditions, null, 2));
 
+    // Perform the search based on the constructed where conditions
     const resources = await prisma.resource.findMany({
       where: whereConditions,
     });
 
     console.log(`Found ${resources.length} resources`);
 
+    // Process resources and map them to the structure expected in the response
     const processedResources = resources.map((resource) => ({
       id: resource.id,
       name: resource.name || "Unnamed Resource",
       description: resource.description || "",
-      type: resource.type || [],
       category: resource.category || [],
       contact: resource.contact || {},
       address: resource.address || {},
       operatingHours: resource.operatingHours || {},
-      eligibilityCriteria: resource.eligibilityCriteria || "",
-      servicesProvided: resource.servicesProvided || [],
-      targetAudience: resource.targetAudience || [],
-      accessibilityFeatures: resource.accessibilityFeatures || [],
-      cost: resource.cost || "",
-      ratings: resource.ratings || { average: 0, count: 0 },
-      geoLocation: resource.geoLocation || {},
-      policies: resource.policies || [],
-      tags: resource.tags || [],
     }));
 
+    // Return the processed resources as JSON
     return NextResponse.json(processedResources);
   } catch (error) {
     console.error("Search error:", error);
