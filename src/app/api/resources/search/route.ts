@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/prisma/client";
-import { Prisma } from "@prisma/client";
+import { Category, Prisma } from "@prisma/client";
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
     const whereConditions: Prisma.ResourceWhereInput = {
       // Initialize the category filter to handle multiple category types
       category: {
-        in: [category],
+        in: [category as unknown as Category],
       },
     };
 
