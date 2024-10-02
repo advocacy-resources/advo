@@ -78,7 +78,7 @@ export async function GET(
         { status: 404 },
       );
     }
-    return NextResponse.json({ resource: resource as IResource });
+    return NextResponse.json({ resource: resource as unknown as IResource });
   } catch (error) {
     return NextResponse.json(
       { error: (error as Error).message },
@@ -99,7 +99,9 @@ export async function PUT(
       data,
     });
 
-    return NextResponse.json({ resource: updatedResource as IResource });
+    return NextResponse.json({
+      resource: updatedResource as unknown as IResource,
+    });
   } catch (error) {
     return NextResponse.json(
       { error: (error as Error).message },
