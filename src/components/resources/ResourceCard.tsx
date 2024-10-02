@@ -17,9 +17,6 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource }) => {
         <p className="text-gray-700 mb-4">{resource.description}</p>
         <div className="text-sm text-gray-500">
           <p>
-            <strong>Type:</strong> {resource.type.join(", ")}
-          </p>
-          <p>
             <strong>Category:</strong> {resource.category.join(", ")}
           </p>
           <p>
@@ -37,7 +34,6 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource }) => {
           <p>
             <strong>Address:</strong> {resource.address.street},{" "}
             {resource.address.city}, {resource.address.state},{" "}
-            {resource.address.zipCode}, {resource.address.country}
           </p>
 
           {/* Display Operating Hours */}
