@@ -2,7 +2,7 @@
 
 ## Description
 
-Marginalized communities — including queer individuals and people of color — often face discrimination, financial constraints, and transportation issues that hinder in person access to vital services.
+Marginalized communities — including queer individuals and people of color — often face discrimination, financial constraints, and transportation issues that hinder in person access to vital services..
 
 Stigma & discrimination, financial issues, or legal issues can all stand between people and the resources they need. When barriers prevent access to services, people can put themselves in harm’s way trying to find the help they need.
 
