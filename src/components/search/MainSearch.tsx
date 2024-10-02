@@ -125,9 +125,7 @@ const MainSearch: React.FC = () => {
       />
 
       <Select
-        onValueChange={(value) =>
-          handleInputChange("category", Category.SOCIAL)
-        }
+        onValueChange={() => handleInputChange("category", Category.SOCIAL)}
       >
         <SelectTrigger>
           <SelectValue placeholder="Social" />
@@ -142,9 +140,7 @@ const MainSearch: React.FC = () => {
       </Select>
 
       <Select
-        onValueChange={(value) =>
-          handleInputChange("category", Category.MENTAL)
-        }
+        onValueChange={() => handleInputChange("category", Category.MENTAL)}
       >
         <SelectTrigger>
           <SelectValue placeholder="Mental" />
@@ -159,9 +155,7 @@ const MainSearch: React.FC = () => {
       </Select>
 
       <Select
-        onValueChange={(value) =>
-          handleInputChange("category", Category.PHYSICAL)
-        }
+        onValueChange={() => handleInputChange("category", Category.PHYSICAL)}
       >
         <SelectTrigger>
           <SelectValue placeholder="Physical" />
