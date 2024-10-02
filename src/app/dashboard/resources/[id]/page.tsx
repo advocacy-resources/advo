@@ -114,14 +114,14 @@ const ResourcePage = async ({ params }: ResourcePageProps) => {
           </section> */}
 
           {/* Services Provided */}
-          <section>
+          {/* <section>
             <h2 className="text-2xl font-semibold mb-2">Services Provided</h2>
             <ul className="list-disc list-inside text-lg text-gray-700">
               {resource.servicesProvided.map((service, index) => (
                 <li key={index}>{service}</li>
               ))}
             </ul>
-          </section>
+          </section> */}
 
           {/* Additional Information */}
           {/* {resource.additionalInfo && (
