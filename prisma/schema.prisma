@@ -20,6 +20,12 @@ model User {
   updatedAt DateTime @updatedAt
 }
 
+enum Category {
+  MENTAL
+  SOCIAL
+  PHYSICAL
+}
+
 model Resource {
   id             String   @id @default(auto()) @map("_id") @db.ObjectId
   name           String
