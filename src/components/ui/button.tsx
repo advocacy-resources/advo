@@ -12,7 +12,7 @@ const buttonVariants = cva(
         default:
           "bg-neutral-900 text-neutral-50 hover:bg-neutral-900/90 dark:bg-neutral-50 dark:text-neutral-900 dark:hover:bg-neutral-50/90",
         "mobile-menu":
-          "inline-block bg-slate-500 text-neutral-50 px-4 py-2 skew-x-6 transform  origin-top-left uppercase text-sm font-semibold tracking-wider shadow-md transition duration-300 ease-in-out mr-[-0.5rem] hover:bg-neutral-900/90 active:bg-neutral-950 dark:bg-neutral-50 dark:text-neutral-900 dark:hover:bg-neutral-200 dark:active:bg-neutral-300",
+          "inline-block bg-slate-500 text-neutral-50 px-4 py-2 skew-x-6 transform  origin-top-left uppercase text-sm font-semibold tracking-wider shadow-md transition duration-300 ease-in-out hover:bg-neutral-900/90 active:bg-neutral-950 dark:bg-neutral-50 dark:text-neutral-900 dark:hover:bg-neutral-200 dark:active:bg-neutral-300",
         destructive:
           "bg-red-500 text-neutral-50 hover:bg-red-500/90 dark:bg-red-900 dark:text-neutral-50 dark:hover:bg-red-900/90",
         outline:

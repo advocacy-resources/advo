@@ -28,11 +28,12 @@ enum Category {
 
 model Resource {
   id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  type           String[]
   name           String
   description    String
   category       Category
   contact        Json
-  address        String
+  address        Json
   operatingHours Json
   favoriteCount  Int      @default(0) // Number of users who have favorited this resource
   createdAt      DateTime @default(now())

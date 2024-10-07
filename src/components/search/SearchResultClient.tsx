@@ -2,7 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
+
 import Link from "next/link";
 
 interface SearchResult {
@@ -11,7 +11,6 @@ interface SearchResult {
   description: string;
   type: string[];
   category: string[];
-  // Add other fields as needed
 }
 
 export default function SearchResultsClient() {
@@ -23,12 +22,10 @@ export default function SearchResultsClient() {
     const fetchResults = async () => {
       setIsLoading(true);
       const params = {
+        description: searchParams.get("description") || "",
         ageRange: searchParams.get("ageRange") || "",
         zipCode: searchParams.get("zipCode") || "",
         category: searchParams.get("category") || "",
-        // social: searchParams.get("social") || "",
-        // emotional: searchParams.get("emotional") || "",
-        // physical: searchParams.get("physical") || "",
       };
 
       try {
@@ -38,11 +35,13 @@ export default function SearchResultsClient() {
           body: JSON.stringify(params),
         });
 
+        const data = await response.json();
+        console.log("Search response:", data);
+
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        const data = await response.json();
         setResults(data);
       } catch (error) {
         console.error("Search error:", error);
@@ -56,11 +55,8 @@ export default function SearchResultsClient() {
   }, [searchParams]);
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Search Results</h1>
-      <Link href="/">
-        <Button className="mb-4">Back to Search</Button>
-      </Link>
+    <div className="flex flex-col justify-center items-center gap-4 p-4 text-white">
+      <h1 className="text-2xl font-bold">Search Results</h1>
       {isLoading ? (
         <p>Loading...</p>
       ) : results.length > 0 ? (
@@ -68,14 +64,17 @@ export default function SearchResultsClient() {
           {results.map((result) => (
             <li key={result.id}>
               <Link href={`/dashboard/resources/${result.id}`}>
-                <div className="border p-4 rounded-lg hover:bg-gray-100 transition-colors duration-200 cursor-pointer">
+                <div className="border p-4 text-black rounded-lg bg-gray-100 hover:bg-gray-300 transition-colors duration-200 cursor-pointer">
                   <h2 className="text-xl font-semibold">{result.name}</h2>
                   <p>{result.description}</p>
                   <p>
-                    <strong>Type:</strong> {result.type.join(", ")}
+                    <strong>Category:</strong> {result.category}
                   </p>
                   <p>
-                    <strong>Category:</strong> {result.category.join(", ")}
+                    <strong>Type:</strong>{" "}
+                    {result.type?.length === 0
+                      ? "N/A"
+                      : result.type?.join(", ")}
                   </p>
                   {/* Add more fields as needed */}
                 </div>

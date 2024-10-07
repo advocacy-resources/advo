@@ -1,18 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/prisma/client";
-import { Prisma, Category } from "@prisma/client";
+import { Prisma, Category, Resource } from "@prisma/client";
+import { InputJsonObject } from "@prisma/client/runtime/library";
 
 export async function POST(request: NextRequest) {
   try {
-    const { ageRange, zipCode, category } = await request.json();
-
-    console.log("Received search params:", {
-      ageRange,
-      zipCode,
-      // social,
-      // emotional,
-      // physical,
-    });
+    const { ageRange, zipCode, category, description } = await request.json();
 
     // Initialize the where conditions for filtering
     const whereConditions: Prisma.ResourceWhereInput = {
@@ -32,18 +25,46 @@ export async function POST(request: NextRequest) {
       };
     }
 
-    console.log("Search conditions:", JSON.stringify(whereConditions, null, 2));
-
     // Perform the search based on the constructed where conditions
-    const resources = await prisma.resource.findMany({
-      where: whereConditions,
+    const resources = await prisma.resource.aggregateRaw({
+      pipeline: [
+        description
+          ? {
+              $search: {
+                index: "resource_index",
+                count: {
+                  type: "total",
+                  threshold: 5,
+                },
+                text: {
+                  query: description,
+                  path: {
+                    wildcard: "*",
+                  },
+                },
+              },
+            }
+          : {
+              $match: {
+                category: category,
+              },
+            },
+      ],
     });
 
-    console.log(`Found ${resources.length} resources`);
+    console.log(resources);
+
+    if (!resources) {
+      return NextResponse.json(
+        { message: "No resources found" },
+        { status: 404 },
+      );
+    }
 
     // Process resources and map them to the structure expected in the response
-    const processedResources = resources.map((resource) => ({
+    const processedResources = resources.map((resource: Resource) => ({
       id: resource.id,
+      type: resource.type || [],
       name: resource.name || "Unnamed Resource",
       description: resource.description || "",
       category: resource.category || [],

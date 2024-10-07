@@ -40,6 +40,8 @@ const config: Config = {
       },
       colors: {
         "advo-pink": "#EB59AB",
+        "bg-main": "gray-100",
+        "bg-main-dark": "gray-800",
       },
       boxShadow: {
         glow: "0 0 20px #FDF952",

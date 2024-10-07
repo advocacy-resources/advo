@@ -27,7 +27,7 @@ const SignIn: React.FC<SignInProps> = ({ providers }) => {
 
   useEffect(() => {
     if (status === "authenticated") {
-      router.replace("/dashboard/account");
+      router.push("/");
     }
   }, [status, router]);
 
@@ -42,28 +42,26 @@ const SignIn: React.FC<SignInProps> = ({ providers }) => {
     });
 
     if (response?.ok) {
-      router.replace("/dashboard/account");
+      console.log("Sign in successful");
     } else {
       setError(response?.error || "An unexpected error occurred");
     }
   };
 
   return (
-    <div className="min-h-screen flex">
+    <div className="relative flex grow h-full">
       {/* Left half with the image */}
-      <div className="w-1/2 relative hidden md:block">
-        <div className="absolute inset-0">
-          <Image
-            src="/AdvoHomeHeroBanner.png"
-            alt="Sign In Image"
-            layout="fill"
-            objectFit="cover"
-          />
-        </div>
+      <div className="absolute md:relative h-full w-full md:w-1/2 -z-10">
+        <Image
+          src="/AdvoHomeHeroBanner.png"
+          alt="Sign In Image"
+          layout="fill"
+          objectFit="cover"
+        />
       </div>
 
       {/* Right half with the sign-in form */}
-      <div className="w-full md:w-1/2 flex items-center justify-center bg-gray-100">
+      <div className="flex items-center justify-center w-full md:w-1/2 p-2">
         <div className="max-w-md w-full space-y-8 p-10 bg-white rounded-xl shadow-md">
           {/* Logo */}
           <div className="flex justify-center">
@@ -129,11 +127,7 @@ const SignIn: React.FC<SignInProps> = ({ providers }) => {
                 provider.name !== "Credentials" ? (
                   <div key={provider.name} className="flex justify-center">
                     <Button
-                      onClick={() =>
-                        signIn(provider.id, {
-                          callbackUrl: "/dashboard/account",
-                        })
-                      }
+                      onClick={(e) => handleSignIn(e)}
                       className="parallelogram-btn"
                     >
                       <span className="inline-block transform skew-x-[18deg]">
