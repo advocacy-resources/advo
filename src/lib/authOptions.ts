@@ -13,8 +13,6 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
       authorize: async (credentials): Promise<IUser | null> => {
-        console.log("Authorization attempt started.");
-
         if (!credentials?.email || !credentials?.password) {
           console.log("Authorization failed: Missing email or password.");
           return null;
@@ -23,7 +21,6 @@ export const authOptions: NextAuthOptions = {
         try {
           // Test database connection
           await prisma.user.count();
-          console.log("Database connection successful.");
 
           const user = await prisma.user.findUnique({
             where: { email: credentials.email },
@@ -64,7 +61,6 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async session({ session, token }) {
-      console.log("Session creation process started.");
       session.user = {
         ...session.user,
         id: token.sub as string,
@@ -72,10 +68,6 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
     async jwt({ token, user }) {
-      console.log("JWT creation process started.");
-      if (user) {
-        token.sub = user.id;
-      }
       return token;
     },
   },

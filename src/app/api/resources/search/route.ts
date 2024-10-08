@@ -27,32 +27,48 @@ export async function POST(request: NextRequest) {
 
     // Perform the search based on the constructed where conditions
     const resources = await prisma.resource.aggregateRaw({
-      pipeline: [
-        description
-          ? {
+      pipeline: description
+        ? [
+            {
               $search: {
                 index: "resource_index",
-                count: {
-                  type: "total",
-                  threshold: 5,
-                },
-                text: {
-                  query: description,
-                  path: {
-                    wildcard: "*",
-                  },
+                compound: {
+                  must: [
+                    {
+                      text: {
+                        query: category,
+                        path: "category",
+                      },
+                    },
+                  ],
+                  should: [
+                    {
+                      text: {
+                        query: description,
+                        path: ["name", "description"],
+                      },
+                    },
+                  ],
                 },
               },
-            }
-          : {
+            },
+            {
+              $project: {
+                _id: 1,
+                name: 1,
+                category: 1,
+                type: 1,
+              },
+            },
+          ]
+        : [
+            {
               $match: {
                 category: category,
               },
             },
-      ],
+          ],
     });
-
-    console.log(resources);
 
     if (!resources) {
       return NextResponse.json(
@@ -62,16 +78,18 @@ export async function POST(request: NextRequest) {
     }
 
     // Process resources and map them to the structure expected in the response
-    const processedResources = resources.map((resource: Resource) => ({
-      id: resource.id,
-      type: resource.type || [],
-      name: resource.name || "Unnamed Resource",
-      description: resource.description || "",
-      category: resource.category || [],
-      contact: resource.contact || {},
-      address: resource.address || {},
-      operatingHours: resource.operatingHours || {},
-    }));
+    const processedResources = (resources as unknown as Resource[]).map(
+      (resource) => ({
+        id: resource.id,
+        type: resource.type || [],
+        name: resource.name || "Unnamed Resource",
+        description: resource.description || "",
+        category: resource.category || [],
+        contact: resource.contact || {},
+        address: resource.address || {},
+        operatingHours: resource.operatingHours || {},
+      }),
+    );
 
     // Return the processed resources as JSON
     return NextResponse.json(processedResources);
