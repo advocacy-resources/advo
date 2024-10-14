@@ -67,7 +67,7 @@ const MainSearch: React.FC<{}> = () => {
 
   return (
     <form onSubmit={handleSearch} className="flex flex-col gap-4">
-      <p className="text-center text-lg text-gray-600">Pick a category.</p>
+      <div className="text-center text-lg text-gray-600">Pick a category.</div>
       <div className="flex flex-row gap-2 justify-evenly">
         {/* Iterate over the categories */}
         {Object.values(Category).map((category) => (
@@ -94,7 +94,7 @@ const MainSearch: React.FC<{}> = () => {
         />
         <Button
           type="button"
-          variant="secondary"
+          variant="outline"
           className={`${!showMoreFilters && "transform rotate-180"}`}
           onSubmit={(e) => {
             e.preventDefault();
@@ -109,20 +109,23 @@ const MainSearch: React.FC<{}> = () => {
             <path
               d="M6 15L12 9L18 15"
               stroke="#000000"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
             />
           </svg>
         </Button>
       </div>
 
-      {showMoreFilters && (
-        <>
+      <div
+        className={`${showMoreFilters ? "max-h-96" : "max-h-0"} transition-all duration-300 ease-in-out overflow-hidden`}
+      >
+        <div className="flex flex-col gap-2 p-2">
           <Select
             onValueChange={(value) =>
               handleInputChange("categoryOption", value)
             }
+            value={searchParams.categoryOption}
           >
             <SelectTrigger>
               <SelectValue placeholder="Category Options" />
@@ -138,6 +141,7 @@ const MainSearch: React.FC<{}> = () => {
 
           <Select
             onValueChange={(value) => handleInputChange("ageRange", value)}
+            value={searchParams.ageRange}
           >
             <SelectTrigger>
               <SelectValue placeholder="Age Range" />
@@ -156,8 +160,8 @@ const MainSearch: React.FC<{}> = () => {
             value={searchParams.zipCode}
             onChange={(e) => handleInputChange("zipCode", e.target.value)}
           />
-        </>
-      )}
+        </div>
+      </div>
 
       {/* Center the search button */}
       <div className="flex justify-center">

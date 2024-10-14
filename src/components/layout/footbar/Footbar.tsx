@@ -1,9 +1,6 @@
-"use client";
 import Link from "next/link";
 
 import TermsOfService from "@/components/layout/footbar/TermsOfService";
-
-const currentYear = new Date().getFullYear();
 
 export default function Footbar() {
   return (
@@ -30,7 +27,7 @@ export default function Footbar() {
               stroke="currentColor"
               strokeWidth="2"
               strokeLinecap="round"
-              strokeLinejoin="round"
+              stroke-line-join="round"
             >
               {" "}
               <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />{" "}
@@ -76,7 +73,7 @@ export default function Footbar() {
 
         {/* Copyright info */}
         <div className="text-sm text-right ml-auto">
-          All Rights Reserved &copy; {currentYear}
+          All Rights Reserved &copy; 2024
         </div>
       </div>
     </footer>

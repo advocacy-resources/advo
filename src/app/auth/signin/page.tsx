@@ -1,5 +1,3 @@
-// pages/auth/signin.tsx
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -50,18 +48,7 @@ const SignIn: React.FC<SignInProps> = ({ providers }) => {
 
   return (
     <div className="relative flex grow h-full">
-      {/* Left half with the image */}
-      <div className="absolute md:relative h-full w-full md:w-1/2 -z-10">
-        <Image
-          src="/AdvoHomeHeroBanner.png"
-          alt="Sign In Image"
-          layout="fill"
-          objectFit="cover"
-        />
-      </div>
-
-      {/* Right half with the sign-in form */}
-      <div className="flex items-center justify-center w-full md:w-1/2 p-2">
+      <div className="flex items-center justify-center w-full p-2">
         <div className="max-w-md w-full space-y-8 p-10 bg-white rounded-xl shadow-md">
           {/* Logo */}
           <div className="flex justify-center">
@@ -72,11 +59,11 @@ const SignIn: React.FC<SignInProps> = ({ providers }) => {
               height={100}
             />
           </div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          <div className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             Sign in to your account
-          </h2>
+          </div>
           <form onSubmit={handleSignIn} className="space-y-6">
-            {error && <p className="text-red-500">{error}</p>}
+            {error && <div className="text-red-500">{error}</div>}
             <div>
               <label
                 htmlFor="email"

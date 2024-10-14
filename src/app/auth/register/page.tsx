@@ -37,12 +37,12 @@ const SignUpPage: React.FC = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="max-w-md w-full space-y-8 p-10 bg-white rounded-xl shadow-md">
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+        <div className="mt-6 text-center text-3xl font-extrabold text-gray-900">
           Sign Up for an Account
-        </h2>
+        </div>
         <form onSubmit={handleSignUp} className="space-y-6">
-          {error && <p className="text-red-500">{error}</p>}
-          {success && <p className="text-green-500">{success}</p>}
+          {error && <div className="text-red-500">{error}</div>}
+          {success && <div className="text-green-500">{success}</div>}
           <div>
             <label
               htmlFor="email"
@@ -85,7 +85,7 @@ const SignUpPage: React.FC = () => {
             Sign Up
           </button>
         </form>
-        <p className="text-center text-sm text-gray-600 mt-4">
+        <div className="text-center text-sm text-gray-600 mt-4">
           Already have an account?{" "}
           <Link
             href="/auth/signin"
@@ -93,7 +93,7 @@ const SignUpPage: React.FC = () => {
           >
             Sign In
           </Link>
-        </p>
+        </div>
       </div>
     </div>
   );

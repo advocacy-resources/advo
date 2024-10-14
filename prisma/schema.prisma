@@ -39,3 +39,11 @@ model Resource {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 }
+
+model Favorite {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String
+  resourceId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

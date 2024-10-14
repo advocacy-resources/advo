@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useEffect, useState } from "react";
 import { Resource } from "&/resource";
 import ResourceCard from "@/components/resources/ResourceCard";
@@ -53,9 +51,9 @@ const ResourcesGrid: React.FC = () => {
 
   return (
     <div className="max-w-6xl mx-auto p-8">
-      <h1 className="text-3xl font-bold mb-8">Resources</h1>
+      <div className="text-3xl font-bold mb-8">Resources</div>
       {resources.length === 0 ? (
-        <p>No resources found.</p>
+        <div>No resources found.</div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
           {resources.map((resource) => (

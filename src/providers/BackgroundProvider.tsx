@@ -25,8 +25,9 @@ export const BackgroundContextProvider = ({
     <Image
       src="/AdvoHomeHeroBanner.png"
       alt="Sign In Image"
-      layout="fill"
-      objectFit="cover"
+      className="h-full object-cover"
+      width={1920}
+      height={1080}
     />,
   );
 

@@ -7,10 +7,12 @@ function HomeFooter() {
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           <div>
-            <h3 className="text-2xl font-bold mb-4 font-univers">Subscribe</h3>
-            <p className="mb-4">
+            <div className="text-2xl font-bold mb-4 font-univers">
+              Subscribe
+            </div>
+            <div className="mb-4">
               Sign up with your email address to receive news and updates.
-            </p>
+            </div>
             <form className="flex flex-col space-y-4">
               <input
                 type="email"
@@ -25,56 +27,56 @@ function HomeFooter() {
             </form>
           </div>
           <div>
-            <h3 className="text-2xl font-bold mb-4 font-univers">About Us</h3>
-            <p className="">
+            <div className="text-2xl font-bold mb-4 font-univers">About Us</div>
+            <div className="">
               Advocacy Resources Inc. is a 501(c)(3) nonprofit organization
-            </p>
-            <p>designed by eastland jones creative in new mexico</p>
-            <p>©ADVOCACY RESOURCES, INC. 2024</p>
+            </div>
+            <div>designed by eastland jones creative in new mexico</div>
+            <div>©ADVOCACY RESOURCES, INC. 2024</div>
           </div>
           <div>
-            <h3 className="text-2xl font-bold mb-4 font-univers">Connect</h3>
-            <ul className="space-y-2">
-              <li>
+            <div className="text-2xl font-bold mb-4 font-univers">Connect</div>
+            <div className="space-y-2">
+              <div>
                 <Link
                   href="https://www.instagram.com/advocacyresources/"
                   className="hover:text-advo-pink transition-colors"
                 >
                   Instagram
                 </Link>
-              </li>
-              <li>
+              </div>
+              <div>
                 <Link
                   href="https://www.linkedin.com/company/advocacy-resources/posts/?feedView=all"
                   className="hover:text-advo-pink transition-colors"
                 >
                   LinkedIn
                 </Link>
-              </li>
-            </ul>
+              </div>
+            </div>
           </div>
           <div>
-            <h3 className="text-2xl font-bold mb-4 font-univers">
+            <div className="text-2xl font-bold mb-4 font-univers">
               Get Involved
-            </h3>
-            <ul className="space-y-2">
-              <li>
+            </div>
+            <div className="space-y-2">
+              <div>
                 <Link
                   href="https://forms.monday.com/forms/0a235908c6d7db7cf0935eba463774db?r=use1"
                   className="hover:text-advo-pink transition-colors"
                 >
                   Internships
                 </Link>
-              </li>
-              <li>
+              </div>
+              <div>
                 <Link
                   href="https://forms.monday.com/forms/a9cca72998975e1552c2da04de8fe465?r=use1"
                   className="hover:text-advo-pink transition-colors"
                 >
                   Volunteer
                 </Link>
-              </li>
-            </ul>
+              </div>
+            </div>
           </div>
         </div>
       </div>

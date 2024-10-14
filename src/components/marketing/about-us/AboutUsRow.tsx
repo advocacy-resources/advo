@@ -28,8 +28,8 @@ const AboutUsRow: React.FC<AboutUsRow> = ({
         />
       </div>
       <div className="md:w-2/3 w-full p-4">
-        <h2 className="text-xl font-bold mb-2">{title}</h2>
-        <p>{description}</p>
+        <div className="text-xl font-bold mb-2">{title}</div>
+        <div>{description}</div>
       </div>
     </div>
   );

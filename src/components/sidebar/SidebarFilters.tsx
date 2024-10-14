@@ -1,16 +1,14 @@
-"use client";
-
 import React from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 
 export default function FilterSidebar() {
   return (
     <div className="col-span-2 bg-gray-100 p-4 min-h-screen border-r">
-      <h2 className="text-xl font-bold mb-4">Filter Resources</h2>
+      <div className="text-xl font-bold mb-4">Filter Resources</div>
 
       {/* Filter by Type */}
       <div className="mb-6">
-        <h3 className="text-lg font-semibold mb-2">Type</h3>
+        <div className="text-lg font-semibold mb-2">Type</div>
         <div className="flex flex-col space-y-2">
           <CheckboxWithText label="Service" />
           <CheckboxWithText label="Product" />
@@ -20,7 +18,7 @@ export default function FilterSidebar() {
 
       {/* Filter by Category */}
       <div className="mb-6">
-        <h3 className="text-lg font-semibold mb-2">Category</h3>
+        <div className="text-lg font-semibold mb-2">Category</div>
         <div className="flex flex-col space-y-2">
           <CheckboxWithText label="Education" />
           <CheckboxWithText label="Health" />
@@ -30,7 +28,7 @@ export default function FilterSidebar() {
 
       {/* Filter by Cost */}
       <div className="mb-6">
-        <h3 className="text-lg font-semibold mb-2">Cost</h3>
+        <div className="text-lg font-semibold mb-2">Cost</div>
         <div className="flex flex-col space-y-2">
           <CheckboxWithText label="Free" />
           <CheckboxWithText label="Paid" />
@@ -39,7 +37,7 @@ export default function FilterSidebar() {
 
       {/* Filter by Accessibility */}
       <div className="mb-6">
-        <h3 className="text-lg font-semibold mb-2">Accessibility</h3>
+        <div className="text-lg font-semibold mb-2">Accessibility</div>
         <div className="flex flex-col space-y-2">
           <CheckboxWithText label="Wheelchair Accessible" />
           <CheckboxWithText label="Sign Language Support" />
@@ -49,7 +47,7 @@ export default function FilterSidebar() {
 
       {/* Filter by Rating */}
       <div className="mb-6">
-        <h3 className="text-lg font-semibold mb-2">Minimum Rating</h3>
+        <div className="text-lg font-semibold mb-2">Minimum Rating</div>
         <div className="flex flex-col space-y-2">
           <CheckboxWithText label="1 Star & Up" />
           <CheckboxWithText label="2 Stars & Up" />
@@ -60,7 +58,7 @@ export default function FilterSidebar() {
 
       {/* Filter by Location */}
       <div className="mb-6">
-        <h3 className="text-lg font-semibold mb-2">Location</h3>
+        <div className="text-lg font-semibold mb-2">Location</div>
         <input
           type="text"
           placeholder="Enter Zip Code"

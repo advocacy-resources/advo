@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 import prisma from "@/prisma/client";
 import { Resource } from "@prisma/client";
 import SidebarMap from "@/components/sidebar/SidebarMap";
@@ -49,44 +50,44 @@ const ResourcePage = async ({ params }: ResourcePageProps) => {
   return (
     <div className="flex flex-col justify-center items-left gap-4 p-8 self-center max-w-2xl">
       <section>
-        <h1 className="text-3xl font-bold mb-4">{resource.name}</h1>
-        <p>{resource.description}</p>
+        <div className="text-3xl font-bold mb-4">{resource.name}</div>
+        <div>{resource.description}</div>
       </section>
 
       {/* Main Content Section */}
       {/* Contact Information */}
       <section>
-        <h2 className="text-2xl font-semibold mb-2">Contact Information</h2>
-        <p className="text-lg text-gray-700">
+        <div className="text-2xl font-semibold mb-2">Contact Information</div>
+        <div className="text-lg text-gray-700">
           <strong>Phone:</strong> {jsonContact.phone}
-        </p>
-        <p className="text-lg text-gray-700">
+        </div>
+        <div className="text-lg text-gray-700">
           <strong>Email:</strong> {jsonContact.email}
-        </p>
-        <p className="text-lg text-gray-700">
+        </div>
+        <div className="text-lg text-gray-700">
           <strong>Website:</strong>{" "}
-          <a
+          <Link
             href={jsonContact.website}
             className="text-blue-600 hover:underline"
           >
             {jsonContact.website}
-          </a>
-        </p>
+          </Link>
+        </div>
       </section>
 
       {/* Address and Map */}
       <section>
-        <h2 className="text-2xl font-semibold mb-2">Address</h2>
-        <p className="text-lg text-gray-700 mb-4">
+        <div className="text-2xl font-semibold mb-2">Address</div>
+        <div className="text-lg text-gray-700 mb-4">
           {jsonAddress.street}, {jsonAddress.city}, {jsonAddress.state}{" "}
           {jsonAddress.zipCode}, {jsonAddress.country}
-        </p>
+        </div>
         {latitude !== 0 && longitude !== 0 ? (
           <SidebarMap lat={latitude} lon={longitude} />
         ) : (
-          <p className="text-lg text-red-500">
+          <div className="text-lg text-red-500">
             Unable to display map. Location data unavailable.
-          </p>
+          </div>
         )}
       </section>
     </div>
