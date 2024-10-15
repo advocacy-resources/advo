@@ -15,12 +15,13 @@ export async function POST(request: NextRequest) {
     });
 
     // Initialize the where conditions for filtering
-    const whereConditions: Prisma.ResourceWhereInput = {
+    const whereConditions: Prisma.ResourceWhereInput = {}
       // Initialize the category filter to handle multiple category types
-      category: {
-        in: [category as unknown as Category],
-      },
-    };
+      if (category) {
+        whereConditions.category = {
+          in: [category as Category]
+        }
+      }
 
     // Filter based on age range (assumed to be in targetAudience field)
 

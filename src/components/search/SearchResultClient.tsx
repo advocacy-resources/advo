@@ -71,11 +71,9 @@ export default function SearchResultsClient() {
                 <div className="border p-4 rounded-lg hover:bg-gray-100 transition-colors duration-200 cursor-pointer">
                   <h2 className="text-xl font-semibold">{result.name}</h2>
                   <p>{result.description}</p>
+                  <p>{/* <strong>Type:</strong> {result.type.join(", ")} */}</p>
                   <p>
-                    <strong>Type:</strong> {result.type.join(", ")}
-                  </p>
-                  <p>
-                    <strong>Category:</strong> {result.category.join(", ")}
+                    {/* <strong>Category:</strong> {result.category.join(", ")} */}
                   </p>
                   {/* Add more fields as needed */}
                 </div>

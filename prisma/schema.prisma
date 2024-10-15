@@ -32,7 +32,7 @@ model Resource {
   description    String
   category       Category
   contact        Json
-  address        String
+  address        Json
   operatingHours Json
   favoriteCount  Int      @default(0) // Number of users who have favorited this resource
   createdAt      DateTime @default(now())
