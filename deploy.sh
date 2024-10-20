@@ -9,7 +9,7 @@ if [ ! -f "$DEPLOY_CHANGE_FILE" ]; then
 fi
 
 # Toggle true/false in the file
-sed -i "s/true/temp_value/g; s/false/true/g; s/temp_value/false/g" "$DEPLOY_CHANGE_FILE"
+sed -i '' "s/true/temp_value/g; s/false/true/g; s/temp_value/false/g" "$DEPLOY_CHANGE_FILE"
 
 # Commit the changes to the main branch
 git add "$DEPLOY_CHANGE_FILE"
