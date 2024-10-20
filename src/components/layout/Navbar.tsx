@@ -7,7 +7,7 @@ import Logo from "../../assets/myAdvo-peachWhite.svg";
 import { useRouter } from "next/navigation";
 
 function Navbar() {
-  const { data: session, update, status } = useSession(); // Getting the session data
+  const { data: session } = useSession(); // Getting the session data
   const router = useRouter(); // Correctly initialize useRouter at the top level
 
   const handleSignOut = () => {

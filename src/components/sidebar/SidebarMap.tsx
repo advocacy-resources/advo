@@ -38,8 +38,8 @@ export default function MapComponent({ lat, lon }: MapComponentProps) {
     lon || -0.09, // Default to provided longitude or London
   ]);
   const [isLoading, setIsLoading] = useState(true);
-  const [progress, setProgress] = useState(0);
-  const [mapReady, setMapReady] = useState(false);
+  const setProgress = useState(0)[1];
+  const setMapReady = useState(false)[1];
 
   useEffect(() => {
     // Import Leaflet CSS

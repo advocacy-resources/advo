@@ -13,9 +13,8 @@ interface ResourcePersonalisationProps {
 export default function ResourcePersonalisation({
   initialData,
 }: ResourcePersonalisationProps) {
-  const [rating, setRating] = useState<Rating>(initialData.rating);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [favoured, setFavoured] = useState(false);
+  const [rating] = useState<Rating>(initialData.rating);
+  const [favoured] = useState(false);
 
   return (
     <div className="flex justify-between gap-2">

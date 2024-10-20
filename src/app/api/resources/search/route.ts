@@ -12,14 +12,14 @@ export interface IResourceSearchPostRequest {
 
 export async function POST(request: NextRequest) {
   const {
-    ageRange,
+    // ageRange,
     zipCode,
     category,
     description: descriptionOrUndefined,
     type,
   } = (await request.json()) as IResourceSearchPostRequest;
 
-  let description = descriptionOrUndefined || " ";
+  const description = descriptionOrUndefined || " ";
 
   const optionalQueryParams: {}[] = [
     {
