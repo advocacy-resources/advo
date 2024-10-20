@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/prisma/client";
-import { Category, Resource } from "@prisma/client";
+import { Category } from "@prisma/client";
 
 export interface IResourceSearchPostRequest {
   ageRange: string;
@@ -53,7 +53,6 @@ export async function POST(request: NextRequest) {
                   path: "category",
                 },
               },
-              ...optionalQueryParams,
             ],
             should: [
               {

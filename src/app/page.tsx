@@ -1,5 +1,3 @@
-import Image from "next/image";
-
 import MainSearch from "@/components/search/MainSearch";
 
 export default function Home() {

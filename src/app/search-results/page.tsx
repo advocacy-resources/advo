@@ -1,3 +1,5 @@
+import ResourcePersonalisation from "@/components/resources/ResourcePersonalisation";
+import { Rating } from "@/enums/rating.enum";
 import Link from "next/link";
 
 interface SearchResult {
@@ -8,6 +10,10 @@ interface SearchResult {
   type: string[];
   ageRange: string;
   zipCode: string;
+
+  // TODO: Add favourite and rating fields
+  rating: Rating;
+  favoured: boolean;
 }
 
 export default async function SearchResultsPage({
@@ -31,8 +37,6 @@ export default async function SearchResultsPage({
   const data = await response.json();
   const results: SearchResult[] = data;
 
-  console.log(results);
-
   return (
     <div className="flex flex-col justify-center items-center self-center gap-4 p-4 text-white">
       <div className="text-2xl font-bold">Search Results</div>
@@ -49,6 +53,12 @@ export default async function SearchResultsPage({
                 <strong>Type:</strong>{" "}
                 {result.type?.length === 0 ? "N/A" : result.type?.join(", ")}
               </div>
+              <ResourcePersonalisation
+                initialData={{
+                  rating: result.rating || Rating.NULL,
+                  favoured: result.favoured || false,
+                }}
+              />
             </div>
           </Link>
         </div>
