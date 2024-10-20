@@ -5,7 +5,7 @@ function Updates() {
   return (
     <section className="bg-[#151516] py-16 text-white">
       <div className="container mx-auto px-4">
-        <h2 className="text-6xl font-bold mb-12 text-center">Updates</h2>
+        <div className="text-6xl font-bold mb-12 text-center">Updates</div>
         <div className="flex flex-wrap justify-center gap-8">
           <div className="w-full md:w-1/3 max-w-sm">
             <Image

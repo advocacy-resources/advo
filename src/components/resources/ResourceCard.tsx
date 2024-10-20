@@ -13,37 +13,37 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource }) => {
   return (
     <Link href={`/resources/${resource.id}`} passHref>
       <div className="cursor-pointer">
-        <h2 className="text-xl font-bold mb-2">{resource.name}</h2>
-        <p className="text-gray-700 mb-4">{resource.description}</p>
+        <div className="text-xl font-bold mb-2">{resource.name}</div>
+        <div className="text-gray-700 mb-4">{resource.description}</div>
         <div className="text-sm text-gray-500">
-          <p>
+          <div>
             <strong>Category:</strong> {resource.category.join(", ")}
-          </p>
-          <p>
+          </div>
+          <div>
             <strong>Phone:</strong> {resource.contact.phone}
-          </p>
-          <p>
+          </div>
+          <div>
             <strong>Email:</strong> {resource.contact.email}
-          </p>
-          <p>
+          </div>
+          <div>
             <strong>Website:</strong>{" "}
-            <a href={resource.contact.website} className="text-blue-500">
+            <Link href={resource.contact.website} className="text-blue-500">
               {resource.contact.website}
-            </a>
-          </p>
-          <p>
+            </Link>
+          </div>
+          <div>
             <strong>Address:</strong> {resource.address.street},{" "}
             {resource.address.city}, {resource.address.state},{" "}
-          </p>
+          </div>
 
           {/* Display Operating Hours */}
           <div className="mt-4">
-            <h3 className="font-semibold">Operating Hours:</h3>
+            <div className="font-semibold">Operating Hours:</div>
             {Object.entries(operatingHours).map(([day, hours]) => (
-              <p key={day}>
+              <div key={day}>
                 <strong>{capitalizeFirstLetter(day)}:</strong> {hours.open} -{" "}
                 {hours.close}
-              </p>
+              </div>
             ))}
           </div>
         </div>

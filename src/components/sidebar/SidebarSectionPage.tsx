@@ -1,5 +1,3 @@
-"use client";
-
 import dynamic from "next/dynamic";
 import SidebarFIlters from "../sidebar/SidebarFilters";
 import SidebarContent from "../sidebar/SidebarContent";

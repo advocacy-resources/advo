@@ -56,8 +56,9 @@ const ChangePasswordPage: React.FC = () => {
           <Image
             src="/AdvoHomeHeroBanner.png"
             alt="Change Password Image"
-            layout="fill"
-            objectFit="cover"
+            className="object-cover"
+            width={1920}
+            height={1080}
           />
         </div>
       </div>
@@ -74,12 +75,12 @@ const ChangePasswordPage: React.FC = () => {
               height={100}
             />
           </div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          <div className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             Change Your Password
-          </h2>
+          </div>
           <form onSubmit={handleChangePassword} className="space-y-6">
-            {error && <p className="text-red-500">{error}</p>}
-            {success && <p className="text-green-500">{success}</p>}
+            {error && <div className="text-red-500">{error}</div>}
+            {success && <div className="text-green-500">{success}</div>}
             <div>
               <label
                 htmlFor="email"

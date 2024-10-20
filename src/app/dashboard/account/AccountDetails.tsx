@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { parseISO, format } from "date-fns";
 import { useSession } from "next-auth/react";
 import Navbar from "@/components/layout/Navbar";
 import { Button } from "@/components/ui/button";
@@ -49,7 +50,7 @@ const AccountDetails: React.FC = () => {
     <>
       <Navbar />
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold mb-6">Account Settings</h1>
+        <div className="text-2xl font-bold mb-6">Account Settings</div>
         <div className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
           <PersonalInfoForm
             userData={userData}
@@ -61,12 +62,18 @@ const AccountDetails: React.FC = () => {
             handleInputChange={handleInputChange}
           />
           <div className="mb-4">
-            <p className="text-sm text-gray-600">
-              Created At: {new Date(userData.createdAt).toLocaleString()}
-            </p>
-            <p className="text-sm text-gray-600">
-              Last Updated: {new Date(userData.updatedAt).toLocaleString()}
-            </p>
+            <div className="text-sm text-gray-600">
+              Created At:{" "}
+              <time dateTime={userData.createdAt}>
+                {format(parseISO(userData.createdAt), "LLLL d, yyyy")}
+              </time>
+            </div>
+            <div className="text-sm text-gray-600">
+              Last Updated:{" "}
+              <time dateTime={userData.updatedAt}>
+                {format(parseISO(userData.updatedAt), "LLLL d, yyyy")}
+              </time>
+            </div>
           </div>
           <div className="flex items-center justify-between">
             <Button onClick={handleSave}>Save Changes</Button>

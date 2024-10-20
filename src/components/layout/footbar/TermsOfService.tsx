@@ -15,7 +15,7 @@ export default function TermsOfService() {
   return (
     <>
       <Dialog>
-        <DialogTrigger>Terms of Service</DialogTrigger>
+        <DialogTrigger className="text-left">Terms of Service</DialogTrigger>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Terms of Service</DialogTitle>

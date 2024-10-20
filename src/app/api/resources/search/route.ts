@@ -1,65 +1,84 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/prisma/client";
-import { Prisma, Category } from "@prisma/client";
+import { Category } from "@prisma/client";
+
+export interface IResourceSearchPostRequest {
+  ageRange: string;
+  zipCode: string;
+  category: Category;
+  description: string;
+  type: string[];
+}
 
 export async function POST(request: NextRequest) {
-  try {
-    const { ageRange, zipCode, category } = await request.json();
+  const {
+    // ageRange,
+    zipCode,
+    category,
+    description: descriptionOrUndefined,
+    type,
+  } = (await request.json()) as IResourceSearchPostRequest;
 
-    console.log("Received search params:", {
-      ageRange,
-      zipCode,
-      // social,
-      // emotional,
-      // physical,
+  const description = descriptionOrUndefined || " ";
+
+  const optionalQueryParams: {}[] = [
+    {
+      text: {
+        query: type,
+        path: "type",
+      },
+    },
+  ];
+
+  if (zipCode !== "") {
+    optionalQueryParams.push({
+      text: {
+        query: zipCode,
+        path: "zipCode",
+      },
     });
-
-    // Initialize the where conditions for filtering
-    const whereConditions: Prisma.ResourceWhereInput = {}
-      // Initialize the category filter to handle multiple category types
-      if (category) {
-        whereConditions.category = {
-          in: [category as Category]
-        }
-      }
-
-    // Filter based on age range (assumed to be in targetAudience field)
-
-    // Filter based on zip code (assuming zipCode is in the address JSON field)
-    if (zipCode) {
-      whereConditions.address = {
-        // path: "$.zipCode",
-        equals: zipCode,
-      };
-    }
-
-    console.log("Search conditions:", JSON.stringify(whereConditions, null, 2));
-
-    // Perform the search based on the constructed where conditions
-    const resources = await prisma.resource.findMany({
-      where: whereConditions,
-    });
-
-    console.log(`Found ${resources.length} resources`);
-
-    // Process resources and map them to the structure expected in the response
-    const processedResources = resources.map((resource) => ({
-      id: resource.id,
-      name: resource.name || "Unnamed Resource",
-      description: resource.description || "",
-      category: resource.category || [],
-      contact: resource.contact || {},
-      address: resource.address || {},
-      operatingHours: resource.operatingHours || {},
-    }));
-
-    // Return the processed resources as JSON
-    return NextResponse.json(processedResources);
-  } catch (error) {
-    console.error("Search error:", error);
-    return NextResponse.json(
-      { message: "Internal server error", details: (error as Error).message },
-      { status: 500 },
-    );
   }
+
+  // Perform the search based on the constructed where conditions
+  const resources = await prisma.resource.aggregateRaw({
+    pipeline: [
+      {
+        $search: {
+          index: "resource_index",
+          compound: {
+            must: [
+              {
+                text: {
+                  query: category,
+                  path: "category",
+                },
+              },
+            ],
+            should: [
+              {
+                text: {
+                  query: description,
+                  path: ["name", "description"],
+                },
+              },
+            ],
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          id: 1,
+          name: 1,
+          description: 1,
+          category: 1,
+          type: 1,
+          ageRange: 1,
+          zipCode: 1,
+        },
+      },
+    ],
+  });
+
+  return NextResponse.json(resources);
 }

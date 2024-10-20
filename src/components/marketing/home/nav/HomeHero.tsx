@@ -10,8 +10,6 @@ function HomeHero(): React.ReactElement {
         <Image
           src="/AdvoHomeHeroBanner.png"
           alt="Background"
-          layout="fill"
-          objectFit="cover"
           className="mix-blend-overlay"
           priority
         />

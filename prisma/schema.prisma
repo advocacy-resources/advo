@@ -28,6 +28,7 @@ enum Category {
 
 model Resource {
   id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  type           String[]
   name           String
   description    String
   category       Category
@@ -37,4 +38,12 @@ model Resource {
   favoriteCount  Int      @default(0) // Number of users who have favorited this resource
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+}
+
+model Favorite {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String
+  resourceId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

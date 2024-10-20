@@ -40,11 +40,11 @@ const CookieNotice = () => {
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-gray-100 p-4 shadow-md">
       <div className="max-w-7xl mx-auto flex justify-between items-center">
-        <p className="text-sm text-gray-700">
+        <div className="text-sm text-gray-700">
           We use cookies to enhance your browsing experience and analyze our
           traffic. By clicking &quot;Accept All&quot;, you consent to our use of
           cookies.
-        </p>
+        </div>
         <div className="space-x-2">
           <button
             onClick={handleAcceptAll}

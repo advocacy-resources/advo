@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { LatLngExpression } from "leaflet";
-import { Progress } from "@/components/ui/progress";
 
 // Import setupLeaflet directly
 import setupLeaflet from "@/components/utils/leaflet-setup";
@@ -39,8 +38,8 @@ export default function MapComponent({ lat, lon }: MapComponentProps) {
     lon || -0.09, // Default to provided longitude or London
   ]);
   const [isLoading, setIsLoading] = useState(true);
-  const [progress, setProgress] = useState(0);
-  const [mapReady, setMapReady] = useState(false);
+  const setProgress = useState(0)[1];
+  const setMapReady = useState(false)[1];
 
   useEffect(() => {
     // Import Leaflet CSS
@@ -61,50 +60,46 @@ export default function MapComponent({ lat, lon }: MapComponentProps) {
       }, 500);
     }
 
-    if (typeof window !== "undefined") {
-      if (!lat || !lon) {
-        if ("geolocation" in navigator) {
-          navigator.geolocation.getCurrentPosition(
-            (position) => {
-              setUserLocation([
-                position.coords.latitude,
-                position.coords.longitude,
-              ]);
-              setIsLoading(false);
-              setProgress(100);
-              setMapReady(true);
-            },
-            (error) => {
-              console.error("Error getting user location:", error);
-              setIsLoading(false);
-              setProgress(100);
-              setMapReady(true);
-            },
-          );
-        } else {
-          console.log("Geolocation is not available");
-          setIsLoading(false);
-          setProgress(100);
-          setMapReady(true);
-        }
+    if (!lat || !lon) {
+      if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            setUserLocation([
+              position.coords.latitude,
+              position.coords.longitude,
+            ]);
+            setIsLoading(false);
+            setProgress(100);
+            setMapReady(true);
+          },
+          (error) => {
+            console.error("Error getting user location:", error);
+            setIsLoading(false);
+            setProgress(100);
+            setMapReady(true);
+          },
+        );
       } else {
+        console.log("Geolocation is not available");
         setIsLoading(false);
         setProgress(100);
         setMapReady(true);
       }
+    } else {
+      setIsLoading(false);
+      setProgress(100);
+      setMapReady(true);
     }
 
     return () => clearInterval(timer);
   }, [lat, lon, isLoading]);
 
-  if (typeof window === "undefined" || isLoading || !mapReady) {
-    return (
-      <div className="flex flex-col items-center justify-center h-screen">
-        <Progress value={progress} className="w-[60%] mb-4" />
-        <p>Loading map... {progress}%</p>
-      </div>
-    );
-  }
+  // return (
+  //   <div className="flex flex-col items-center justify-center h-screen">
+  //     <Progress value={progress} className="w-[60%] mb-4" />
+  //     <div>Loading map... {progress}%</div>
+  //   </div>
+  // );
 
   return (
     <div className="col-span-4 bg-gray-200">

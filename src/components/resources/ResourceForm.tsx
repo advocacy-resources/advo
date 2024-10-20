@@ -107,9 +107,9 @@ const ResourceForm: React.FC = () => {
       onSubmit={handleSubmit}
       className="max-w-lg mx-auto p-4 bg-white shadow-md rounded-md"
     >
-      <h1 className="text-2xl font-bold my-4 text-center">
+      <div className="text-2xl font-bold my-4 text-center">
         Create a new resource
-      </h1>
+      </div>
 
       {/* Name */}
       <Input
@@ -131,7 +131,7 @@ const ResourceForm: React.FC = () => {
       />
 
       {/* Category */}
-      <h3 className="my-4 text-center">Category</h3>
+      <div className="my-4 text-center">Category</div>
       <Select onValueChange={handleCategoryChange}>
         <SelectTrigger>
           <SelectValue placeholder="Select Category" />
@@ -146,7 +146,7 @@ const ResourceForm: React.FC = () => {
       </Select>
 
       {/* Contact Information */}
-      <h3 className="my-4 text-center">Contact Information</h3>
+      <div className="my-4 text-center">Contact Information</div>
       <div className="flex flex-col gap-4">
         <Input
           type="text"
@@ -172,7 +172,7 @@ const ResourceForm: React.FC = () => {
       </div>
 
       {/* Address */}
-      <h3 className="my-4 text-center">Address</h3>
+      <div className="my-4 text-center">Address</div>
       <div className="flex flex-col gap-4">
         <Input
           type="text"
@@ -198,7 +198,7 @@ const ResourceForm: React.FC = () => {
       </div>
 
       {/* Operating Hours */}
-      <h3 className="my-4 text-center">Operating Hours</h3>
+      <div className="my-4 text-center">Operating Hours</div>
       <div className="space-y-4">
         {(
           Object.keys(
@@ -206,7 +206,7 @@ const ResourceForm: React.FC = () => {
           ) as (keyof FormData["operatingHours"])[]
         ).map((day) => (
           <div className="flex items-center gap-4" key={day}>
-            <h4 className="w-24 text-right capitalize">{day}</h4>
+            <div className="w-24 text-right capitalize">{day}</div>
             <Input
               type="text"
               name="open"
