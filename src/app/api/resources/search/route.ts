@@ -132,7 +132,7 @@ export async function POST(request: NextRequest) {
 
     console.log("Resources fetched:", resources);
     return NextResponse.json(resources);
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error fetching resources:", error);
     return NextResponse.json(
       { error: "Failed to fetch resources", details: error.message },
