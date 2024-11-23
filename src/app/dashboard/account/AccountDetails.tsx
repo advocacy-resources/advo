@@ -3,7 +3,6 @@
 import React from "react";
 import { parseISO, format } from "date-fns";
 import { useSession } from "next-auth/react";
-import Navbar from "@/components/layout/Navbar";
 import { Button } from "@/components/ui/button";
 import { useUserData } from "@/hooks/useUserData";
 import PersonalInfoForm from "@/components/user/PersonalInfoForm";
@@ -48,9 +47,10 @@ const AccountDetails: React.FC = () => {
 
   return (
     <>
-      <Navbar />
       <div className="container mx-auto px-4 py-8">
-        <div className="text-2xl font-bold mb-6">Account Settings</div>
+        <div className="text-2xl font-bold mb-6 text-white">
+          Account Settings
+        </div>
         <div className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
           <PersonalInfoForm
             userData={userData}

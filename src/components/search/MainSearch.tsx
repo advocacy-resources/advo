@@ -11,38 +11,36 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Category } from "@prisma/client";
-import {
-  ageRangeOptions,
-  categoryToOptions,
-} from "@/lib/options/searchOptions";
+import { ageRangeOptions } from "@/lib/options/searchOptions";
 
-interface SearchParams {
-  description: string;
-  ageRange: string;
-  zipCode: string;
-  category: Category;
-  categoryOption: string;
-}
+// Define category options
+const categories = ["PHYSICAL", "MENTAL", "SOCIAL"];
+const categoryOptions: Record<string, string[]> = {
+  PHYSICAL: ["Gym", "Clinic", "Hospital"],
+  MENTAL: ["Therapist", "Counseling", "Psychiatrist"],
+  SOCIAL: ["Community Center", "Support Group", "Events"],
+};
 
 const MainSearch: React.FC<{}> = () => {
   const [showMoreFilters, setShowMoreFilters] = useState(false);
 
-  const [searchType, setSearchType] = useState<Category>(
-    Object.values(Category)[0],
-  );
+  const [searchType, setSearchType] = useState(categories[0]); // Default to the first category
 
-  const [searchParams, setSearchParams] = useState<SearchParams>({
+  const [searchParams, setSearchParams] = useState({
     description: "",
     ageRange: "",
     zipCode: "",
     category: searchType,
     categoryOption: "",
   });
+
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  const handleInputChange = (field: keyof SearchParams, value: string) => {
+  const handleInputChange = (
+    field: keyof typeof searchParams,
+    value: string,
+  ) => {
     setSearchParams((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -50,16 +48,18 @@ const MainSearch: React.FC<{}> = () => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Filter out empty values
+    // Filter out invalid or empty parameters
     const filteredParams = Object.entries(searchParams).reduce(
       (acc, [key, value]) => {
-        if (value !== "") {
-          acc[key] = value;
+        if (value && value.trim() !== "") {
+          acc[key] = value.trim(); // Trim whitespace
         }
         return acc;
       },
       {} as Record<string, string>,
     );
+
+    console.log("Filtered search parameters:", filteredParams);
 
     const queryString = new URLSearchParams(filteredParams).toString();
     router.push(`/search-results?${queryString}`);
@@ -69,8 +69,7 @@ const MainSearch: React.FC<{}> = () => {
     <form onSubmit={handleSearch} className="flex flex-col gap-4">
       <div className="text-center text-lg text-gray-600">Pick a category.</div>
       <div className="flex flex-row gap-2 justify-evenly">
-        {/* Iterate over the categories */}
-        {Object.values(Category).map((category) => (
+        {categories.map((category) => (
           <Button
             type="button"
             key={category}
@@ -79,6 +78,7 @@ const MainSearch: React.FC<{}> = () => {
             onClick={() => {
               handleInputChange("categoryOption", "");
               setSearchType(category);
+              handleInputChange("category", category); // Update category in searchParams
             }}
           >
             <span className="inline-block -skew-x-6">{category}</span>
@@ -96,9 +96,6 @@ const MainSearch: React.FC<{}> = () => {
           type="button"
           variant="outline"
           className={`${!showMoreFilters && "transform rotate-180"}`}
-          onSubmit={(e) => {
-            e.preventDefault();
-          }}
           onClick={() => setShowMoreFilters((prev) => !prev)}
         >
           <svg
@@ -118,7 +115,9 @@ const MainSearch: React.FC<{}> = () => {
       </div>
 
       <div
-        className={`${showMoreFilters ? "max-h-96" : "max-h-0"} transition-all duration-300 ease-in-out overflow-hidden`}
+        className={`${
+          showMoreFilters ? "max-h-96" : "max-h-0"
+        } transition-all duration-300 ease-in-out overflow-hidden`}
       >
         <div className="flex flex-col gap-2 p-2">
           <Select
@@ -131,7 +130,7 @@ const MainSearch: React.FC<{}> = () => {
               <SelectValue placeholder="Category Options" />
             </SelectTrigger>
             <SelectContent>
-              {categoryToOptions[searchType].map((option) => (
+              {categoryOptions[searchType]?.map((option) => (
                 <SelectItem key={option} value={option}>
                   {option}
                 </SelectItem>
@@ -163,7 +162,6 @@ const MainSearch: React.FC<{}> = () => {
         </div>
       </div>
 
-      {/* Center the search button */}
       <div className="flex justify-center">
         <Button type="submit" disabled={isLoading}>
           {isLoading ? "Searching..." : "Search"}

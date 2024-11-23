@@ -20,18 +20,12 @@ model User {
   updatedAt DateTime @updatedAt
 }
 
-enum Category {
-  MENTAL
-  SOCIAL
-  PHYSICAL
-}
-
 model Resource {
   id             String   @id @default(auto()) @map("_id") @db.ObjectId
   type           String[]
   name           String
   description    String
-  category       Category
+  category       String[]
   contact        Json
   address        Json
   operatingHours Json
@@ -41,9 +35,9 @@ model Resource {
 }
 
 model Favorite {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId    String
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId     String
   resourceId String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }

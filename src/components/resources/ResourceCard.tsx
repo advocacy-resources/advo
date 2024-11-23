@@ -14,8 +14,8 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource }) => {
     <Link href={`/resources/${resource.id}`} passHref>
       <div className="cursor-pointer">
         <div className="text-xl font-bold mb-2">{resource.name}</div>
-        <div className="text-gray-700 mb-4">{resource.description}</div>
-        <div className="text-sm text-gray-500">
+        <div className="text-white-700 mb-4">{resource.description}</div>
+        <div className="text-sm text-white-500">
           <div>
             <strong>Category:</strong> {resource.category.join(", ")}
           </div>

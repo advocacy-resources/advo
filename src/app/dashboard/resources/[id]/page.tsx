@@ -50,21 +50,21 @@ const ResourcePage = async ({ params }: ResourcePageProps) => {
   return (
     <div className="flex flex-col justify-center items-left gap-4 p-8 self-center max-w-2xl">
       <section>
-        <div className="text-3xl font-bold mb-4">{resource.name}</div>
+        <div className="text-3xl  font-bold mb-4">{resource.name}</div>
         <div>{resource.description}</div>
       </section>
 
       {/* Main Content Section */}
       {/* Contact Information */}
       <section>
-        <div className="text-2xl font-semibold mb-2">Contact Information</div>
-        <div className="text-lg text-gray-700">
+        <div className="text-2xl  font-semibold mb-2">Contact Information</div>
+        <div className="text-lg ">
           <strong>Phone:</strong> {jsonContact.phone}
         </div>
-        <div className="text-lg text-gray-700">
+        <div className="text-lg ">
           <strong>Email:</strong> {jsonContact.email}
         </div>
-        <div className="text-lg text-gray-700">
+        <div className="text-lg ">
           <strong>Website:</strong>{" "}
           <Link
             href={jsonContact.website}
@@ -77,8 +77,8 @@ const ResourcePage = async ({ params }: ResourcePageProps) => {
 
       {/* Address and Map */}
       <section>
-        <div className="text-2xl font-semibold mb-2">Address</div>
-        <div className="text-lg text-gray-700 mb-4">
+        <div className="text-2xl  font-semibold mb-2">Address</div>
+        <div className="text-lg  mb-4">
           {jsonAddress.street}, {jsonAddress.city}, {jsonAddress.state}{" "}
           {jsonAddress.zipCode}, {jsonAddress.country}
         </div>

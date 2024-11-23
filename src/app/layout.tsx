@@ -20,12 +20,12 @@ export default function RootLayout({
       <NextAuthProvider>
         <body className="relaive flex flex-col min-h-screen">
           <Navbar />
-          <BackgroundContextProvider>
-            <Suspense>
-              <div className="flex flex-col h-full grow">{children}</div>
-              <Footbar />
-            </Suspense>
-          </BackgroundContextProvider>
+          {/* <BackgroundContextProvider> */}
+          <Suspense>
+            <div className="flex flex-col h-full grow">{children}</div>
+            <Footbar />
+          </Suspense>
+          {/* </BackgroundContextProvider> */}
           <Analytics />
           <SpeedInsights />
         </body>

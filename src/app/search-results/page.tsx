@@ -29,16 +29,58 @@ export default async function SearchResultsPage({
     type: searchParams.type || "",
   };
 
-  const response = await fetch(`${process.env.NEXT_URL}/api/resources/search`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(params),
-  });
-  const data = await response.json();
-  const results: SearchResult[] = data;
+  console.log("Sending search params to API:", params);
+
+  let results: SearchResult[] = [];
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_URL}/api/resources/search`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(params),
+      },
+    );
+
+    console.log("API response status:", response.status);
+
+    if (!response.ok) {
+      console.error("API responded with an error:", await response.text());
+      throw new Error(
+        `Failed to fetch search results. Status: ${response.status}`,
+      );
+    }
+
+    const data = await response.json();
+    console.log("Raw data from API:", data);
+
+    if (!Array.isArray(data)) {
+      console.warn("API returned an error:", data.error);
+      return (
+        <div className="flex flex-col justify-center items-center gap-4 p-4 ">
+          <div className="text-2xl font-bold">Search Results</div>
+          <div>
+            {data.error || "Unexpected error occurred. Please try again."}
+          </div>
+        </div>
+      );
+    }
+    results = data;
+  } catch (error) {
+    console.error("Error fetching search results:", error);
+  }
+
+  if (results.length === 0) {
+    return (
+      <div className="flex flex-col justify-center items-center self-center gap-4 p-4 ">
+        <div className="text-2xl font-bold">Search Results</div>
+        <div>No results found. Please try again with different criteria.</div>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex flex-col justify-center items-center self-center gap-4 p-4 text-white">
+    <div className="flex flex-col justify-center items-center self-center gap-4 p-4 ">
       <div className="text-2xl font-bold">Search Results</div>
       {results.map((result) => (
         <div key={result.id} className="w-full">
