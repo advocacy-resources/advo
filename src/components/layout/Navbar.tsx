@@ -22,7 +22,7 @@ function Navbar() {
 
   return (
     <header>
-      <div className="relative h-16 bg-slate-800 text-white">
+      <div className="relative h-16">
         <Image
           src={Logo}
           alt="The myAdvo Logo."
