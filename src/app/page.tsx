@@ -1,3 +1,4 @@
+import WelcomeModal from "@/components/onboarding/welcome-modal";
 import MainSearch from "@/components/search/MainSearch";
 
 export default function Home() {
@@ -7,6 +8,7 @@ export default function Home() {
         <div className="text-center text-3xl md:text-4xl font-bold text-slate-800">
           Find Resources Around You
         </div>
+        <WelcomeModal />
         <MainSearch />
       </div>
     </div>
