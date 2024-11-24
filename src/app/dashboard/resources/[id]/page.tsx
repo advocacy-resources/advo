@@ -47,8 +47,8 @@ const VerifiedCircle = () => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 100 100"
-    width="50"
-    height="50"
+    width="30"
+    height="30"
   >
     <defs>
       <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -99,7 +99,9 @@ const ResourcePage = async ({ params }: ResourcePageProps) => {
       <div className="flex flex-col gap-8 p-8 self-center max-w-2xl bg-black text-white">
         {/* Logo and Name */}
         <section className="mb-6">
+          {/* Logo and Name */}
           <div className="flex items-center gap-4">
+            {/* Logo */}
             <div className="w-16 h-16">
               <Image
                 src={resource.logo || "/images/advo-logo-color.png"}
@@ -112,8 +114,9 @@ const ResourcePage = async ({ params }: ResourcePageProps) => {
             <h1 className="text-3xl font-bold">{resource.name}</h1>
           </div>
 
-          {/* Icons and Stats */}
-          <div className="flex items-center gap-6 mt-4">
+          {/* Centered Icons and Stats */}
+          <div className="flex justify-center items-center gap-6 mt-4">
+            {/* Thumbs Up and Rating */}
             <div className="flex items-center gap-2">
               <Image
                 src="/thumbs-up.svg"
@@ -126,6 +129,8 @@ const ResourcePage = async ({ params }: ResourcePageProps) => {
                 {resource.averageRating || "No rating yet"}
               </span>
             </div>
+
+            {/* Verified Listing */}
             <div className="flex items-center gap-2">
               <VerifiedCircle />
               <span className="text-lg">Verified Listing</span>
@@ -138,7 +143,7 @@ const ResourcePage = async ({ params }: ResourcePageProps) => {
           </p>
         </section>
 
-        <hr className="h-1 bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 border-0 rounded-full" />
+        <hr className="h-[.1rem] bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 border-0" />
 
         {/* Contact Information */}
         <section>
