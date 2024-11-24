@@ -1,7 +1,5 @@
 import React from "react";
-import Link from "next/link";
 import prisma from "@/prisma/client";
-import { Resource } from "@prisma/client";
 import SidebarMap from "@/components/sidebar/SidebarMap";
 import geocodeAddress from "@/components/utils/geocode-address";
 import "leaflet/dist/leaflet.css";
@@ -10,24 +8,39 @@ interface ResourcePageProps {
   params: { id: string };
 }
 
-interface IAddress {
+interface Address {
   street: string;
   city: string;
   state: string;
-  zipCode: string;
-  country: string;
 }
 
-interface IContact {
-  phone: string;
-  email: string;
-  website: string;
+interface Contact {
+  phone?: string;
+  email?: string;
+  website?: string;
 }
 
-const fetchResource = async (id: string): Promise<Resource | null> => {
+interface OperatingHours {
+  [key: string]: { open: string; close: string };
+}
+
+const fetchResource = async (id: string) => {
   const resource = await prisma.resource.findUnique({
     where: { id },
+    select: {
+      name: true,
+      description: true,
+      category: true,
+      contact: true,
+      address: true,
+      operatingHours: true,
+      favoriteCount: true,
+      upvoteCount: true,
+      createdAt: true,
+      updatedAt: true,
+    },
   });
+
   return resource;
 };
 
@@ -38,57 +51,99 @@ const ResourcePage = async ({ params }: ResourcePageProps) => {
     return <div>Resource not found</div>;
   }
 
-  const jsonAddress: IAddress = resource?.address as unknown as IAddress;
-  const jsonContact: IContact = resource?.contact as unknown as IContact;
-  let fullAddress = "";
+  // Parse JSON fields
+  const address: Address = resource.address as Address;
+  const contact: Contact = resource.contact as Contact;
+  const operatingHours: OperatingHours =
+    resource.operatingHours as OperatingHours;
 
-  if (jsonAddress)
-    fullAddress = `${jsonAddress.street}, ${jsonAddress.city}, ${jsonAddress.state} ${jsonAddress.zipCode}, ${jsonAddress.country}`;
-
-  const { latitude, longitude } = await geocodeAddress(fullAddress);
+  // Geocode the address for map rendering
+  const location = address ? await geocodeAddress(address) : null;
 
   return (
     <div className="flex flex-col justify-center items-left gap-4 p-8 self-center max-w-2xl">
+      {/* Resource Name and Description */}
       <section>
-        <div className="text-3xl  font-bold mb-4">{resource.name}</div>
-        <div>{resource.description}</div>
+        <h1 className="text-3xl font-bold mb-4">{resource.name}</h1>
+        <p>{resource.description || "No description available."}</p>
       </section>
 
-      {/* Main Content Section */}
       {/* Contact Information */}
       <section>
-        <div className="text-2xl  font-semibold mb-2">Contact Information</div>
-        <div className="text-lg ">
-          <strong>Phone:</strong> {jsonContact.phone}
-        </div>
-        <div className="text-lg ">
-          <strong>Email:</strong> {jsonContact.email}
-        </div>
-        <div className="text-lg ">
-          <strong>Website:</strong>{" "}
-          <Link
-            href={jsonContact.website}
-            className="text-blue-600 hover:underline"
-          >
-            {jsonContact.website}
-          </Link>
-        </div>
+        <h2 className="text-2xl font-semibold mb-2">Contact Information</h2>
+        {contact.phone && <p className="text-lg">Phone: {contact.phone}</p>}
+        {contact.email && <p className="text-lg">Email: {contact.email}</p>}
+        {contact.website && (
+          <p className="text-lg">
+            Website:{" "}
+            <a
+              href={`https://${contact.website}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-500 underline"
+            >
+              {contact.website}
+            </a>
+          </p>
+        )}
+        {!contact.phone && !contact.email && !contact.website && (
+          <p className="text-lg text-red-500">
+            Contact information not available.
+          </p>
+        )}
+      </section>
+
+      {/* Operating Hours */}
+      <section>
+        <h2 className="text-2xl font-semibold mb-2">Operating Hours</h2>
+        {operatingHours ? (
+          <ul>
+            {Object.entries(operatingHours).map(([day, hours]) => (
+              <li key={day} className="text-lg">
+                <strong>{day.charAt(0).toUpperCase() + day.slice(1)}:</strong>{" "}
+                {hours.open && hours.close
+                  ? `${hours.open} - ${hours.close}`
+                  : "Closed"}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-lg text-red-500">Operating hours not available.</p>
+        )}
       </section>
 
       {/* Address and Map */}
       <section>
-        <div className="text-2xl  font-semibold mb-2">Address</div>
-        <div className="text-lg  mb-4">
-          {jsonAddress.street}, {jsonAddress.city}, {jsonAddress.state}{" "}
-          {jsonAddress.zipCode}, {jsonAddress.country}
-        </div>
-        {latitude !== 0 && longitude !== 0 ? (
-          <SidebarMap lat={latitude} lon={longitude} />
+        <h2 className="text-2xl font-semibold mb-2">Address</h2>
+        {address ? (
+          <p className="text-lg mb-4">
+            {address.street}, {address.city}, {address.state}
+          </p>
         ) : (
-          <div className="text-lg text-red-500">
-            Unable to display map. Location data unavailable.
-          </div>
+          <p className="text-lg text-red-500">Address not available.</p>
         )}
+
+        {location ? (
+          <SidebarMap location={location} />
+        ) : (
+          <p className="text-lg text-red-500">
+            Unable to display map. Location data unavailable.
+          </p>
+        )}
+      </section>
+
+      {/* Other Details */}
+      <section>
+        <h2 className="text-2xl font-semibold mb-2">Additional Details</h2>
+        <p className="text-lg">
+          <strong>Category:</strong> {resource.category.join(", ")}
+        </p>
+        <p className="text-lg">
+          <strong>Favorites:</strong> {resource.favoriteCount}
+        </p>
+        <p className="text-lg">
+          <strong>Upvotes:</strong> {resource.upvoteCount ?? 0}
+        </p>
       </section>
     </div>
   );

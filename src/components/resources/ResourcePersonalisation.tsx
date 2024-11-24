@@ -6,7 +6,7 @@ import { useState } from "react";
 interface ResourcePersonalisationProps {
   initialData: {
     rating: Rating;
-    favoured: boolean;
+    favored: boolean;
   };
 }
 

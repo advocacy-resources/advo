@@ -8,36 +8,61 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  email     String   @unique
-  password  String?
-  name      String?
-  city      String?
-  state     String?
-  zipcode   String?
-  favorites String[] // Array of Resource IDs the user has favorited
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  email     String     @unique
+  name      String
+  password  String
+  favorites Favorite[] // One-to-many relationship with Favorite
+  likes     Like[] // One-to-many relationship with Like
+  ratings   Rating[] // One-to-many relationship with Rating
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
 }
 
 model Resource {
   id             String   @id @default(auto()) @map("_id") @db.ObjectId
-  type           String[]
   name           String
   description    String
-  category       String[]
-  contact        Json
-  address        Json
-  operatingHours Json
-  favoriteCount  Int      @default(0) // Number of users who have favorited this resource
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  category       String[] // Array to handle multiple categories
+  contact        Json // JSON for contact details (phone, email, website)
+  address        Json // JSON for structured address (street, city, state)
+  operatingHours Json // JSON for operating hours (per day schedule)
+  favoriteCount  Int      @default(0) // Integer for count of favorites
+  upvoteCount    Int? // Nullable field for upvote count
+  createdAt      DateTime @default(now()) @map("createdAt") // Timestamp for creation
+  updatedAt      DateTime @updatedAt @map("updatedAt") // Timestamp for updates
+  Like           Like[]
+  Rating         Rating[]
 }
 
 model Favorite {
   id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId     String
-  resourceId String
+  userId     String   @db.ObjectId
+  resourceId String   @db.ObjectId
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+  User       User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, resourceId]) // Ensure a user can't favorite the same resource twice
+}
+
+model Like {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId     String   @db.ObjectId
+  resourceId String   @db.ObjectId
+  createdAt  DateTime @default(now())
+  User       User     @relation(fields: [userId], references: [id])
+  Resource   Resource @relation(fields: [resourceId], references: [id])
+}
+
+model Rating {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId     String   @db.ObjectId
+  resourceId String   @db.ObjectId
+  rating     Int // Rating value (e.g., 1–5)
+  createdAt  DateTime @default(now())
+  User       User     @relation(fields: [userId], references: [id])
+  Resource   Resource @relation(fields: [resourceId], references: [id])
+
+  @@unique([userId, resourceId]) // Ensure a user can rate a resource only once
 }

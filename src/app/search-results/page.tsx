@@ -13,7 +13,7 @@ interface SearchResult {
 
   // TODO: Add favourite and rating fields
   rating: Rating;
-  favoured: boolean;
+  favored: boolean;
 }
 
 export default async function SearchResultsPage({
@@ -98,7 +98,7 @@ export default async function SearchResultsPage({
               <ResourcePersonalisation
                 initialData={{
                   rating: result.rating || Rating.NULL,
-                  favoured: result.favoured || false,
+                  favored: result.favored || false,
                 }}
               />
             </div>

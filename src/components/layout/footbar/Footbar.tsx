@@ -4,7 +4,7 @@ import TermsOfService from "@/components/layout/footbar/TermsOfService";
 
 export default function Footbar() {
   return (
-    <footer className="flex justify-between items-start text-white px-8">
+    <footer className="flex justify-between items-start  px-8">
       {/* Footer Links */}
       <div className="flex flex-col w-1/2 bg-white-800 text-sm">
         <Link href="/">Privacy Policy</Link>

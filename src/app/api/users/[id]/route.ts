@@ -21,8 +21,6 @@ export async function GET(
         id: true,
         email: true,
         name: true,
-        city: true,
-        state: true,
         favorites: true, // Array of Resource IDs the user has favorited
         createdAt: true,
         updatedAt: true,
@@ -74,8 +72,6 @@ export async function PUT(
         id: true,
         email: true,
         name: true,
-        city: true,
-        state: true,
         favorites: true,
         updatedAt: true,
       },
