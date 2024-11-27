@@ -9,6 +9,8 @@ import {
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import GradientButton from "@/components/onboarding/modal-button";
+import router from "next/router";
+import Link from "next/link";
 
 export default function WelcomeModal() {
   const [isOpen, setIsOpen] = useState(false);
@@ -54,23 +56,23 @@ export default function WelcomeModal() {
         {/* Buttons */}
         <div className="flex flex-col gap-4 mt-6">
           {/* Highlighted Button */}
-          <GradientButton onClick={() => alert("Make Account clicked")}>
-            Make Account
-          </GradientButton>
+          <div className="flex flex-col gap-4">
+            {/* Highlighted Button with Link */}
+            <Link href="/auth/register" passHref>
+              <GradientButton highlighted={true}>Make Account</GradientButton>
+            </Link>
 
-          {/* Non-Highlighted Buttons */}
-          <GradientButton
-            onClick={() => alert("Log In clicked")}
-            highlighted={false}
-          >
-            Log In
-          </GradientButton>
-          <GradientButton
-            onClick={() => alert("Use Anonymously clicked")}
-            highlighted={false}
-          >
-            Use Anonymously
-          </GradientButton>
+            {/* Non-Highlighted Buttons */}
+            <Link href="/auth/signin" passHref>
+              <GradientButton highlighted={false}>Log In</GradientButton>
+            </Link>
+
+            <Link href="/resources" passHref>
+              <GradientButton highlighted={false}>
+                Use Anonymously
+              </GradientButton>
+            </Link>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

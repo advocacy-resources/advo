@@ -83,7 +83,7 @@ const ResourceForm: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch("/api/resources", {
+      const response = await fetch("/api/v1/resources", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
