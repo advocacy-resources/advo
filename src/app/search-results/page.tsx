@@ -33,14 +33,11 @@ export default async function SearchResultsPage({
 
   let results: SearchResult[] = [];
   try {
-    const response = await fetch(
-      `${process.env.NEXT_URL}/api/resources/search`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(params),
-      },
-    );
+    const response = await fetch(`${process.env.NEXT_URL}/resources/search`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(params),
+    });
 
     console.log("API response status:", response.status);
 
