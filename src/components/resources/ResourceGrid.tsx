@@ -12,7 +12,7 @@ const ResourcesGrid: React.FC = () => {
       try {
         setIsLoading(true);
         console.log("Fetching resources...");
-        const response = await fetch("/api/resources");
+        const response = await fetch("/api/v1/resources");
         console.log("Response status:", response.status);
 
         if (!response.ok) {

@@ -104,7 +104,7 @@ const ResourcePage = async ({ params }: ResourcePageProps) => {
             {/* Logo */}
             <div className="w-16 h-16">
               <Image
-                src={resource.logo || "/images/advo-logo-color.png"}
+                src="/images/advo-logo-color.png"
                 alt={`${resource.name} logo`}
                 width={64}
                 height={64}

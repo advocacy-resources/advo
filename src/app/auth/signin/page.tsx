@@ -10,7 +10,6 @@ import {
 } from "next-auth/react";
 import Link from "next/link";
 import Image from "next/image";
-import { Button } from "@/components/ui/button";
 
 interface SignInProps {
   providers: Record<string, ClientSafeProvider>;
@@ -47,98 +46,87 @@ const SignIn: React.FC<SignInProps> = ({ providers }) => {
   };
 
   return (
-    <div className="relative flex grow h-full">
-      <div className="flex items-center justify-center w-full p-2">
-        <div className="max-w-md w-full space-y-8 p-10 bg-white rounded-xl shadow-md">
-          {/* Logo */}
-          <div className="flex justify-center">
-            <Image
-              src="/advo-color-physPurp-black.svg"
-              alt="Logo"
-              width={100}
-              height={100}
+    <div className="min-h-screen flex items-center justify-center bg-black text-white">
+      <div className="max-w-md w-full space-y-8 p-10 bg-gray-800 rounded-xl shadow-lg">
+        {/* Logo */}
+        <div className="flex justify-center">
+          <Image
+            src="/advo-color-white.svg"
+            alt="Logo"
+            width={100}
+            height={100}
+          />
+        </div>
+        <div className="mt-6 text-center text-3xl font-extrabold">
+          Sign in to your account
+        </div>
+        <form onSubmit={handleSignIn} className="space-y-6">
+          {error && <div className="text-red-500">{error}</div>}
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium">
+              Email
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="mt-1 block w-full px-3 py-2 border border-gray-700 bg-black text-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             />
           </div>
-          <div className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Sign in to your account
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium">
+              Password
+            </label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              autoComplete="current-password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="mt-1 block w-full px-3 py-2 border border-gray-700 bg-black text-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            />
           </div>
-          <form onSubmit={handleSignIn} className="space-y-6">
-            {error && <div className="text-red-500">{error}</div>}
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Email
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              />
-            </div>
-            <div className="flex justify-center space-x-4">
-              <button type="submit" className="parallelogram-btn">
-                <span className="inline-block transform skew-x-[18deg]">
-                  Sign In
-                </span>
-              </button>
-            </div>
-          </form>
-          <div className="mt-6 space-y-4">
-            {providers &&
-              Object.values(providers).map((provider) =>
-                provider.name !== "Credentials" ? (
-                  <div key={provider.name} className="flex justify-center">
-                    <Button
-                      onClick={(e) => handleSignIn(e)}
-                      className="parallelogram-btn"
-                    >
-                      <span className="inline-block transform skew-x-[18deg]">
-                        Sign in with {provider.name}
-                      </span>
-                    </Button>
-                  </div>
-                ) : null,
-              )}
-          </div>
-          <div className="flex justify-between items-center mt-4">
-            <Link
-              href="/auth/register"
-              className="text-sm text-indigo-600 hover:text-indigo-500"
-            >
-              Don&apos;t have an account? Sign Up
-            </Link>
-            <Link
-              href="/auth/change-password"
-              className="text-sm text-indigo-600 hover:text-indigo-500"
-            >
-              Forgot password?
-            </Link>
-          </div>
+          <button
+            type="submit"
+            className="w-full py-2 px-4 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >
+            Sign In
+          </button>
+        </form>
+        <div className="mt-6 space-y-4">
+          {providers &&
+            Object.values(providers).map((provider) =>
+              provider.name !== "Credentials" ? (
+                <div key={provider.name} className="flex justify-center">
+                  <button
+                    onClick={() => signIn(provider.id)}
+                    className="w-full py-2 px-4 rounded-md bg-pink-600 hover:bg-pink-700 text-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500"
+                  >
+                    Sign in with {provider.name}
+                  </button>
+                </div>
+              ) : null,
+            )}
+        </div>
+        <div className="flex justify-between items-center mt-4 text-sm">
+          <Link
+            href="/auth/register"
+            className="text-indigo-400 hover:underline"
+          >
+            Don&apos;t have an account? Sign Up
+          </Link>
+          <Link
+            href="/auth/change-password"
+            className="text-indigo-400 hover:underline"
+          >
+            Forgot password?
+          </Link>
         </div>
       </div>
     </div>

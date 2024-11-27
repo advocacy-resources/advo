@@ -5,8 +5,8 @@ import { parseISO, format } from "date-fns";
 import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { useUserData } from "@/hooks/useUserData";
-import PersonalInfoForm from "@/components/user/PersonalInfoForm";
-import ContactInfoForm from "@/components/user/ContactInfoForm";
+import PersonalInfoForm from "@/components/users/PersonalInfoForm";
+import ContactInfoForm from "@/components/users/ContactInfoForm";
 
 const AccountDetails: React.FC = () => {
   const { data: session } = useSession();

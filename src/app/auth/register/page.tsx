@@ -26,7 +26,6 @@ const SignUpPage: React.FC = () => {
 
     if (response.ok) {
       setSuccess("User registered successfully!");
-      // Redirect to sign-in page after successful registration
       setTimeout(() => router.push("/auth/signin"), 2000);
     } else {
       const data = await response.json();
@@ -35,19 +34,18 @@ const SignUpPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="max-w-md w-full space-y-8 p-10 bg-white rounded-xl shadow-md">
-        <div className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          Sign Up for an Account
+    <div className="min-h-screen flex items-center justify-center bg-black text-white">
+      <div className="max-w-md w-full space-y-8 p-10 bg-gray-800 rounded-xl shadow-lg">
+        {/* Header */}
+        <div className="text-center text-3xl font-extrabold">
+          Create Your Account
         </div>
+        {/* Form */}
         <form onSubmit={handleSignUp} className="space-y-6">
           {error && <div className="text-red-500">{error}</div>}
           {success && <div className="text-green-500">{success}</div>}
           <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700"
-            >
+            <label htmlFor="email" className="block text-sm font-medium">
               Email
             </label>
             <input
@@ -57,15 +55,12 @@ const SignUpPage: React.FC = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              className="mt-1 block w-full px-3 py-2 border border-gray-700 bg-black text-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             />
           </div>
 
           <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700"
-            >
+            <label htmlFor="password" className="block text-sm font-medium">
               Password
             </label>
             <input
@@ -75,22 +70,21 @@ const SignUpPage: React.FC = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              className="mt-1 block w-full px-3 py-2 border border-gray-700 bg-black text-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             />
           </div>
+
           <button
             type="submit"
-            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            className="w-full py-2 px-4 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
             Sign Up
           </button>
         </form>
-        <div className="text-center text-sm text-gray-600 mt-4">
+        {/* Footer Links */}
+        <div className="text-center text-sm">
           Already have an account?{" "}
-          <Link
-            href="/auth/signin"
-            className="text-indigo-600 hover:text-indigo-500"
-          >
+          <Link href="/auth/signin" className="text-indigo-400 hover:underline">
             Sign In
           </Link>
         </div>
