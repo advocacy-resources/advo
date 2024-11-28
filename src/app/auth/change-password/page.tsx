@@ -49,126 +49,100 @@ const ChangePasswordPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex">
-      {/* Left half with the image */}
-      <div className="w-1/2 relative hidden md:block">
-        <div className="absolute inset-0">
+    <div className="min-h-screen flex items-center justify-center bg-black text-white">
+      <div className="max-w-md w-full space-y-8 p-10 bg-gray-800 rounded-xl shadow-lg">
+        {/* Logo */}
+        <div className="flex justify-center">
           <Image
-            src="/AdvoHomeHeroBanner.png"
-            alt="Change Password Image"
-            className="object-cover"
-            width={1920}
-            height={1080}
+            src="/advo-color-physPurp-black.svg"
+            alt="Logo"
+            width={100}
+            height={100}
           />
         </div>
-      </div>
-
-      {/* Right half with the change password form */}
-      <div className="w-full md:w-1/2 flex items-center justify-center bg-gray-100">
-        <div className="max-w-md w-full space-y-8 p-10 bg-white rounded-xl shadow-md">
-          {/* Logo */}
-          <div className="flex justify-center">
-            <Image
-              src="/advo-color-physPurp-black.svg"
-              alt="Logo"
-              width={100}
-              height={100}
+        <div className="mt-6 text-center text-3xl font-extrabold">
+          Change Your Password
+        </div>
+        <form onSubmit={handleChangePassword} className="space-y-6">
+          {error && <div className="text-red-500">{error}</div>}
+          {success && <div className="text-green-500">{success}</div>}
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium">
+              Email
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="mt-1 block w-full px-3 py-2 border border-gray-700 bg-black text-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             />
           </div>
-          <div className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Change Your Password
-          </div>
-          <form onSubmit={handleChangePassword} className="space-y-6">
-            {error && <div className="text-red-500">{error}</div>}
-            {success && <div className="text-green-500">{success}</div>}
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Email
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="currentPassword"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Current Password
-              </label>
-              <input
-                id="currentPassword"
-                name="currentPassword"
-                type="password"
-                autoComplete="current-password"
-                required
-                value={currentPassword}
-                onChange={(e) => setCurrentPassword(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="newPassword"
-                className="block text-sm font-medium text-gray-700"
-              >
-                New Password
-              </label>
-              <input
-                id="newPassword"
-                name="newPassword"
-                type="password"
-                autoComplete="new-password"
-                required
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="confirmPassword"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Confirm New Password
-              </label>
-              <input
-                id="confirmPassword"
-                name="confirmPassword"
-                type="password"
-                autoComplete="new-password"
-                required
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              />
-            </div>
-            <div className="flex justify-center space-x-4">
-              <button type="submit" className="parallelogram-btn">
-                <span className="inline-block transform skew-x-[18deg]">
-                  Change Password
-                </span>
-              </button>
-            </div>
-          </form>
-          <div className="flex justify-center items-center mt-4">
-            <Link
-              href="/auth/signin"
-              className="text-sm text-indigo-600 hover:text-indigo-500"
+          <div>
+            <label
+              htmlFor="currentPassword"
+              className="block text-sm font-medium"
             >
-              Back to Sign In
-            </Link>
+              Current Password
+            </label>
+            <input
+              id="currentPassword"
+              name="currentPassword"
+              type="password"
+              autoComplete="current-password"
+              required
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+              className="mt-1 block w-full px-3 py-2 border border-gray-700 bg-black text-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            />
           </div>
+          <div>
+            <label htmlFor="newPassword" className="block text-sm font-medium">
+              New Password
+            </label>
+            <input
+              id="newPassword"
+              name="newPassword"
+              type="password"
+              autoComplete="new-password"
+              required
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              className="mt-1 block w-full px-3 py-2 border border-gray-700 bg-black text-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="confirmPassword"
+              className="block text-sm font-medium"
+            >
+              Confirm New Password
+            </label>
+            <input
+              id="confirmPassword"
+              name="confirmPassword"
+              type="password"
+              autoComplete="new-password"
+              required
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="mt-1 block w-full px-3 py-2 border border-gray-700 bg-black text-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            />
+          </div>
+          <button
+            type="submit"
+            className="w-full py-2 px-4 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >
+            Change Password
+          </button>
+        </form>
+        <div className="flex justify-between items-center mt-4 text-sm">
+          <Link href="/auth/signin" className="text-indigo-400 hover:underline">
+            Back to Sign In
+          </Link>
         </div>
       </div>
     </div>

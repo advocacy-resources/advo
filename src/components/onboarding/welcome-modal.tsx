@@ -9,16 +9,26 @@ import {
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import GradientButton from "@/components/onboarding/modal-button";
-import router from "next/router";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 
 export default function WelcomeModal() {
+  const { data: session, status } = useSession(); // Get session and authentication status
   const [isOpen, setIsOpen] = useState(false);
 
-  // Automatically open the modal on page load
+  // Automatically open the modal if the user is not logged in
   useEffect(() => {
-    setIsOpen(true);
-  }, []);
+    if (status === "authenticated") {
+      setIsOpen(false); // Ensure modal is closed if the user is logged in
+    } else if (status === "unauthenticated") {
+      setIsOpen(true); // Show modal if no session is detected
+    }
+  }, [status]);
+
+  // Show a loading state while session status is being determined
+  if (status === "loading") {
+    return null;
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
