@@ -1,6 +1,5 @@
-import ResourcePersonalisation from "@/components/resources/ResourcePersonalisation";
 import { Rating } from "@/enums/rating.enum";
-import Link from "next/link";
+import ResourceCard from "@/components/resources/ResourceCard";
 
 interface SearchResult {
   id: number;
@@ -10,7 +9,6 @@ interface SearchResult {
   type: string[];
   ageRange: string;
   zipCode: string;
-
   rating: Rating;
   favored: boolean;
 }
@@ -32,11 +30,14 @@ export default async function SearchResultsPage({
 
   let results: SearchResult[] = [];
   try {
-    const response = await fetch(`${process.env.NEXT_URL}/resources/search`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(params),
-    });
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/resources/search`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(params),
+      },
+    );
 
     console.log("API response status:", response.status);
 
@@ -48,7 +49,6 @@ export default async function SearchResultsPage({
     }
 
     const data = await response.json();
-    console.log("Raw data from API:", data);
 
     if (!Array.isArray(data)) {
       console.warn("API returned an error:", data.error);
@@ -79,31 +79,16 @@ export default async function SearchResultsPage({
     <div className="flex flex-col items-center gap-6 p-6 bg-black min-h-screen text-white">
       <div className="text-3xl font-bold">Search Results</div>
       {results.map((result) => (
-        <div key={result.id} className="w-full max-w-2xl">
-          <Link className="w-full" href={`/resources/${result.id}`}>
-            <div className="border border-gray-700 p-4 rounded-lg bg-gray-900 hover:bg-gray-800 transition-colors duration-200 cursor-pointer">
-              <div className="text-xl font-semibold text-pink-400">
-                {result.name}
-              </div>
-              <div className="text-gray-300">{result.description}</div>
-              <div className="text-gray-400 mt-2">
-                <strong>Category:</strong> {result.category}
-              </div>
-              <div className="text-gray-400">
-                <strong>Type:</strong>{" "}
-                {result.type?.length === 0 ? "N/A" : result.type?.join(", ")}
-              </div>
-              <div className="mt-4">
-                <ResourcePersonalisation
-                  initialData={{
-                    rating: result.rating || Rating.NULL,
-                    favored: result.favored || false,
-                  }}
-                />
-              </div>
-            </div>
-          </Link>
-        </div>
+        <ResourceCard
+          key={result.id}
+          id={result.id}
+          name={result.name}
+          description={result.description}
+          category={result.category}
+          type={result.type}
+          rating={result.rating}
+          favored={result.favored}
+        />
       ))}
     </div>
   );

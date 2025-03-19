@@ -8,12 +8,12 @@ import {
 } from "@/components/ui/dialog";
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import GradientButton from "@/components/onboarding/modal-button";
+import GradientButton from "@/components/onboarding/gradient-button";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 
 export default function WelcomeModal() {
-  const { data: session, status } = useSession(); // Get session and authentication status
+  const { status } = useSession(); // Get session and authentication status
   const [isOpen, setIsOpen] = useState(false);
 
   // Automatically open the modal if the user is not logged in

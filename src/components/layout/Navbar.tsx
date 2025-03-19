@@ -4,6 +4,7 @@ import { useSession, signOut } from "next-auth/react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import Logo from "../../assets/myAdvo-peachWhite.svg";
+import GTFO from "../../../public/images/gtfo.svg";
 import { useRouter } from "next/navigation";
 
 function Navbar() {
@@ -24,17 +25,22 @@ function Navbar() {
     <header>
       <div className="relative h-16 flex items-center">
         {/* Left Icon */}
-        <div className="absolute left-0 flex items-center px-4 h-full rotate-180">
-          <Image
-            src="/images/gtfo.svg"
-            alt="Navigation Icon"
-            height={24}
-            width={24}
-            className="cursor-pointer"
+        <div className="absolute left-0 flex items-center h-full px-4">
+          <button
+            className="flex items-center justify-center rotate-180"
             onClick={() => {
-              router.push("/somepage"); // Replace with your desired route
+              console.log("GTFO");
+              router.push("/");
             }}
-          />
+          >
+            <Image
+              src={GTFO}
+              alt="Navigation Icon"
+              height={24}
+              width={24}
+              className="cursor-pointer"
+            />
+          </button>
         </div>
 
         {/* Center Logo */}
@@ -44,9 +50,7 @@ function Navbar() {
             alt="The myAdvo Logo."
             height={60}
             className="cursor-pointer"
-            onClick={() => {
-              router.push("/");
-            }}
+            onClick={() => router.push("/")}
           />
         </div>
 

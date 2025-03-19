@@ -4,6 +4,7 @@ import SidebarMap from "@/components/sidebar/SidebarMap";
 import geocodeAddress from "@/components/utils/geocode-address";
 import Image from "next/image";
 import "leaflet/dist/leaflet.css";
+import { getSession } from "next-auth/react";
 
 interface ResourcePageProps {
   params: { id: string };
@@ -72,6 +73,7 @@ const VerifiedCircle = () => (
 );
 
 const ResourcePage = async ({ params }: ResourcePageProps) => {
+  const session = await getSession();
   const resource = await fetchResource(params.id);
 
   if (!resource) return <div>Resource not found</div>;
@@ -82,150 +84,157 @@ const ResourcePage = async ({ params }: ResourcePageProps) => {
   const location = address ? await geocodeAddress(address) : null;
   const banner = "/resourcebannerimage.png";
 
-  return (
-    <>
-      {/* Banner Section */}
-      <div className="relative w-full h-48">
-        <Image
-          src={banner}
-          alt="Resource Banner"
-          layout="fill"
-          objectFit="cover"
-          priority
-        />
-      </div>
+  // If user is not signed in, show a message to sign in
+  if (!session) {
+    return <div>Sign in to view this page</div>;
+  } else {
+    return (
+      <>
+        {/* Banner Section */}
+        <div className="relative w-full h-48">
+          <Image
+            src={banner}
+            alt="Resource Banner"
+            layout="fill"
+            objectFit="cover"
+            priority
+          />
+        </div>
 
-      {/* Main Content Section */}
-      <div className="flex flex-col gap-8 p-8 self-center max-w-2xl bg-black text-white">
-        {/* Logo and Name */}
-        <section className="mb-6">
+        {/* Main Content Section */}
+        <div className="flex flex-col gap-8 p-8 self-center max-w-2xl bg-black text-white">
           {/* Logo and Name */}
-          <div className="flex items-center gap-4">
-            {/* Logo */}
-            <div className="w-16 h-16">
-              <Image
-                src={resource.logo || "/images/advo-logo-color.png"}
-                alt={`${resource.name} logo`}
-                width={64}
-                height={64}
-                className="rounded-md object-cover"
-              />
-            </div>
-            <h1 className="text-3xl font-bold">{resource.name}</h1>
-          </div>
-
-          {/* Centered Icons and Stats */}
-          <div className="flex justify-center items-center gap-6 mt-4">
-            {/* Thumbs Up and Rating */}
-            <div className="flex items-center gap-2">
-              <Image
-                src="/thumbs-up.svg"
-                alt="Thumbs Up"
-                width={20}
-                height={20}
-                className="object-contain"
-              />
-              <span className="text-lg">
-                {resource.averageRating || "No rating yet"}
-              </span>
+          <section className="mb-6">
+            {/* Logo and Name */}
+            <div className="flex items-center gap-4">
+              {/* Logo */}
+              <div className="w-16 h-16">
+                <Image
+                  src={resource.logo || "/images/advo-logo-color.png"}
+                  alt={`${resource.name} logo`}
+                  width={64}
+                  height={64}
+                  className="rounded-md object-cover"
+                />
+              </div>
+              <h1 className="text-3xl font-bold">{resource.name}</h1>
             </div>
 
-            {/* Verified Listing */}
-            <div className="flex items-center gap-2">
-              <VerifiedCircle />
-              <span className="text-lg">Verified Listing</span>
+            {/* Centered Icons and Stats */}
+            <div className="flex justify-center items-center gap-6 mt-4">
+              {/* Thumbs Up and Rating */}
+              <div className="flex items-center gap-2">
+                <Image
+                  src="/thumbs-up.svg"
+                  alt="Thumbs Up"
+                  width={20}
+                  height={20}
+                  className="object-contain"
+                />
+                <span className="text-lg">
+                  {resource.averageRating || "No rating yet"}
+                </span>
+              </div>
+
+              {/* Verified Listing */}
+              <div className="flex items-center gap-2">
+                <VerifiedCircle />
+                <span className="text-lg">Verified Listing</span>
+              </div>
             </div>
-          </div>
 
-          {/* Description */}
-          <p className="mt-4 text-lg">
-            {resource.description || "No description available."}
-          </p>
-        </section>
+            {/* Description */}
+            <p className="mt-4 text-lg">
+              {resource.description || "No description available."}
+            </p>
+          </section>
 
-        <hr className="h-[.1rem] bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 border-0" />
+          <hr className="h-[.1rem] bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 border-0" />
 
-        {/* Contact Information */}
-        <section>
-          <h2 className="text-2xl font-semibold mb-2">Contact Information</h2>
-          {contact.phone && <p className="text-lg">Phone: {contact.phone}</p>}
-          {contact.email && <p className="text-lg">Email: {contact.email}</p>}
-          {contact.website && (
+          {/* Contact Information */}
+          <section>
+            <h2 className="text-2xl font-semibold mb-2">Contact Information</h2>
+            {contact.phone && <p className="text-lg">Phone: {contact.phone}</p>}
+            {contact.email && <p className="text-lg">Email: {contact.email}</p>}
+            {contact.website && (
+              <p className="text-lg">
+                Website:{" "}
+                <a
+                  href={`https://${contact.website}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-500 underline"
+                >
+                  {contact.website}
+                </a>
+              </p>
+            )}
+            {!contact.phone && !contact.email && !contact.website && (
+              <p className="text-lg text-red-500">
+                Contact information not available.
+              </p>
+            )}
+          </section>
+
+          {/* Operating Hours */}
+          <section>
+            <h2 className="text-2xl font-semibold mb-2">Operating Hours</h2>
+            {operatingHours ? (
+              <ul>
+                {Object.entries(operatingHours).map(([day, hours]) => (
+                  <li key={day} className="text-lg">
+                    <strong>
+                      {day.charAt(0).toUpperCase() + day.slice(1)}:
+                    </strong>{" "}
+                    {hours.open && hours.close
+                      ? `${hours.open} - ${hours.close}`
+                      : "Closed"}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-lg text-red-500">
+                Operating hours not available.
+              </p>
+            )}
+          </section>
+
+          {/* Address and Map */}
+          <section>
+            <h2 className="text-2xl font-semibold mb-2">Address</h2>
+            {address ? (
+              <p className="text-lg mb-4">
+                {address.street}, {address.city}, {address.state}
+              </p>
+            ) : (
+              <p className="text-lg text-red-500">Address not available.</p>
+            )}
+            {location ? (
+              <SidebarMap location={location} />
+            ) : (
+              <p className="text-lg text-red-500">
+                Unable to display map. Location data unavailable.
+              </p>
+            )}
+          </section>
+
+          {/* Additional Details */}
+          <section>
+            <h2 className="text-2xl font-semibold mb-2">Additional Details</h2>
             <p className="text-lg">
-              Website:{" "}
-              <a
-                href={`https://${contact.website}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-500 underline"
-              >
-                {contact.website}
-              </a>
+              <strong>Category:</strong> {resource.category.join(", ")}
             </p>
-          )}
-          {!contact.phone && !contact.email && !contact.website && (
-            <p className="text-lg text-red-500">
-              Contact information not available.
+            <p className="text-lg">
+              <strong>Favorites:</strong> {resource.favoriteCount}
             </p>
-          )}
-        </section>
-
-        {/* Operating Hours */}
-        <section>
-          <h2 className="text-2xl font-semibold mb-2">Operating Hours</h2>
-          {operatingHours ? (
-            <ul>
-              {Object.entries(operatingHours).map(([day, hours]) => (
-                <li key={day} className="text-lg">
-                  <strong>{day.charAt(0).toUpperCase() + day.slice(1)}:</strong>{" "}
-                  {hours.open && hours.close
-                    ? `${hours.open} - ${hours.close}`
-                    : "Closed"}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-lg text-red-500">
-              Operating hours not available.
+            <p className="text-lg">
+              <strong>Upvotes:</strong> {resource.upvoteCount ?? 0}
             </p>
-          )}
-        </section>
-
-        {/* Address and Map */}
-        <section>
-          <h2 className="text-2xl font-semibold mb-2">Address</h2>
-          {address ? (
-            <p className="text-lg mb-4">
-              {address.street}, {address.city}, {address.state}
-            </p>
-          ) : (
-            <p className="text-lg text-red-500">Address not available.</p>
-          )}
-          {location ? (
-            <SidebarMap location={location} />
-          ) : (
-            <p className="text-lg text-red-500">
-              Unable to display map. Location data unavailable.
-            </p>
-          )}
-        </section>
-
-        {/* Additional Details */}
-        <section>
-          <h2 className="text-2xl font-semibold mb-2">Additional Details</h2>
-          <p className="text-lg">
-            <strong>Category:</strong> {resource.category.join(", ")}
-          </p>
-          <p className="text-lg">
-            <strong>Favorites:</strong> {resource.favoriteCount}
-          </p>
-          <p className="text-lg">
-            <strong>Upvotes:</strong> {resource.upvoteCount ?? 0}
-          </p>
-        </section>
-      </div>
-    </>
-  );
+          </section>
+        </div>
+      </>
+    );
+  }
 };
 
 export default ResourcePage;
