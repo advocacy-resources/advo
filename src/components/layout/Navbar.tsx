@@ -2,10 +2,9 @@
 
 import { useSession, signOut } from "next-auth/react";
 import Image from "next/image";
-import { Button } from "@/components/ui/button";
-import Logo from "../../assets/myAdvo-peachWhite.svg";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import Logo from "../../assets/myAdvo-peachWhite.svg";
 
 function Navbar() {
   const { data: session } = useSession();
@@ -35,8 +34,35 @@ function Navbar() {
     "bg-neutral-800 text-white hover:bg-neutral-700 transition-colors duration-200 px-4 py-2";
 
   return (
-    <header>
-      <div className="relative h-16 flex">
+    <header className="w-full">
+      {/* Mobile Search (Top) */}
+      <div className="md:hidden p-4  shadow-sm static top-0 z-10">
+        <form
+          onSubmit={handleSearch}
+          className="flex flex-col sm:flex-row gap-2"
+        >
+          <input
+            type="text"
+            placeholder="Search terms..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="px-4 py-2 border border-gray-300 focus:outline-none"
+          />
+          <input
+            type="text"
+            placeholder="Zip code"
+            value={zipCode}
+            onChange={(e) => setZipCode(e.target.value)}
+            className="px-4 py-2 border border-gray-300 focus:outline-none"
+          />
+          <button type="submit" className={buttonClass}>
+            Search
+          </button>
+        </form>
+      </div>
+
+      {/* Navbar */}
+      <div className="relative h-16 md:flex hidden items-center">
         {/* Left Logo */}
         <div className="absolute inset-0">
           <Image
@@ -48,11 +74,11 @@ function Navbar() {
           />
         </div>
 
-        {/* Center Section - Search */}
-        <div className="absolute inset-0 flex justify-center items-center text-black">
+        {/* Desktop Search - Centered */}
+        <div className="absolute inset-0 hidden md:flex justify-center items-center text-black">
           <form
             onSubmit={handleSearch}
-            className="flex bg-white shadow-sm overflow-hidden"
+            className="flex  shadow-sm overflow-hidden"
           >
             <input
               type="text"
@@ -76,7 +102,6 @@ function Navbar() {
 
         {/* Right Section */}
         <div className="absolute right-0 flex justify-end items-center px-8 h-full gap-4">
-          {/* Recommend a resource */}
           <button
             className={buttonClass}
             onClick={() => router.push("/recommend")}
