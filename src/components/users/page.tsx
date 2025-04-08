@@ -23,9 +23,10 @@ export default function UsersPage() {
 
         const data = await response.json();
         setUsers(data);
-      } catch (err: any) {
-        setError(err.message || "An unexpected error occurred");
-      } finally {
+      } catch (err: Error | unknown) {
+        if (err instanceof Error) {
+          setError(err.message || "An unexpected error occurred");
+        }
         setLoading(false);
       }
     };
