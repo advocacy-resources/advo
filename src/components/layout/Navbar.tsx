@@ -78,7 +78,7 @@ function Navbar() {
         <div className="absolute inset-0 hidden md:flex justify-center items-center text-black">
           <form
             onSubmit={handleSearch}
-            className="flex  shadow-sm overflow-hidden"
+            className="flex shadow-sm overflow-hidden"
           >
             <input
               type="text"
