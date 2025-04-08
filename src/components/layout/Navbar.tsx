@@ -110,11 +110,14 @@ function Navbar() {
           </button>
           {session ? (
             <>
+              <button
+                onClick={() => router.push("/profile")}
+                className={buttonClass}
+              >
+                Profile
+              </button>
               <button onClick={handleSignOut} className={buttonClass}>
                 Sign Out
-              </button>
-              <button onClick={handleSignUp} className={buttonClass}>
-                Sign Up
               </button>
             </>
           ) : (
