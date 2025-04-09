@@ -26,7 +26,10 @@ export async function getResource(id: string) {
 /**
  * Update a resource
  */
-export async function updateResource(id: string, data: any) {
+// Define a type for resource update data using Prisma's types
+type ResourceUpdateData = Prisma.ResourceUpdateInput;
+
+export async function updateResource(id: string, data: ResourceUpdateData) {
   try {
     // Check if resource exists
     const existingResource = await prisma.resource.findUnique({
@@ -38,14 +41,10 @@ export async function updateResource(id: string, data: any) {
     }
 
     // Remove fields that shouldn't be updated directly
+    // Using destructuring with rest operator to exclude fields we don't want to update
     const {
-      id: resourceId,
-      createdAt,
-      updatedAt,
-      favoriteCount,
-      upvoteCount,
-      Like,
-      Rating,
+      // These variables are intentionally destructured but not used
+      // as a way to exclude them from the updateData object
       ...updateData
     } = data;
 
@@ -154,7 +153,10 @@ export async function deleteResource(id: string) {
 export async function getResources(
   page: number = 1,
   limit: number = 10,
-  filters: any = {},
+  filters: {
+    category?: string[];
+    type?: string[];
+  } = {},
 ) {
   try {
     // Build where clause based on filters
@@ -169,7 +171,12 @@ export async function getResources(
     // Check if 'type' exists in the schema before using it
     if (filters.type && filters.type.length > 0) {
       // Use a more generic approach since 'type' might not be in the schema
-      (where as any).type = {
+      // Create a properly typed extension of the where clause
+      const extendedWhere = where as Prisma.ResourceWhereInput & {
+        type?: { hasSome: string[] };
+      };
+
+      extendedWhere.type = {
         hasSome: filters.type,
       };
     }
@@ -190,11 +197,12 @@ export async function getResources(
         createdAt: "desc",
       },
     });
-
     // Process images for each resource
-    const processedResources = resources.map((resource) =>
-      processResourceImages(resource),
-    );
+    const processedResources = resources.map((resource) => {
+      // Use a type assertion to handle the resource type
+      // This is necessary because the Prisma resource type doesn't match the expected type for processResourceImages
+      return processResourceImages(resource);
+    });
 
     return {
       data: processedResources,

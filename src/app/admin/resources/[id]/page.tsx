@@ -24,34 +24,44 @@ export default function ResourceEditPage({
   const router = useRouter();
 
   useEffect(() => {
+    // Define fetchResource inside useEffect to avoid dependency issues
+    const fetchResource = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(`/api/v1/admin/resources/${params.id}`);
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch resource");
+        }
+
+        const data = await response.json();
+        console.log("Admin resource data:", data);
+        console.log("Profile photo exists:", !!data.profilePhoto);
+        console.log("Banner image exists:", !!data.bannerImage);
+        setResource(data);
+        setEditedResource(data);
+        setError(null);
+      } catch (err) {
+        setError("Error loading resource. Please try again.");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchResource();
   }, [params.id]);
 
-  const fetchResource = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch(`/api/v1/admin/resources/${params.id}`);
+  // Define a type for the possible values that can be passed to handleInputChange
+  type ResourceFieldValue =
+    | string
+    | string[]
+    | { [key: string]: string }
+    | Buffer
+    | null
+    | undefined;
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch resource");
-      }
-
-      const data = await response.json();
-      console.log("Admin resource data:", data);
-      console.log("Profile photo exists:", !!data.profilePhoto);
-      console.log("Banner image exists:", !!data.bannerImage);
-      setResource(data);
-      setEditedResource(data);
-      setError(null);
-    } catch (err) {
-      setError("Error loading resource. Please try again.");
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleInputChange = (field: string, value: any) => {
+  const handleInputChange = (field: string, value: ResourceFieldValue) => {
     if (!editedResource) return;
 
     console.log(
@@ -66,13 +76,12 @@ export default function ResourceEditPage({
     // Create a copy of the edited resource
     const updatedResource = { ...editedResource };
 
-    // Set the field value using type assertion
-    (updatedResource as any)[field] = value;
+    // Set the field value using a type-safe approach
+    // Create a record type that allows string indexing
+    const typedResource = editedResource as Record<string, ResourceFieldValue>;
+    typedResource[field] = value;
 
-    console.log(
-      `Updated ${field} in resource:`,
-      !!(updatedResource as any)[field],
-    );
+    console.log(`Updated ${field} in resource:`, !!typedResource[field]);
 
     // Special handling for image URLs to ensure they're persisted
     if (field === "profilePhotoUrl") {
@@ -121,7 +130,7 @@ export default function ResourceEditPage({
       console.log("Banner image URL:", editedResource?.bannerImageUrl);
 
       // Create a new object with only the fields we want to update
-      const resourceToUpdate: any = {
+      const resourceToUpdate: Partial<Resource> = {
         id: editedResource.id,
         name: editedResource.name,
         description: editedResource.description,
@@ -552,7 +561,8 @@ export default function ResourceEditPage({
         {isEditing && (
           <div className="mt-6 bg-yellow-900 p-3 rounded text-yellow-200 text-sm">
             <p>
-              * Changes will not be applied until you click &quot;Save Changes"
+              * Changes will not be applied until you click &quot;Save
+              Changes&quot;
             </p>
           </div>
         )}

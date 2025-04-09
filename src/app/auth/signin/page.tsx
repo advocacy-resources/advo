@@ -10,6 +10,7 @@ import {
 } from "next-auth/react";
 import Link from "next/link";
 import Image from "next/image";
+import LogoImage from "@/assets/myAdvo-peachWhite.svg";
 
 interface SignInProps {
   providers: Record<string, ClientSafeProvider>;
@@ -51,7 +52,7 @@ const SignIn: React.FC<SignInProps> = ({ providers }) => {
         {/* Logo */}
         <div className="flex justify-center">
           <Image
-            src="/advo-color-white.svg"
+            src={LogoImage}
             alt="Logo"
             width={100}
             height={100}
