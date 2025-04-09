@@ -78,7 +78,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Management Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Link href="/admin/resources">
           <Card className="p-6 bg-gray-800 hover:bg-gray-700 transition cursor-pointer border-0 shadow-md">
             <h2 className="text-2xl font-semibold mb-2 text-white">Resources Management</h2>
@@ -93,6 +93,15 @@ export default function AdminDashboard() {
             <h2 className="text-2xl font-semibold mb-2 text-white">Users Management</h2>
             <p className="text-gray-300">
               View, edit, and manage user accounts
+            </p>
+          </Card>
+        </Link>
+
+        <Link href="/admin/recommendations">
+          <Card className="p-6 bg-gray-800 hover:bg-gray-700 transition cursor-pointer border-0 shadow-md">
+            <h2 className="text-2xl font-semibold mb-2 text-white">Recommendations</h2>
+            <p className="text-gray-300">
+              Review and manage resource recommendations
             </p>
           </Card>
         </Link>

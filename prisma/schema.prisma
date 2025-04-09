@@ -87,3 +87,16 @@ model Review {
   User       User     @relation(fields: [userId], references: [id])
   Resource   Resource @relation(fields: [resourceId], references: [id])
 }
+
+model ResourceRecommendation {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String   // Name of the recommended resource
+  type        String   // "state" or "national"
+  state       String?  // State name if type is "state"
+  note        String   @db.String // Note about why they are recommending this resource
+  status      String   @default("pending") // Status of the recommendation: pending, approved, rejected
+  submittedBy String?  // Optional name of the person who submitted the recommendation
+  email       String?  // Optional email of the person who submitted the recommendation
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
