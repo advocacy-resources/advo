@@ -19,7 +19,7 @@ function Navbar() {
   const [searchError, setSearchError] = useState<string | null>(null);
 
   const handleSignOut = () => {
-    signOut({ redirect: false });
+    signOut({ callbackUrl: "/auth/signin" });
   };
 
   const handleSignIn = () => {
@@ -97,7 +97,17 @@ function Navbar() {
   return (
     <header className="w-full">
       {/* Mobile Search (Top) */}
-      <div className="md:hidden p-4  shadow-sm static top-0 z-10">
+      <div className="md:hidden p-4 shadow-sm static top-0 z-10">
+        {/* Mobile Logo */}
+        <div className="flex justify-between items-center mb-4">
+          <Image
+            src={Logo}
+            alt="The myAdvo Logo."
+            height={40}
+            className="cursor-pointer"
+            onClick={() => router.push("/")}
+          />
+        </div>
         <form
           onSubmit={handleSearch}
           className="flex flex-col sm:flex-row gap-2"
@@ -143,13 +153,17 @@ function Navbar() {
       {/* Navbar */}
       <div className="relative h-16 md:flex hidden items-center">
         {/* Left Logo */}
-        <div className="absolute inset-0">
+        <div className="absolute left-0 h-full flex items-center z-10">
           <Image
             src={Logo}
             alt="The myAdvo Logo."
             height={60}
-            className="cursor-pointer m-2"
-            onClick={() => router.push("/")}
+            width={120}
+            className="cursor-pointer m-8 p-8"
+            onClick={() => {
+              router.push("/");
+            }}
+            priority
           />
         </div>
 
@@ -217,6 +231,14 @@ function Navbar() {
           </button>
           {session ? (
             <>
+              {session.user.role === "admin" && (
+                <button
+                  onClick={() => router.push("/admin")}
+                  className={`${buttonClass} bg-purple-700 hover:bg-purple-600`}
+                >
+                  Admin Dashboard
+                </button>
+              )}
               <button
                 onClick={() => router.push("/profile")}
                 className={buttonClass}

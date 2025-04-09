@@ -12,9 +12,12 @@ model User {
   email     String     @unique
   name      String?
   password  String
+  role      String     @default("user") // Added role field with default value "user"
+  isActive  Boolean    @default(true) // Added isActive field to control account status
   favorites Favorite[] // One-to-many relationship with Favorite
   likes     Like[] // One-to-many relationship with Like
   ratings   Rating[] // One-to-many relationship with Rating
+  reviews   Review[] // One-to-many relationship with Review
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
 }
@@ -29,10 +32,17 @@ model Resource {
   operatingHours Json // JSON for operating hours (per day schedule)
   favoriteCount  Int      @default(0) // Integer for count of favorites
   upvoteCount    Int? // Nullable field for upvote count
+  profilePhoto   Bytes?   // Binary data for the profile photo
+  profilePhotoType String? // MIME type of the profile photo
+  bannerImage    Bytes?   // Binary data for the banner image
+  bannerImageType String? // MIME type of the banner image
+  profilePhotoUrl String? // URL to the profile photo
+  bannerImageUrl  String? // URL to the banner image
   createdAt      DateTime @default(now()) @map("createdAt") // Timestamp for creation
   updatedAt      DateTime @updatedAt @map("updatedAt") // Timestamp for updates
   Like           Like[]
   Rating         Rating[]
+  Review         Review[]
 }
 
 model Favorite {
@@ -65,4 +75,15 @@ model Rating {
   Resource   Resource @relation(fields: [resourceId], references: [id])
 
   @@unique([userId, resourceId]) // Ensure a user can rate a resource only once
+}
+
+model Review {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId     String   @db.ObjectId
+  resourceId String   @db.ObjectId
+  content    String   @db.String // Review text content
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  User       User     @relation(fields: [userId], references: [id])
+  Resource   Resource @relation(fields: [resourceId], references: [id])
 }

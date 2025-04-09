@@ -13,6 +13,8 @@ export interface IUserLogin {
   name?: string;
   image?: ImageType;
   emailVerified?: boolean;
+  role?: string; // Added role field
+  isActive?: boolean; // Added isActive field
 }
 
 // Interface for the user in NextAuth, extending NextAuth's User and adapting from MongoDB
@@ -23,5 +25,9 @@ export interface IUser extends NextAuthUser {
   email: string;
   image?: ImageType;
   emailVerified?: boolean;
+  role?: string; // Added role field
+  isActive?: boolean; // Added isActive field
+  createdAt?: Date | string; // Added createdAt field
+  updatedAt?: Date | string; // Added updatedAt field
   // Add any other custom properties that are specific to your app
 }

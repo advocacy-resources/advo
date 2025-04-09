@@ -1,12 +1,11 @@
 "use client";
 
-// import WelcomeModal from "@/components/onboarding/welcome-modal";
+import HomeResourceGrid from "@/components/resources/HomeResourceGrid";
 
 export default function Home() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-black text-white">
-      {/* Welcome Modal */}
-      {/* <WelcomeModal /> */}
+    <div className="min-h-screen bg-black text-white py-8 px-4">
+      <HomeResourceGrid />
     </div>
   );
 }

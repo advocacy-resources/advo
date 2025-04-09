@@ -105,131 +105,206 @@ const ResourceForm: React.FC = () => {
   return (
     <form
       onSubmit={handleSubmit}
-      className="max-w-lg mx-auto p-4 bg-white shadow-md rounded-md"
+      className="w-full max-w-5xl mx-auto p-6 md:p-8 bg-black border border-gray-700 shadow-md rounded-lg"
     >
-      <div className="text-2xl font-bold my-4 text-center">
+      <div className="text-2xl font-bold my-4 text-center text-white">
         Create a new resource
       </div>
 
       {/* Name */}
-      <Input
-        className="block text-sm font-medium text-gray-700 mb-4"
-        type="text"
-        name="name"
-        value={formData.name}
-        onChange={handleChange}
-        placeholder="e.g. Advocacy Resources, Inc."
-      />
+      <div className="mb-8">
+        <label className="block text-sm font-medium text-gray-300 mb-2">
+          Resource Name
+        </label>
+        <Input
+          type="text"
+          name="name"
+          value={formData.name}
+          onChange={handleChange}
+          placeholder="e.g. Advocacy Resources, Inc."
+          className="bg-gray-800 border-gray-700 text-white text-base md:text-lg h-12"
+        />
+      </div>
 
       {/* Description */}
-      <Textarea
-        name="description"
-        value={formData.description}
-        onChange={handleChange}
-        placeholder="Description"
-        className="resize-none mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-      />
+      <div className="mb-8">
+        <label className="block text-sm font-medium text-gray-300 mb-2">
+          Description
+        </label>
+        <Textarea
+          name="description"
+          value={formData.description}
+          onChange={handleChange}
+          placeholder="Describe the resource and its services"
+          className="resize-none bg-gray-800 border-gray-700 text-white min-h-[120px] text-base"
+        />
+      </div>
 
       {/* Category */}
-      <div className="my-4 text-center">Category</div>
-      <Select onValueChange={handleCategoryChange}>
-        <SelectTrigger>
-          <SelectValue placeholder="Select Category" />
-        </SelectTrigger>
-        <SelectContent>
-          {categories.map((category) => (
-            <SelectItem key={category} value={category}>
-              {category}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      <div className="mb-8">
+        <label className="block text-sm font-medium text-gray-300 mb-2">
+          Category
+        </label>
+        <Select onValueChange={handleCategoryChange}>
+          <SelectTrigger className="bg-gray-800 border-gray-700 text-white h-12">
+            <SelectValue placeholder="Select Category" />
+          </SelectTrigger>
+          <SelectContent>
+            {categories.map((category) => (
+              <SelectItem key={category} value={category}>
+                {category}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <hr className="h-1 bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 border-0 rounded-full my-6" />
 
       {/* Contact Information */}
-      <div className="my-4 text-center">Contact Information</div>
-      <div className="flex flex-col gap-4">
-        <Input
-          type="text"
-          name="phone"
-          value={formData.contact.phone}
-          onChange={(e) => handleNestedChange(e, "contact")}
-          placeholder="Phone"
-        />
-        <Input
-          type="email"
-          name="email"
-          value={formData.contact.email}
-          onChange={(e) => handleNestedChange(e, "contact")}
-          placeholder="Email"
-        />
-        <Input
-          type="text"
-          name="website"
-          value={formData.contact.website}
-          onChange={(e) => handleNestedChange(e, "contact")}
-          placeholder="Website"
-        />
+      <div className="mb-8">
+        <h3 className="text-xl font-semibold mb-6 text-white">
+          Contact Information
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Phone
+            </label>
+            <Input
+              type="text"
+              name="phone"
+              value={formData.contact.phone}
+              onChange={(e) => handleNestedChange(e, "contact")}
+              placeholder="Phone"
+              className="bg-gray-800 border-gray-700 text-white h-12"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Email
+            </label>
+            <Input
+              type="email"
+              name="email"
+              value={formData.contact.email}
+              onChange={(e) => handleNestedChange(e, "contact")}
+              placeholder="Email"
+              className="bg-gray-800 border-gray-700 text-white h-12"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Website
+            </label>
+            <Input
+              type="text"
+              name="website"
+              value={formData.contact.website}
+              onChange={(e) => handleNestedChange(e, "contact")}
+              placeholder="Website"
+              className="bg-gray-800 border-gray-700 text-white h-12"
+            />
+          </div>
+        </div>
       </div>
 
       {/* Address */}
-      <div className="my-4 text-center">Address</div>
-      <div className="flex flex-col gap-4">
-        <Input
-          type="text"
-          name="street"
-          value={formData.address.street}
-          onChange={(e) => handleNestedChange(e, "address")}
-          placeholder="Street"
-        />
-        <Input
-          type="text"
-          name="city"
-          value={formData.address.city}
-          onChange={(e) => handleNestedChange(e, "address")}
-          placeholder="City"
-        />
-        <Input
-          type="text"
-          name="state"
-          value={formData.address.state}
-          onChange={(e) => handleNestedChange(e, "address")}
-          placeholder="State"
-        />
+      <div className="mb-8">
+        <h3 className="text-xl font-semibold mb-6 text-white">Address</h3>
+        <div className="grid grid-cols-1 gap-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Street
+            </label>
+            <Input
+              type="text"
+              name="street"
+              value={formData.address.street}
+              onChange={(e) => handleNestedChange(e, "address")}
+              placeholder="Street"
+              className="bg-gray-800 border-gray-700 text-white h-12"
+            />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                City
+              </label>
+              <Input
+                type="text"
+                name="city"
+                value={formData.address.city}
+                onChange={(e) => handleNestedChange(e, "address")}
+                placeholder="City"
+                className="bg-gray-800 border-gray-700 text-white h-12"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                State
+              </label>
+              <Input
+                type="text"
+                name="state"
+                value={formData.address.state}
+                onChange={(e) => handleNestedChange(e, "address")}
+                placeholder="State"
+                className="bg-gray-800 border-gray-700 text-white h-12"
+              />
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Operating Hours */}
-      <div className="my-4 text-center">Operating Hours</div>
-      <div className="space-y-4">
-        {(
-          Object.keys(
-            formData.operatingHours,
-          ) as (keyof FormData["operatingHours"])[]
-        ).map((day) => (
-          <div className="flex items-center gap-4" key={day}>
-            <div className="w-24 text-right capitalize">{day}</div>
-            <Input
-              type="text"
-              name="open"
-              value={formData.operatingHours[day].open}
-              onChange={(e) => handleNestedChange(e, "operatingHours")}
-              placeholder="Open"
-              className="w-32"
-            />
-            <Input
-              type="text"
-              name="close"
-              value={formData.operatingHours[day].close}
-              onChange={(e) => handleNestedChange(e, "operatingHours")}
-              placeholder="Close"
-              className="w-32"
-            />
+      <div className="mb-8">
+        <h3 className="text-xl font-semibold mb-6 text-white">
+          Operating Hours
+        </h3>
+        <div className="bg-gray-900 p-6 rounded-lg">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+            {(
+              Object.keys(
+                formData.operatingHours,
+              ) as (keyof FormData["operatingHours"])[]
+            ).map((day) => (
+              <div className="flex items-center gap-4" key={day}>
+                <div className="w-28 text-right capitalize text-gray-300 font-medium">
+                  {day}
+                </div>
+                <div className="flex-1 flex gap-2">
+                  <Input
+                    type="text"
+                    name="open"
+                    value={formData.operatingHours[day].open}
+                    onChange={(e) => handleNestedChange(e, "operatingHours")}
+                    placeholder="Open"
+                    className="flex-1 bg-gray-800 border-gray-700 text-white h-12"
+                  />
+                  <Input
+                    type="text"
+                    name="close"
+                    value={formData.operatingHours[day].close}
+                    onChange={(e) => handleNestedChange(e, "operatingHours")}
+                    placeholder="Close"
+                    className="flex-1 bg-gray-800 border-gray-700 text-white h-12"
+                  />
+                </div>
+              </div>
+            ))}
           </div>
-        ))}
+        </div>
       </div>
 
       {/* Submit Button */}
-      <div className="flex justify-center">
-        <Button type="submit">Create Resource</Button>
+      <div className="flex justify-center mt-10">
+        <Button
+          type="submit"
+          className="bg-blue-600 hover:bg-blue-700 text-white px-10 py-3 rounded-md text-lg font-medium w-full md:w-auto"
+        >
+          Create Resource
+        </Button>
       </div>
     </form>
   );

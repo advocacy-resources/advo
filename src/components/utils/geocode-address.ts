@@ -7,7 +7,8 @@ const geocodeAddress = async (
 
   if (!apiKey) {
     console.error("Google Maps API key is not set");
-    return { latitude: 0, longitude: 0 };
+    // Default to Nashville, TN coordinates instead of null island
+    return { latitude: 36.1627, longitude: -86.7816 };
   }
 
   const encodedAddress = encodeURIComponent(address);
@@ -25,11 +26,13 @@ const geocodeAddress = async (
       };
     } else {
       console.error(`Geocoding error: ${response.data.status}`);
-      return { latitude: 0, longitude: 0 };
+      // Default to Nashville, TN coordinates
+      return { latitude: 36.1627, longitude: -86.7816 };
     }
   } catch (error) {
     console.error("Geocoding error:", error);
-    return { latitude: 0, longitude: 0 };
+    // Default to Nashville, TN coordinates
+    return { latitude: 36.1627, longitude: -86.7816 };
   }
 };
 

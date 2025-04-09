@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/prisma/client";
 import { Prisma } from "@prisma/client";
+import { getResource, updateResource, deleteResource } from "@/lib/resource-operations";
 
 // Base Resource interface
 export interface IResource {
@@ -25,43 +25,30 @@ export interface IResource {
   updatedAt: Date;
 }
 
-export interface IUpdateResourceResponse {
-  resource: IResource;
-}
-
-// GET request response
+// Response interfaces
 export interface IGetResourceResponse {
   resource: IResource;
 }
 
-// POST request body (for creating a new resource)
+export interface IUpdateResourceResponse {
+  resource: IResource;
+}
+
+export interface IDeleteResourceResponse {
+  message: string;
+}
+
+export interface IErrorResponse {
+  error: string;
+}
+
+// Request types
 export type ICreateResourceRequest = Omit<
   IResource,
   "id" | "createdAt" | "updatedAt"
 >;
 
-// POST request response
-export interface ICreateResourceResponse {
-  resource: IResource;
-}
-
-// PUT request body (for updating a resource)
 export type IUpdateResourceRequest = Prisma.ResourceUpdateInput;
-
-// PUT request response
-export interface IUpdateResourceResponse {
-  resource: IResource;
-}
-
-// DELETE request response
-export interface IDeleteResourceResponse {
-  message: string;
-}
-
-// Error response
-export interface IErrorResponse {
-  error: string;
-}
 
 export async function GET(
   req: NextRequest,
@@ -69,15 +56,15 @@ export async function GET(
 ): Promise<NextResponse<IGetResourceResponse | IErrorResponse>> {
   try {
     const { id } = params;
-    const resource = await prisma.resource.findUnique({
-      where: { id },
-    });
+    const resource = await getResource(id);
+    
     if (!resource) {
       return NextResponse.json(
         { error: "Resource not found" },
         { status: 404 },
       );
     }
+    
     return NextResponse.json({ resource: resource as unknown as IResource });
   } catch (error) {
     return NextResponse.json(
@@ -94,10 +81,14 @@ export async function PUT(
   try {
     const { id } = params;
     const data: IUpdateResourceRequest = await req.json();
-    const updatedResource = await prisma.resource.update({
-      where: { id },
-      data,
-    });
+    const updatedResource = await updateResource(id, data);
+
+    if (!updatedResource) {
+      return NextResponse.json(
+        { error: "Resource not found" },
+        { status: 404 },
+      );
+    }
 
     return NextResponse.json({
       resource: updatedResource as unknown as IResource,
@@ -116,9 +107,15 @@ export async function DELETE(
 ): Promise<NextResponse<IDeleteResourceResponse | IErrorResponse>> {
   try {
     const { id } = params;
-    await prisma.resource.delete({
-      where: { id },
-    });
+    const result = await deleteResource(id);
+    
+    if (!result) {
+      return NextResponse.json(
+        { error: "Resource not found" },
+        { status: 404 },
+      );
+    }
+    
     return NextResponse.json({ message: "Resource deleted" }, { status: 200 });
   } catch (error) {
     return NextResponse.json(

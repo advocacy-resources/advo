@@ -1,18 +1,25 @@
-import React from "react";
-import prisma from "@/prisma/client";
-import SidebarMap from "@/components/sidebar/SidebarMap";
-import geocodeAddress from "@/components/utils/geocode-address";
+"use client";
+
+import React, { useState } from "react";
 import Image from "next/image";
 import "leaflet/dist/leaflet.css";
+import dynamic from "next/dynamic";
+import ReviewList from "@/components/resources/ReviewList";
+import ReviewForm from "@/components/resources/ReviewForm";
+
+// Dynamically import the MapComponent to avoid SSR issues
+const MapComponent = dynamic(() => import("@/components/sidebar/SidebarMap"), {
+  ssr: false,
+});
 
 interface ResourcePageProps {
   params: { id: string };
 }
-
 interface Address {
   street: string;
   city: string;
   state: string;
+  zip?: string;
 }
 
 interface Contact {
@@ -25,23 +32,7 @@ interface OperatingHours {
   [key: string]: { open: string; close: string };
 }
 
-const fetchResource = async (id: string) => {
-  return await prisma.resource.findUnique({
-    where: { id },
-    select: {
-      name: true,
-      description: true,
-      category: true,
-      contact: true,
-      address: true,
-      operatingHours: true,
-      favoriteCount: true,
-      upvoteCount: true,
-      createdAt: true,
-      updatedAt: true,
-    },
-  });
-};
+// This component is now client-side, so we need to fetch data differently
 
 const VerifiedCircle = () => (
   <svg
@@ -71,47 +62,116 @@ const VerifiedCircle = () => (
   </svg>
 );
 
-const ResourcePage = async ({ params }: ResourcePageProps) => {
-  const resource = await fetchResource(params.id);
+const ResourcePage = ({ params }: ResourcePageProps) => {
+  const [resource, setResource] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [refreshReviews, setRefreshReviews] = useState(0);
+  const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
+  const defaultBanner = "/resourcebannerimage.png";
+  const defaultProfilePhoto = "/images/advo-logo-color.png";
 
-  if (!resource) return <div>Resource not found</div>;
+  // Fetch resource data
+  React.useEffect(() => {
+    const fetchResourceData = async () => {
+      try {
+        const response = await fetch(`/api/v1/resources/${params.id}`);
+        if (!response.ok) {
+          throw new Error("Failed to fetch resource");
+        }
+        const data = await response.json();
+        console.log("Resource data:", data.resource);
+        console.log("Profile photo exists:", !!data.resource.profilePhoto);
+        console.log("Banner image exists:", !!data.resource.bannerImage);
+        setResource(data.resource);
+        
+        
+        // Handle address geocoding
+        const address = data.resource.address as unknown as Address;
+        const addressString =
+          address && address.street && address.city && address.state
+            ? `${address.street}, ${address.city}, ${address.state}${address.zip ? ' ' + address.zip : ''}`
+            : "";
+            
+        if (addressString) {
+          const geocoded = await fetch(`/api/geocode?address=${encodeURIComponent(addressString)}`);
+          if (geocoded.ok) {
+            const locationData = await geocoded.json();
+            setLocation(locationData);
+          }
+        }
+      } catch (err) {
+        setError((err as Error).message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchResourceData();
+  }, [params.id]);
 
-  const address = resource.address as Address;
-  const contact = resource.contact as Contact;
-  const operatingHours = resource.operatingHours as OperatingHours;
-  const location = address ? await geocodeAddress(address) : null;
-  const banner = "/resourcebannerimage.png";
+  // Handle review refresh
+  const handleReviewAdded = () => {
+    setRefreshReviews(prev => prev + 1);
+  };
+  
+  if (loading) {
+    return <div className="text-center py-8">Loading resource...</div>;
+  }
+  
+  if (error || !resource) {
+    return <div className="text-center py-8 text-red-500">Error: {error || "Resource not found"}</div>;
+  }
+  
+  // Cast JSON values to their respective types
+  const address = resource.address as unknown as Address;
+  const contact = resource.contact as unknown as Contact;
+  const operatingHours = resource.operatingHours as unknown as OperatingHours;
 
   return (
     <>
       {/* Banner Section */}
       <div className="relative w-full h-48">
+        {/* Debug info */}
+        <div className="absolute top-0 left-0 z-10 bg-black bg-opacity-70 p-2 text-white text-xs">
+          <div>Banner Image URL: {resource.bannerImageUrl || (resource.bannerImage ? "Base64 Data" : defaultBanner)}</div>
+          <div>Has Banner Image: {resource.bannerImageUrl || resource.bannerImage ? "Yes" : "No"}</div>
+        </div>
         <Image
-          src={banner}
+          src={resource.bannerImageUrl || resource.bannerImage || defaultBanner}
           alt="Resource Banner"
-          layout="fill"
-          objectFit="cover"
+          fill
+          style={{ objectFit: "cover" }}
           priority
+          unoptimized={!!resource.bannerImage}
         />
       </div>
 
       {/* Main Content Section */}
-      <div className="flex flex-col gap-8 p-8 self-center max-w-2xl bg-black text-white">
+      <div className="flex flex-col gap-6 md:gap-8 p-4 md:p-8 mx-auto w-full max-w-2xl bg-black text-white">
         {/* Logo and Name */}
         <section className="mb-6">
           {/* Logo and Name */}
-          <div className="flex items-center gap-4">
-            {/* Logo */}
-            <div className="w-16 h-16">
+          <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
+            {/* Profile Photo */}
+            <div className="w-20 h-20 sm:w-16 sm:h-16">
+              {/* Debug info */}
+              <div className="absolute top-0 left-0 z-10 bg-black bg-opacity-70 p-2 text-white text-xs">
+                <div>Profile Photo URL: {resource.profilePhotoUrl || (resource.profilePhoto ? "Base64 Data" : defaultProfilePhoto)}</div>
+                <div>Has Profile Photo: {resource.profilePhotoUrl || resource.profilePhoto ? "Yes" : "No"}</div>
+              </div>
+              
               <Image
-                src="/images/advo-logo-color.png"
+                src={resource.profilePhotoUrl || resource.profilePhoto || defaultProfilePhoto}
                 alt={`${resource.name} logo`}
-                width={64}
-                height={64}
-                className="rounded-md object-cover"
+                width={80}
+                height={80}
+                className="rounded-md"
+                style={{ objectFit: "cover" }}
+                unoptimized={!!resource.profilePhoto}
               />
             </div>
-            <h1 className="text-3xl font-bold">{resource.name}</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold">{resource.name}</h1>
           </div>
 
           {/* Centered Icons and Stats */}
@@ -125,9 +185,7 @@ const ResourcePage = async ({ params }: ResourcePageProps) => {
                 height={20}
                 className="object-contain"
               />
-              <span className="text-lg">
-                {resource.averageRating || "No rating yet"}
-              </span>
+              <span className="text-sm">{"No rating yet"}</span>
             </div>
 
             {/* Verified Listing */}
@@ -138,7 +196,7 @@ const ResourcePage = async ({ params }: ResourcePageProps) => {
           </div>
 
           {/* Description */}
-          <p className="mt-4 text-lg">
+          <p className="mt-4 text-base md:text-lg text-center sm:text-left">
             {resource.description || "No description available."}
           </p>
         </section>
@@ -146,12 +204,12 @@ const ResourcePage = async ({ params }: ResourcePageProps) => {
         <hr className="h-[.1rem] bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 border-0" />
 
         {/* Contact Information */}
-        <section>
-          <h2 className="text-2xl font-semibold mb-2">Contact Information</h2>
-          {contact.phone && <p className="text-lg">Phone: {contact.phone}</p>}
-          {contact.email && <p className="text-lg">Email: {contact.email}</p>}
+        <section className="text-center sm:text-left">
+          <h2 className="text-xl md:text-2xl font-semibold mb-3 text-center sm:text-left">Contact Information</h2>
+          {contact.phone && <p className="text-base md:text-lg">Phone: {contact.phone}</p>}
+          {contact.email && <p className="text-base md:text-lg">Email: {contact.email}</p>}
           {contact.website && (
-            <p className="text-lg">
+            <p className="text-base md:text-lg">
               Website:{" "}
               <a
                 href={`https://${contact.website}`}
@@ -164,19 +222,19 @@ const ResourcePage = async ({ params }: ResourcePageProps) => {
             </p>
           )}
           {!contact.phone && !contact.email && !contact.website && (
-            <p className="text-lg text-red-500">
+            <p className="text-base md:text-lg text-red-500">
               Contact information not available.
             </p>
           )}
         </section>
 
         {/* Operating Hours */}
-        <section>
-          <h2 className="text-2xl font-semibold mb-2">Operating Hours</h2>
+        <section className="text-center sm:text-left">
+          <h2 className="text-xl md:text-2xl font-semibold mb-3 text-center sm:text-left">Operating Hours</h2>
           {operatingHours ? (
-            <ul>
+            <ul className="space-y-1">
               {Object.entries(operatingHours).map(([day, hours]) => (
-                <li key={day} className="text-lg">
+                <li key={day} className="text-base md:text-lg">
                   <strong>{day.charAt(0).toUpperCase() + day.slice(1)}:</strong>{" "}
                   {hours.open && hours.close
                     ? `${hours.open} - ${hours.close}`
@@ -185,43 +243,60 @@ const ResourcePage = async ({ params }: ResourcePageProps) => {
               ))}
             </ul>
           ) : (
-            <p className="text-lg text-red-500">
+            <p className="text-base md:text-lg text-red-500">
               Operating hours not available.
             </p>
           )}
         </section>
 
         {/* Address and Map */}
-        <section>
-          <h2 className="text-2xl font-semibold mb-2">Address</h2>
+        <section className="text-center sm:text-left">
+          <h2 className="text-xl md:text-2xl font-semibold mb-3 text-center sm:text-left">Address</h2>
           {address ? (
-            <p className="text-lg mb-4">
-              {address.street}, {address.city}, {address.state}
+            <p className="text-base md:text-lg mb-4">
+              {address.street}, {address.city}, {address.state} {address.zip ? address.zip : ""}
             </p>
           ) : (
-            <p className="text-lg text-red-500">Address not available.</p>
+            <p className="text-base md:text-lg text-red-500">Address not available.</p>
           )}
           {location ? (
-            <SidebarMap location={location} />
+            <div className="h-64 sm:h-80 md:h-96 w-full bg-gray-200 rounded overflow-hidden relative">
+              <MapComponent
+                lat={location.latitude}
+                lon={location.longitude}
+                resourceName={resource.name}
+              />
+            </div>
           ) : (
-            <p className="text-lg text-red-500">
+            <p className="text-base md:text-lg text-red-500">
               Unable to display map. Location data unavailable.
             </p>
           )}
         </section>
 
         {/* Additional Details */}
-        <section>
-          <h2 className="text-2xl font-semibold mb-2">Additional Details</h2>
-          <p className="text-lg">
+        <section className="text-center sm:text-left">
+          <h2 className="text-xl md:text-2xl font-semibold mb-3 text-center sm:text-left">Additional Details</h2>
+          <p className="text-base md:text-lg">
             <strong>Category:</strong> {resource.category.join(", ")}
           </p>
-          <p className="text-lg">
+          <p className="text-base md:text-lg">
             <strong>Favorites:</strong> {resource.favoriteCount}
           </p>
-          <p className="text-lg">
+          <p className="text-base md:text-lg">
             <strong>Upvotes:</strong> {resource.upvoteCount ?? 0}
           </p>
+        </section>
+
+        {/* Reviews Section */}
+        <section className="text-center sm:text-left">
+          <h2 className="text-xl md:text-2xl font-semibold mb-4 text-center sm:text-left">Reviews</h2>
+          <div className="mb-6">
+            <ReviewList resourceId={params.id} refreshTrigger={refreshReviews} />
+          </div>
+          <div className="mt-4 flex justify-center sm:justify-start">
+            <ReviewForm resourceId={params.id} onReviewAdded={handleReviewAdded} />
+          </div>
         </section>
       </div>
     </>

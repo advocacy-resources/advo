@@ -9,6 +9,8 @@ declare module "next-auth" {
       name?: string;
       email?: string;
       image?: string;
+      role?: string; // Add the role property to the Session user object
+      isActive?: boolean; // Add the isActive property to the Session user object
     };
   }
 
@@ -17,5 +19,7 @@ declare module "next-auth" {
     name?: string;
     email?: string;
     image?: string;
+    role?: string; // Add the role property to the User object
+    isActive?: boolean; // Add the isActive property to the User object
   }
 }

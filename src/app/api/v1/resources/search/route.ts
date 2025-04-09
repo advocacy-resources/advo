@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/prisma/client";
-import { Prisma } from "@prisma/client";
+import { InputJsonValue } from "@prisma/client/runtime/library";
 
 // Types
 export interface IResourceSearchPostRequest {
@@ -355,7 +355,7 @@ export async function POST(request: NextRequest) {
 
     // Execute the query - cast pipeline to avoid type issues with Prisma
     const result = await prisma.resource.aggregateRaw({
-      pipeline: pipeline as unknown as Prisma.InputJsonValue[],
+      pipeline: pipeline as unknown as InputJsonValue[],
     });
 
     // Format and return the response

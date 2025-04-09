@@ -1,6 +1,8 @@
+"use client";
+
 import React, { useEffect, useState } from "react";
-import { Resource } from "&/resource";
-import ResourceCard from "@/components/resources/ResourceCard";
+import { Resource } from "@/interfaces/resource";
+import ResourceGridBase from "@/components/resources/ResourceGridBase";
 
 const ResourcesGrid: React.FC = () => {
   const [resources, setResources] = useState<Resource[]>([]);
@@ -39,29 +41,15 @@ const ResourcesGrid: React.FC = () => {
     fetchResources();
   }, []);
 
-  if (isLoading) {
-    return <div>Loading resources...</div>;
-  }
-
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
-
-  console.log("Rendering resources:", resources);
-
   return (
-    <div className="max-w-6xl mx-auto p-8">
-      <div className="text-3xl font-bold mb-8">Resources</div>
-      {resources.length === 0 ? (
-        <div>No resources found.</div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-          {resources.map((resource) => (
-            <ResourceCard key={resource.id} resource={resource} />
-          ))}
-        </div>
-      )}
-    </div>
+    <ResourceGridBase
+      resources={resources}
+      isLoading={isLoading}
+      error={error}
+      title="Resources"
+      className="max-w-6xl mx-auto p-8"
+      gridClassName="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8"
+    />
   );
 };
 

@@ -30,12 +30,16 @@ const Popup = dynamic(() => import("react-leaflet").then((mod) => mod.Popup), {
 interface MapComponentProps {
   lat?: number;
   lon?: number;
+  resourceName?: string;
 }
-
-export default function MapComponent({ lat, lon }: MapComponentProps) {
+export default function MapComponent({
+  lat,
+  lon,
+  resourceName,
+}: MapComponentProps) {
   const [userLocation, setUserLocation] = useState<LatLngExpression>([
-    lat || 51.505, // Default to provided latitude or London
-    lon || -0.09, // Default to provided longitude or London
+    lat || 36.1627, // Default to provided latitude or center of US
+    lon || -86.7816, // Default to provided longitude or center of US
   ]);
   const [isLoading, setIsLoading] = useState(true);
   const setProgress = useState(0)[1];
@@ -101,24 +105,70 @@ export default function MapComponent({ lat, lon }: MapComponentProps) {
   //   </div>
   // );
 
+  // Force a re-render when the map is ready
+  useEffect(() => {
+    if (!isLoading) {
+      // This will trigger a re-render after the map is loaded
+      const timer = setTimeout(() => {
+        // Force Leaflet to recalculate map size
+        window.dispatchEvent(new Event("resize"));
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [isLoading]);
+
   return (
-    <div className="col-span-4 bg-gray-200">
-      <div style={{ height: "100vh", width: "100%" }}>
-        <MapContainer
-          center={userLocation}
-          zoom={13}
-          scrollWheelZoom={true}
-          style={{ height: "100%", width: "100%" }}
-        >
-          <TileLayer
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            attribution='&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          />
-          <Marker position={userLocation}>
-            <Popup>You are here</Popup>
-          </Marker>
-        </MapContainer>
-      </div>
+    <div className="w-full h-full relative">
+      {isLoading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-100 bg-opacity-75 z-20">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-2"></div>
+            <p>Loading map...</p>
+          </div>
+        </div>
+      )}
+      <MapContainer
+        center={userLocation}
+        zoom={13}
+        scrollWheelZoom={true}
+        style={{ height: "100%", width: "100%" }}
+        className="h-full w-full absolute inset-0 z-10"
+        whenReady={() => {
+          // Force Leaflet to recalculate map size
+          window.dispatchEvent(new Event("resize"));
+          // Set loading to false after map is ready
+          setIsLoading(false);
+        }}
+      >
+        <TileLayer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        />
+        <Marker position={userLocation}>
+          <Popup>
+            <div className="text-center">
+              <strong>{resourceName || "Location"}</strong>
+              {resourceName && (
+                <div>
+                  <p className="mt-1 mb-2">Get directions:</p>
+                  <a
+                    href={`https://www.google.com/maps/dir/?api=1&destination=${
+                      Array.isArray(userLocation)
+                        ? `${userLocation[0]},${userLocation[1]}`
+                        : `${userLocation.lat},${userLocation.lng}`
+                    }`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600 transition-colors"
+                  >
+                    Open in Google Maps
+                  </a>
+                </div>
+              )}
+            </div>
+          </Popup>
+        </Marker>
+      </MapContainer>
     </div>
   );
 }

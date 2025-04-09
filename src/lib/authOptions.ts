@@ -38,12 +38,20 @@ export const authOptions: NextAuthOptions = {
 
           const isValid = await compare(credentials.password, user.password);
 
+          // Check if user account is active
+          if (!user.isActive) {
+            console.log("Authorization failed: User account is frozen.");
+            return null;
+          }
+
           if (isValid) {
             console.log("Authorization successful.");
             return {
               id: user.id,
               name: user.name,
               email: user.email,
+              role: user.role,
+              isActive: user.isActive,
             } as IUser;
           } else {
             console.log("Authorization failed: Invalid password.");
@@ -61,9 +69,17 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async session({ session, token }) {
+      // Fetch the user to get the role and active status
+      const user = await prisma.user.findUnique({
+        where: { id: token.sub as string },
+        select: { id: true, role: true, isActive: true },
+      });
+
       session.user = {
         ...session.user,
         id: token.sub as string,
+        role: user?.role || "user",
+        isActive: user?.isActive ?? true,
       };
       return session;
     },
