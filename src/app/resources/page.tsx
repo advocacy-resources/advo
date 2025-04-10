@@ -56,16 +56,26 @@ export default async function SearchResultsPage({
   let results: SearchResult[] = [];
   try {
     // For server components, use the absolute URL based on the request
-    const baseUrl = process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : process.env.NEXT_PUBLIC_API_URL
-        ? process.env.NEXT_PUBLIC_API_URL
-        : "http://localhost:3001";
-    const response = await fetch(
-      // Fix the URL to avoid path duplication
-      baseUrl.includes("/api")
+    // In Vercel, we need to use the VERCEL_URL environment variable with https
+    // In local development, we can use a relative URL
+    let apiUrl;
+    
+    if (process.env.VERCEL_URL) {
+      // On Vercel, use the absolute URL with the VERCEL_URL environment variable
+      const baseUrl = `https://${process.env.VERCEL_URL}`;
+      apiUrl = `${baseUrl}/api/v1/resources/search`;
+      console.log("Using Vercel URL:", apiUrl);
+    } else {
+      // In local development, use the original approach that works
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+      apiUrl = baseUrl.includes("/api")
         ? `${baseUrl}/resources/search`
-        : `${baseUrl}/api/v1/resources/search`,
+        : `${baseUrl}/api/v1/resources/search`;
+      console.log("Using local URL:", apiUrl);
+    }
+    
+    const response = await fetch(
+      apiUrl,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
