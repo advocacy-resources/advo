@@ -9,13 +9,13 @@ jest.mock("mongodb", () => {
   const mockClient = {
     db: jest.fn().mockReturnValue(mockDb),
   };
-  
+
   // Create a mock constructor that returns the mock client
   const MockMongoClient = jest.fn().mockImplementation(() => mockClient);
-  
+
   // Add the connect method to the constructor
   (MockMongoClient as any).connect = jest.fn().mockResolvedValue(mockClient);
-  
+
   return {
     MongoClient: MockMongoClient,
     ServerApiVersion: { v1: "1" },
@@ -32,7 +32,7 @@ describe("Database Connection", () => {
   beforeEach(() => {
     // Reset mocks
     jest.clearAllMocks();
-    
+
     // Reset environment variables before each test
     jest.resetModules();
     process.env = { ...originalEnv };
@@ -66,13 +66,13 @@ describe("Database Connection", () => {
 
     // Verify MongoClient constructor was called
     expect(MongoClient).toHaveBeenCalledTimes(1);
-    
+
     // Get the first call arguments
     const callArgs = (MongoClient as unknown as jest.Mock).mock.calls[0];
-    
+
     // Verify the URI
     expect(callArgs[0]).toBe("mongodb://localhost:27017");
-    
+
     // Verify the options object has serverApi
     expect(callArgs[1]).toHaveProperty("serverApi");
   });
@@ -88,7 +88,7 @@ describe("Database Connection", () => {
     jest.isolateModules(() => {
       // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
       const { db } = require("../db");
-      
+
       // Verify the correct database name is used
       expect(db.client.db).toHaveBeenCalledWith("advo-dev");
     });
@@ -105,7 +105,7 @@ describe("Database Connection", () => {
     jest.isolateModules(() => {
       // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
       const { db } = require("../db");
-      
+
       // Verify the correct database name is used
       expect(db.client.db).toHaveBeenCalledWith("advo-prod");
     });
@@ -123,14 +123,14 @@ describe("Database Connection", () => {
       // First import
       // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
       const { default: client1 } = require("../db");
-      
+
       // Second import
       // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
       const { default: client2 } = require("../db");
-      
+
       // Verify the same client instance is returned
       expect(client1).toBe(client2);
-      
+
       // Verify MongoClient constructor was called only once
       expect(MongoClient).toHaveBeenCalledTimes(1);
     });

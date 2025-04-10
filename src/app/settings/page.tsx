@@ -36,7 +36,8 @@ export default function SettingsPage() {
       // Replace with your API call to save the profile data
       console.log("Updating profile with:", { name, email });
       setSuccess(true);
-    } catch (err) {
+    } catch (_err) {
+      // Using _err to indicate it's intentionally unused
       setError("Failed to update profile. Please try again.");
     }
   };

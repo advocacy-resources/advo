@@ -74,7 +74,7 @@ const MainSearch: React.FC<{}> = () => {
             type="button"
             key={category}
             className={`${searchType === category && "bg-slate-800"}`}
-            variant="mobile-menu"
+            variant="outline"
             onClick={() => {
               handleInputChange("categoryOption", "");
               setSearchType(category);

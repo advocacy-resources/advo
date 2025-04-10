@@ -29,7 +29,6 @@ export async function POST(req: NextRequest) {
         { status: 400 },
       );
     }
-    
 
     // Create the recommendation
     const recommendation = await prisma.resourceRecommendation.create({

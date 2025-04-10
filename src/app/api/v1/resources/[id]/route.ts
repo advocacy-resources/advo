@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
-import { getResource, updateResource, deleteResource } from "@/lib/resource-operations";
+import {
+  getResource,
+  updateResource,
+  deleteResource,
+} from "@/lib/resource-operations";
 
 // Base Resource interface
 export interface IResource {
@@ -57,14 +61,14 @@ export async function GET(
   try {
     const { id } = params;
     const resource = await getResource(id);
-    
+
     if (!resource) {
       return NextResponse.json(
         { error: "Resource not found" },
         { status: 404 },
       );
     }
-    
+
     return NextResponse.json({ resource: resource as unknown as IResource });
   } catch (error) {
     return NextResponse.json(
@@ -108,14 +112,14 @@ export async function DELETE(
   try {
     const { id } = params;
     const result = await deleteResource(id);
-    
+
     if (!result) {
       return NextResponse.json(
         { error: "Resource not found" },
         { status: 404 },
       );
     }
-    
+
     return NextResponse.json({ message: "Resource deleted" }, { status: 200 });
   } catch (error) {
     return NextResponse.json(

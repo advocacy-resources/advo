@@ -5,7 +5,11 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { IUser } from "@/interfaces/user";
 
-export default function UserDetailsPage({ params }: { params: { id: string } }) {
+export default function UserDetailsPage({
+  params,
+}: {
+  params: { id: string };
+}) {
   const [user, setUser] = useState<IUser | null>(null);
   const [editedUser, setEditedUser] = useState<IUser | null>(null);
   const [loading, setLoading] = useState(true);
@@ -23,11 +27,11 @@ export default function UserDetailsPage({ params }: { params: { id: string } }) 
     try {
       setLoading(true);
       const response = await fetch(`/api/v1/admin/users/${params.id}`);
-      
+
       if (!response.ok) {
         throw new Error("Failed to fetch user");
       }
-      
+
       const data = await response.json();
       setUser(data);
       setEditedUser(data);
@@ -44,7 +48,7 @@ export default function UserDetailsPage({ params }: { params: { id: string } }) 
     if (editedUser) {
       setEditedUser({
         ...editedUser,
-        role: newRole
+        role: newRole,
       });
       setIsEditing(true);
     }
@@ -52,7 +56,7 @@ export default function UserDetailsPage({ params }: { params: { id: string } }) 
 
   const handleSave = async () => {
     if (!editedUser) return;
-    
+
     try {
       setIsSaving(true);
       const response = await fetch(`/api/v1/admin/users/${params.id}/role`, {
@@ -81,12 +85,12 @@ export default function UserDetailsPage({ params }: { params: { id: string } }) 
 
   const handleToggleActive = async () => {
     if (!user) return;
-    
+
     try {
       setIsTogglingActive(true);
-      
+
       const newStatus = !(user.isActive ?? true);
-      
+
       const response = await fetch(`/api/v1/admin/users/${params.id}/status`, {
         method: "PATCH",
         headers: {
@@ -165,10 +169,14 @@ export default function UserDetailsPage({ params }: { params: { id: string } }) 
             onClick={handleToggleActive}
             disabled={isTogglingActive}
           >
-            {isTogglingActive ? "Updating..." : user?.isActive ? "Freeze Account" : "Unfreeze Account"}
+            {isTogglingActive
+              ? "Updating..."
+              : user?.isActive
+                ? "Freeze Account"
+                : "Unfreeze Account"}
           </Button>
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             className="bg-transparent border-gray-500 text-gray-300 hover:bg-gray-700"
             onClick={() => router.push("/admin/users")}
           >
@@ -180,35 +188,53 @@ export default function UserDetailsPage({ params }: { params: { id: string } }) 
       <div className="bg-gray-800 shadow-md rounded-lg overflow-hidden p-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <h3 className="text-lg font-semibold text-white mb-4">Basic Information</h3>
+            <h3 className="text-lg font-semibold text-white mb-4">
+              Basic Information
+            </h3>
             <div className="space-y-3">
               <div>
-                <label className="block text-sm font-medium text-gray-400">Name</label>
+                <label className="block text-sm font-medium text-gray-400">
+                  Name
+                </label>
                 <div className="mt-1 text-white">{user.name || "N/A"}</div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-400">Email</label>
+                <label className="block text-sm font-medium text-gray-400">
+                  Email
+                </label>
                 <div className="mt-1 text-white">{user.email}</div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-400">User ID</label>
+                <label className="block text-sm font-medium text-gray-400">
+                  User ID
+                </label>
                 <div className="mt-1 text-white">{user.id}</div>
               </div>
             </div>
           </div>
-          
+
           <div>
-            <h3 className="text-lg font-semibold text-white mb-4">Account Settings</h3>
+            <h3 className="text-lg font-semibold text-white mb-4">
+              Account Settings
+            </h3>
             <div className="space-y-3">
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-400">Account Status</label>
+                <label className="block text-sm font-medium text-gray-400">
+                  Account Status
+                </label>
                 <div className="mt-1 flex items-center">
-                  <span className={`inline-block w-3 h-3 rounded-full mr-2 ${user.isActive ? "bg-green-500" : "bg-red-500"}`}></span>
-                  <span className="text-white">{user.isActive ? "Active" : "Frozen"}</span>
+                  <span
+                    className={`inline-block w-3 h-3 rounded-full mr-2 ${user.isActive ? "bg-green-500" : "bg-red-500"}`}
+                  ></span>
+                  <span className="text-white">
+                    {user.isActive ? "Active" : "Frozen"}
+                  </span>
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-400">Role</label>
+                <label className="block text-sm font-medium text-gray-400">
+                  Role
+                </label>
                 <div className="mt-1">
                   <select
                     className="bg-gray-700 text-white border border-gray-600 rounded p-2 w-full"
@@ -226,15 +252,23 @@ export default function UserDetailsPage({ params }: { params: { id: string } }) 
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-400">Created At</label>
+                <label className="block text-sm font-medium text-gray-400">
+                  Created At
+                </label>
                 <div className="mt-1 text-white">
-                  {user.createdAt ? new Date(user.createdAt).toLocaleString() : "N/A"}
+                  {user.createdAt
+                    ? new Date(user.createdAt).toLocaleString()
+                    : "N/A"}
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-400">Last Updated</label>
+                <label className="block text-sm font-medium text-gray-400">
+                  Last Updated
+                </label>
                 <div className="mt-1 text-white">
-                  {user.updatedAt ? new Date(user.updatedAt).toLocaleString() : "N/A"}
+                  {user.updatedAt
+                    ? new Date(user.updatedAt).toLocaleString()
+                    : "N/A"}
                 </div>
               </div>
             </div>

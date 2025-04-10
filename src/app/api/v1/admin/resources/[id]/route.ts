@@ -109,13 +109,15 @@ export const PUT = withAdminAuth(
 
       // Remove fields that shouldn't be updated directly
       const {
-        id: resourceId2,
-        createdAt,
-        updatedAt,
-        favoriteCount,
-        upvoteCount,
-        Like,
-        Rating,
+        id: _resourceId, // Renamed and prefixed with _ to indicate it's intentionally unused
+        // Removed explicit destructuring of unused variables
+        // Instead, use a more generic approach to exclude fields that shouldn't be updated
+        createdAt: _createdAt,
+        updatedAt: _updatedAt,
+        favoriteCount: _favoriteCount,
+        upvoteCount: _upvoteCount,
+        Like: _like,
+        Rating: _rating,
         ...updateData
       } = resourceData;
 

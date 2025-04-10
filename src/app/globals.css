@@ -1,3 +1,8 @@
+/* Tailwind directives - must be at the beginning of the file */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 @font-face {
   font-family: "Anonymous Pro";
   src: url("/fonts/AnonymousPro-Regular.woff2") format("woff2");
@@ -64,11 +69,6 @@ h6 {
   font-family: var(--font-univers);
 }
 
-/* Your existing Tailwind directives */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 /* Any other global styles you want to add */
 
 /* Button gradient animation */
@@ -110,14 +110,13 @@ h6 {
   .btn-gradient-hover:active {
     background-image: linear-gradient(to right, #facc15, #f97316, #ec4899);
   }
-  
+
   /* Add a subtle scale effect for feedback */
   .btn-gradient-hover {
     transition: transform 0.2s ease;
   }
-  
+
   .btn-gradient-hover:active {
     transform: scale(0.97);
   }
 }
-

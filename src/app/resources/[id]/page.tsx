@@ -6,6 +6,7 @@ import "leaflet/dist/leaflet.css";
 import dynamic from "next/dynamic";
 import ReviewList from "@/components/resources/ReviewList";
 import ReviewForm from "@/components/resources/ReviewForm";
+import { Resource } from "@/interfaces/resource";
 
 // Dynamically import the MapComponent to avoid SSR issues
 const MapComponent = dynamic(() => import("@/components/sidebar/SidebarMap"), {
@@ -63,11 +64,14 @@ const VerifiedCircle = () => (
 );
 
 const ResourcePage = ({ params }: ResourcePageProps) => {
-  const [resource, setResource] = useState<any>(null);
+  const [resource, setResource] = useState<Resource | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [refreshReviews, setRefreshReviews] = useState(0);
-  const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [location, setLocation] = useState<{
+    latitude: number;
+    longitude: number;
+  } | null>(null);
   const defaultBanner = "/resourcebannerimage.png";
   const defaultProfilePhoto = "/images/advo-logo-color.png";
 
@@ -84,17 +88,18 @@ const ResourcePage = ({ params }: ResourcePageProps) => {
         console.log("Profile photo exists:", !!data.resource.profilePhoto);
         console.log("Banner image exists:", !!data.resource.bannerImage);
         setResource(data.resource);
-        
-        
+
         // Handle address geocoding
         const address = data.resource.address as unknown as Address;
         const addressString =
           address && address.street && address.city && address.state
-            ? `${address.street}, ${address.city}, ${address.state}${address.zip ? ' ' + address.zip : ''}`
+            ? `${address.street}, ${address.city}, ${address.state}${address.zip ? " " + address.zip : ""}`
             : "";
-            
+
         if (addressString) {
-          const geocoded = await fetch(`/api/geocode?address=${encodeURIComponent(addressString)}`);
+          const geocoded = await fetch(
+            `/api/geocode?address=${encodeURIComponent(addressString)}`,
+          );
           if (geocoded.ok) {
             const locationData = await geocoded.json();
             setLocation(locationData);
@@ -106,23 +111,27 @@ const ResourcePage = ({ params }: ResourcePageProps) => {
         setLoading(false);
       }
     };
-    
+
     fetchResourceData();
   }, [params.id]);
 
   // Handle review refresh
   const handleReviewAdded = () => {
-    setRefreshReviews(prev => prev + 1);
+    setRefreshReviews((prev) => prev + 1);
   };
-  
+
   if (loading) {
     return <div className="text-center py-8">Loading resource...</div>;
   }
-  
+
   if (error || !resource) {
-    return <div className="text-center py-8 text-red-500">Error: {error || "Resource not found"}</div>;
+    return (
+      <div className="text-center py-8 text-red-500">
+        Error: {error || "Resource not found"}
+      </div>
+    );
   }
-  
+
   // Cast JSON values to their respective types
   const address = resource.address as unknown as Address;
   const contact = resource.contact as unknown as Contact;
@@ -134,8 +143,15 @@ const ResourcePage = ({ params }: ResourcePageProps) => {
       <div className="relative w-full h-48">
         {/* Debug info */}
         <div className="absolute top-0 left-0 z-10 bg-black bg-opacity-70 p-2 text-white text-xs">
-          <div>Banner Image URL: {resource.bannerImageUrl || (resource.bannerImage ? "Base64 Data" : defaultBanner)}</div>
-          <div>Has Banner Image: {resource.bannerImageUrl || resource.bannerImage ? "Yes" : "No"}</div>
+          <div>
+            Banner Image URL:{" "}
+            {resource.bannerImageUrl ||
+              (resource.bannerImage ? "Base64 Data" : defaultBanner)}
+          </div>
+          <div>
+            Has Banner Image:{" "}
+            {resource.bannerImageUrl || resource.bannerImage ? "Yes" : "No"}
+          </div>
         </div>
         <Image
           src={resource.bannerImageUrl || resource.bannerImage || defaultBanner}
@@ -157,12 +173,27 @@ const ResourcePage = ({ params }: ResourcePageProps) => {
             <div className="w-20 h-20 sm:w-16 sm:h-16">
               {/* Debug info */}
               <div className="absolute top-0 left-0 z-10 bg-black bg-opacity-70 p-2 text-white text-xs">
-                <div>Profile Photo URL: {resource.profilePhotoUrl || (resource.profilePhoto ? "Base64 Data" : defaultProfilePhoto)}</div>
-                <div>Has Profile Photo: {resource.profilePhotoUrl || resource.profilePhoto ? "Yes" : "No"}</div>
+                <div>
+                  Profile Photo URL:{" "}
+                  {resource.profilePhotoUrl ||
+                    (resource.profilePhoto
+                      ? "Base64 Data"
+                      : defaultProfilePhoto)}
+                </div>
+                <div>
+                  Has Profile Photo:{" "}
+                  {resource.profilePhotoUrl || resource.profilePhoto
+                    ? "Yes"
+                    : "No"}
+                </div>
               </div>
-              
+
               <Image
-                src={resource.profilePhotoUrl || resource.profilePhoto || defaultProfilePhoto}
+                src={
+                  resource.profilePhotoUrl ||
+                  resource.profilePhoto ||
+                  defaultProfilePhoto
+                }
                 alt={`${resource.name} logo`}
                 width={80}
                 height={80}
@@ -205,9 +236,15 @@ const ResourcePage = ({ params }: ResourcePageProps) => {
 
         {/* Contact Information */}
         <section className="text-center sm:text-left">
-          <h2 className="text-xl md:text-2xl font-semibold mb-3 text-center sm:text-left">Contact Information</h2>
-          {contact.phone && <p className="text-base md:text-lg">Phone: {contact.phone}</p>}
-          {contact.email && <p className="text-base md:text-lg">Email: {contact.email}</p>}
+          <h2 className="text-xl md:text-2xl font-semibold mb-3 text-center sm:text-left">
+            Contact Information
+          </h2>
+          {contact.phone && (
+            <p className="text-base md:text-lg">Phone: {contact.phone}</p>
+          )}
+          {contact.email && (
+            <p className="text-base md:text-lg">Email: {contact.email}</p>
+          )}
           {contact.website && (
             <p className="text-base md:text-lg">
               Website:{" "}
@@ -230,7 +267,9 @@ const ResourcePage = ({ params }: ResourcePageProps) => {
 
         {/* Operating Hours */}
         <section className="text-center sm:text-left">
-          <h2 className="text-xl md:text-2xl font-semibold mb-3 text-center sm:text-left">Operating Hours</h2>
+          <h2 className="text-xl md:text-2xl font-semibold mb-3 text-center sm:text-left">
+            Operating Hours
+          </h2>
           {operatingHours ? (
             <ul className="space-y-1">
               {Object.entries(operatingHours).map(([day, hours]) => (
@@ -251,13 +290,18 @@ const ResourcePage = ({ params }: ResourcePageProps) => {
 
         {/* Address and Map */}
         <section className="text-center sm:text-left">
-          <h2 className="text-xl md:text-2xl font-semibold mb-3 text-center sm:text-left">Address</h2>
+          <h2 className="text-xl md:text-2xl font-semibold mb-3 text-center sm:text-left">
+            Address
+          </h2>
           {address ? (
             <p className="text-base md:text-lg mb-4">
-              {address.street}, {address.city}, {address.state} {address.zip ? address.zip : ""}
+              {address.street}, {address.city}, {address.state}{" "}
+              {address.zip ? address.zip : ""}
             </p>
           ) : (
-            <p className="text-base md:text-lg text-red-500">Address not available.</p>
+            <p className="text-base md:text-lg text-red-500">
+              Address not available.
+            </p>
           )}
           {location ? (
             <div className="h-64 sm:h-80 md:h-96 w-full bg-gray-200 rounded overflow-hidden relative">
@@ -276,7 +320,9 @@ const ResourcePage = ({ params }: ResourcePageProps) => {
 
         {/* Additional Details */}
         <section className="text-center sm:text-left">
-          <h2 className="text-xl md:text-2xl font-semibold mb-3 text-center sm:text-left">Additional Details</h2>
+          <h2 className="text-xl md:text-2xl font-semibold mb-3 text-center sm:text-left">
+            Additional Details
+          </h2>
           <p className="text-base md:text-lg">
             <strong>Category:</strong> {resource.category.join(", ")}
           </p>
@@ -290,12 +336,20 @@ const ResourcePage = ({ params }: ResourcePageProps) => {
 
         {/* Reviews Section */}
         <section className="text-center sm:text-left">
-          <h2 className="text-xl md:text-2xl font-semibold mb-4 text-center sm:text-left">Reviews</h2>
+          <h2 className="text-xl md:text-2xl font-semibold mb-4 text-center sm:text-left">
+            Reviews
+          </h2>
           <div className="mb-6">
-            <ReviewList resourceId={params.id} refreshTrigger={refreshReviews} />
+            <ReviewList
+              resourceId={params.id}
+              refreshTrigger={refreshReviews}
+            />
           </div>
           <div className="mt-4 flex justify-center sm:justify-start">
-            <ReviewForm resourceId={params.id} onReviewAdded={handleReviewAdded} />
+            <ReviewForm
+              resourceId={params.id}
+              onReviewAdded={handleReviewAdded}
+            />
           </div>
         </section>
       </div>

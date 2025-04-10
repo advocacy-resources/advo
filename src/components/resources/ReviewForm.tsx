@@ -24,28 +24,28 @@ const ReviewForm = ({ resourceId, onReviewAdded }: ReviewFormProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [error, setError] = useState("");
   const { data: session } = useSession();
-  
+
   const MAX_CHARS = 1000;
-  
+
   const handleSubmit = async () => {
     if (!session?.user) {
       setError("You must be logged in to submit a review");
       return;
     }
-    
+
     if (!content.trim()) {
       setError("Review content cannot be empty");
       return;
     }
-    
+
     if (content.length > MAX_CHARS) {
       setError(`Review must be ${MAX_CHARS} characters or less`);
       return;
     }
-    
+
     setIsSubmitting(true);
     setError("");
-    
+
     try {
       const response = await fetch(`/api/v1/resources/${resourceId}/reviews`, {
         method: "POST",
@@ -54,12 +54,12 @@ const ReviewForm = ({ resourceId, onReviewAdded }: ReviewFormProps) => {
         },
         body: JSON.stringify({ content }),
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || "Failed to submit review");
       }
-      
+
       setContent("");
       setIsOpen(false);
       onReviewAdded();
@@ -69,7 +69,7 @@ const ReviewForm = ({ resourceId, onReviewAdded }: ReviewFormProps) => {
       setIsSubmitting(false);
     }
   };
-  
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
@@ -81,7 +81,8 @@ const ReviewForm = ({ resourceId, onReviewAdded }: ReviewFormProps) => {
         <DialogHeader className="text-center sm:text-left">
           <DialogTitle className="text-xl">Share Your Experience</DialogTitle>
           <DialogDescription className="text-sm md:text-base">
-            Tell others about your experience with this resource. Your review will help others make informed decisions.
+            Tell others about your experience with this resource. Your review
+            will help others make informed decisions.
           </DialogDescription>
         </DialogHeader>
         <ReviewFormContent

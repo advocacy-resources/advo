@@ -6,18 +6,18 @@ import { authOptions } from "@/lib/authOptions";
 // Helper function to check admin role
 async function checkAdminRole() {
   const session = await getServerSession(authOptions);
-  
+
   if (!session || session.user.role !== "admin") {
     return false;
   }
-  
+
   return true;
 }
 
 // PATCH handler for updating a user's active status
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string } },
 ) {
   try {
     // Check if user is admin
@@ -25,7 +25,7 @@ export async function PATCH(
     if (!isAdmin) {
       return NextResponse.json(
         { error: "Unauthorized. Admin access required." },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -36,7 +36,7 @@ export async function PATCH(
     if (typeof isActive !== "boolean") {
       return NextResponse.json(
         { error: "Invalid status. isActive must be a boolean value." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -46,10 +46,7 @@ export async function PATCH(
     });
 
     if (!existingUser) {
-      return NextResponse.json(
-        { error: "User not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     // Update user status
@@ -72,7 +69,7 @@ export async function PATCH(
     console.error("Error updating user status:", error);
     return NextResponse.json(
       { error: "Failed to update user status" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -44,9 +44,9 @@ export interface Resource {
   updatedAt: Date;
   favoriteCount: number;
   upvoteCount?: number;
-  profilePhoto?: any; // Binary data in base64 format for display (legacy)
+  profilePhoto?: string; // Binary data in base64 format for display (legacy)
   profilePhotoType?: string; // MIME type
-  bannerImage?: any; // Binary data in base64 format for display (legacy)
+  bannerImage?: string; // Binary data in base64 format for display (legacy)
   bannerImageType?: string; // MIME type
   profilePhotoUrl?: string; // URL to the profile photo
   bannerImageUrl?: string; // URL to the banner image

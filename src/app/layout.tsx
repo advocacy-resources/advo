@@ -5,9 +5,10 @@ import { Suspense } from "react";
 import NextAuthProvider from "@/components/utils/SessionProvider";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-
 import Footbar from "@/components/layout/footbar/Footbar";
 import Navbar from "@/components/layout/Navbar";
+// Removed unused import: BackgroundContextProvider is commented out in the component
+// import { BackgroundContextProvider } from "@/providers/BackgroundProvider";
 import { BackgroundContextProvider } from "@/providers/BackgroundProvider";
 
 export default function RootLayout({

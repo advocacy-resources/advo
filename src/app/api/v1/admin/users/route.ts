@@ -12,11 +12,11 @@ const MAX_LIMIT = 100;
 // Helper function to check admin role
 async function checkAdminRole() {
   const session = await getServerSession(authOptions);
-  
+
   if (!session || session.user.role !== "admin") {
     return false;
   }
-  
+
   return true;
 }
 
@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
     if (!isAdmin) {
       return NextResponse.json(
         { error: "Unauthorized. Admin access required." },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
     const page = Math.max(1, Number(searchParams.get("page")) || DEFAULT_PAGE);
     const limit = Math.min(
       MAX_LIMIT,
-      Math.max(1, Number(searchParams.get("limit")) || DEFAULT_LIMIT)
+      Math.max(1, Number(searchParams.get("limit")) || DEFAULT_LIMIT),
     );
     const skip = (page - 1) * limit;
 
@@ -74,7 +74,7 @@ export async function GET(request: NextRequest) {
     console.error("Error fetching users:", error);
     return NextResponse.json(
       { error: "Failed to fetch users" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
     if (!isAdmin) {
       return NextResponse.json(
         { error: "Unauthorized. Admin access required." },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -98,7 +98,7 @@ export async function POST(request: NextRequest) {
     if (!email || !password) {
       return NextResponse.json(
         { error: "Email and password are required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -110,7 +110,7 @@ export async function POST(request: NextRequest) {
     if (existingUser) {
       return NextResponse.json(
         { error: "User with this email already exists" },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
@@ -141,7 +141,7 @@ export async function POST(request: NextRequest) {
     console.error("Error creating user:", error);
     return NextResponse.json(
       { error: "Failed to create user" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

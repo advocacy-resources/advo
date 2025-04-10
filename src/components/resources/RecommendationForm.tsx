@@ -98,7 +98,8 @@ const RecommendationForm: React.FC = () => {
         Recommend a Resource
       </div>
       <p className="text-gray-300 text-center mb-8">
-        Help us grow our database by recommending resources that have been helpful to you or others.
+        Help us grow our database by recommending resources that have been
+        helpful to you or others.
       </p>
 
       {submitSuccess && (
@@ -156,10 +157,7 @@ const RecommendationForm: React.FC = () => {
           <label className="block text-sm font-medium text-gray-300 mb-2">
             State*
           </label>
-          <Select
-            onValueChange={handleStateChange}
-            value={formData.state}
-          >
+          <Select onValueChange={handleStateChange} value={formData.state}>
             <SelectTrigger className="bg-gray-800 border-gray-700 text-white h-12">
               <SelectValue placeholder="Select State" />
             </SelectTrigger>
@@ -214,7 +212,9 @@ const RecommendationForm: React.FC = () => {
               <SelectItem value="West Virginia">West Virginia</SelectItem>
               <SelectItem value="Wisconsin">Wisconsin</SelectItem>
               <SelectItem value="Wyoming">Wyoming</SelectItem>
-              <SelectItem value="District of Columbia">District of Columbia</SelectItem>
+              <SelectItem value="District of Columbia">
+                District of Columbia
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -243,7 +243,8 @@ const RecommendationForm: React.FC = () => {
           Your Information (Optional)
         </h3>
         <p className="text-gray-400 text-sm mb-4">
-          This information helps us follow up if we need more details about your recommendation.
+          This information helps us follow up if we need more details about your
+          recommendation.
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>

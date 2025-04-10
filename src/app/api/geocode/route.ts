@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
     if (!address) {
       return NextResponse.json(
         { error: "Address parameter is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
     if (!location) {
       return NextResponse.json(
         { error: "Could not geocode the provided address" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
   } catch (error) {
     return NextResponse.json(
       { error: (error as Error).message },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

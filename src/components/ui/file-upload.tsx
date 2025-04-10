@@ -5,10 +5,10 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 
 interface FileUploadProps {
-  onUploadComplete: (imageData: { filePath: string, mimeType: string }) => void;
+  onUploadComplete: (imageData: { filePath: string; mimeType: string }) => void;
   label: string;
   currentImage?: string;
-  type: 'profile' | 'banner';
+  type: "profile" | "banner";
   className?: string;
 }
 
@@ -23,9 +23,13 @@ export function FileUpload({
   const [error, setError] = useState<string | null>(null);
   const [preview, setPreview] = useState<string | null>(currentImage || null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
+
   // Debug log for currentImage
-  console.log(`FileUpload ${label} currentImage:`, currentImage ? "Present" : "Not present", typeof currentImage);
+  console.log(
+    `FileUpload ${label} currentImage:`,
+    currentImage ? "Present" : "Not present",
+    typeof currentImage,
+  );
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -59,18 +63,20 @@ export function FileUpload({
       const data = await response.json();
       console.log(`FileUpload ${label} received data from server:`, {
         filePath: data.filePath,
-        mimeType: data.mimeType
+        mimeType: data.mimeType,
       });
-      
+
       // Pass the file path instead of the image data
       onUploadComplete({
         filePath: data.filePath,
-        mimeType: data.mimeType
+        mimeType: data.mimeType,
       });
-      
+
       console.log(`FileUpload ${label} called onUploadComplete with file path`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred during upload");
+      setError(
+        err instanceof Error ? err.message : "An error occurred during upload",
+      );
       setPreview(currentImage || null); // Revert to original image on error
     } finally {
       setIsUploading(false);
@@ -83,8 +89,10 @@ export function FileUpload({
 
   return (
     <div className={`space-y-2 ${className}`}>
-      <label className="block text-sm font-medium text-gray-400 mb-1">{label}</label>
-      
+      <label className="block text-sm font-medium text-gray-400 mb-1">
+        {label}
+      </label>
+
       <div className="flex flex-col items-center space-y-4">
         {/* Preview area */}
         {preview && (
@@ -107,9 +115,13 @@ export function FileUpload({
             disabled={isUploading}
             className="bg-gray-700 hover:bg-gray-600 text-white"
           >
-            {isUploading ? "Uploading..." : preview ? "Change Image" : "Upload Image"}
+            {isUploading
+              ? "Uploading..."
+              : preview
+                ? "Change Image"
+                : "Upload Image"}
           </Button>
-          
+
           {preview && (
             <Button
               type="button"
@@ -138,9 +150,7 @@ export function FileUpload({
       </div>
 
       {/* Error message */}
-      {error && (
-        <div className="text-red-500 text-sm mt-2">{error}</div>
-      )}
+      {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
     </div>
   );
 }

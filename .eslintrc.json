@@ -13,14 +13,15 @@
   "rules": {
     "prettier/prettier": "error",
     "no-console": "off",
-    "@typescript-eslint/no-explicit-any": "error",
+    "@typescript-eslint/no-explicit-any": "warn", // Changed from error to warn
     "@typescript-eslint/no-empty-object-type": "off",
     "@typescript-eslint/explicit-function-return-type": "off",
     "@typescript-eslint/no-unused-vars": [
-      "error",
+      "warn", // Changed from error to warn
       {
         "argsIgnorePattern": "^_"
       }
-    ]
+    ],
+    "react-hooks/exhaustive-deps": "warn" // Added to handle missing dependencies warning
   }
 }

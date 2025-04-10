@@ -42,7 +42,9 @@ const ReviewFormContent: React.FC<ReviewFormContentProps> = ({
           {content.length}/{maxChars} characters
         </div>
         {error && (
-          <p className="text-red-500 text-sm text-center sm:text-left">{error}</p>
+          <p className="text-red-500 text-sm text-center sm:text-left">
+            {error}
+          </p>
         )}
       </div>
       <DialogFooter className="flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2 pt-4">
@@ -58,7 +60,9 @@ const ReviewFormContent: React.FC<ReviewFormContentProps> = ({
         <Button
           type="submit"
           onClick={onSubmit}
-          disabled={isSubmitting || !content.trim() || content.length > maxChars}
+          disabled={
+            isSubmitting || !content.trim() || content.length > maxChars
+          }
           className="w-full sm:w-auto"
         >
           {isSubmitting ? "Submitting..." : submitLabel}

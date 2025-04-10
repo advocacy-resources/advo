@@ -83,35 +83,55 @@ export async function POST(request: NextRequest) {
 
     // Parse request body
     const resourceData = await request.json();
-    
+
     console.log("Creating new resource");
-    console.log("Profile photo exists in create data:", !!resourceData.profilePhoto);
-    console.log("Banner image exists in create data:", !!resourceData.bannerImage);
-    console.log("Profile photo URL exists in create data:", !!resourceData.profilePhotoUrl);
-    console.log("Banner image URL exists in create data:", !!resourceData.bannerImageUrl);
-    
+    console.log(
+      "Profile photo exists in create data:",
+      !!resourceData.profilePhoto,
+    );
+    console.log(
+      "Banner image exists in create data:",
+      !!resourceData.bannerImage,
+    );
+    console.log(
+      "Profile photo URL exists in create data:",
+      !!resourceData.profilePhotoUrl,
+    );
+    console.log(
+      "Banner image URL exists in create data:",
+      !!resourceData.bannerImageUrl,
+    );
+
     // If the image data is a base64 data URL, convert it to binary
-    if (resourceData.profilePhoto && typeof resourceData.profilePhoto === 'string' && resourceData.profilePhoto.startsWith('data:')) {
+    if (
+      resourceData.profilePhoto &&
+      typeof resourceData.profilePhoto === "string" &&
+      resourceData.profilePhoto.startsWith("data:")
+    ) {
       console.log("Converting profile photo from base64 to binary");
       try {
         // Extract the base64 data from the data URL
-        const base64Data = resourceData.profilePhoto.split(',')[1];
+        const base64Data = resourceData.profilePhoto.split(",")[1];
         // Convert to binary
-        const binaryData = Buffer.from(base64Data, 'base64');
+        const binaryData = Buffer.from(base64Data, "base64");
         console.log("Profile photo binary data length:", binaryData.length);
         resourceData.profilePhoto = binaryData;
       } catch (error) {
         console.error("Error converting profile photo:", error);
       }
     }
-    
-    if (resourceData.bannerImage && typeof resourceData.bannerImage === 'string' && resourceData.bannerImage.startsWith('data:')) {
+
+    if (
+      resourceData.bannerImage &&
+      typeof resourceData.bannerImage === "string" &&
+      resourceData.bannerImage.startsWith("data:")
+    ) {
       console.log("Converting banner image from base64 to binary");
       try {
         // Extract the base64 data from the data URL
-        const base64Data = resourceData.bannerImage.split(',')[1];
+        const base64Data = resourceData.bannerImage.split(",")[1];
         // Convert to binary
-        const binaryData = Buffer.from(base64Data, 'base64');
+        const binaryData = Buffer.from(base64Data, "base64");
         console.log("Banner image binary data length:", binaryData.length);
         resourceData.bannerImage = binaryData;
       } catch (error) {

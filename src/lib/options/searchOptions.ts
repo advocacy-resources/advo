@@ -1,4 +1,5 @@
-import { Category } from "@prisma/client";
+// Define our own Category type instead of importing from Prisma
+type Category = "SOCIAL" | "MENTAL" | "PHYSICAL";
 
 export const ageRangeOptions = [
   "0-15",

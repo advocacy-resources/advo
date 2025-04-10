@@ -6,18 +6,18 @@ import { authOptions } from "@/lib/authOptions";
 // Helper function to check admin role
 async function checkAdminRole() {
   const session = await getServerSession(authOptions);
-  
+
   if (!session || session.user.role !== "admin") {
     return false;
   }
-  
+
   return true;
 }
 
 // GET handler for fetching a single user
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string } },
 ) {
   try {
     // Check if user is admin
@@ -25,7 +25,7 @@ export async function GET(
     if (!isAdmin) {
       return NextResponse.json(
         { error: "Unauthorized. Admin access required." },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -46,10 +46,7 @@ export async function GET(
     });
 
     if (!user) {
-      return NextResponse.json(
-        { error: "User not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     return NextResponse.json(user);
@@ -57,7 +54,7 @@ export async function GET(
     console.error("Error fetching user:", error);
     return NextResponse.json(
       { error: "Failed to fetch user" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -65,7 +62,7 @@ export async function GET(
 // PATCH handler for updating a user
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string } },
 ) {
   try {
     // Check if user is admin
@@ -73,7 +70,7 @@ export async function PATCH(
     if (!isAdmin) {
       return NextResponse.json(
         { error: "Unauthorized. Admin access required." },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -86,10 +83,7 @@ export async function PATCH(
     });
 
     if (!existingUser) {
-      return NextResponse.json(
-        { error: "User not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     // Update user
@@ -112,7 +106,7 @@ export async function PATCH(
     console.error("Error updating user:", error);
     return NextResponse.json(
       { error: "Failed to update user" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
