@@ -311,6 +311,18 @@ function logError(message: string, error: Error & { stack?: string }) {
  * Main API handler for resource search
  */
 export async function POST(request: NextRequest) {
+  // Set CORS headers
+  const origin = request.headers.get("origin") || "";
+  const allowedOrigins = [
+    "https://advo-q83h0o0hr-kmje405s-projects.vercel.app",
+    "http://localhost:3000",
+    "http://localhost:3001",
+  ];
+
+  // Check if the origin is allowed
+  const isAllowedOrigin =
+    allowedOrigins.includes(origin) || origin.endsWith(".vercel.app");
+
   try {
     // Parse request body with error handling
     let requestBody;
@@ -318,13 +330,21 @@ export async function POST(request: NextRequest) {
       requestBody = await request.json();
     } catch (parseError) {
       console.error("Error parsing request body:", parseError);
-      return NextResponse.json(
+      const response = NextResponse.json(
         {
           error: "Invalid request format",
           details: "Could not parse request body as JSON",
         },
         { status: 400 },
       );
+
+      // Add CORS headers
+      if (isAllowedOrigin) {
+        response.headers.set("Access-Control-Allow-Origin", origin);
+        response.headers.set("Access-Control-Allow-Credentials", "true");
+      }
+
+      return response;
     }
 
     // Validate and normalize parameters
@@ -347,7 +367,7 @@ export async function POST(request: NextRequest) {
           prisma.resource.count(),
         ]);
 
-        // Add cache control headers to prevent caching issues
+        // Create response with data
         const response = NextResponse.json({
           data: resources,
           pagination: {
@@ -360,6 +380,22 @@ export async function POST(request: NextRequest) {
 
         // Set cache control headers to prevent caching
         response.headers.set("Cache-Control", "no-store, max-age=0");
+
+        // Add CORS headers
+        const origin = request.headers.get("origin") || "";
+        const allowedOrigins = [
+          "https://advo-q83h0o0hr-kmje405s-projects.vercel.app",
+          "http://localhost:3000",
+          "http://localhost:3001",
+        ];
+        const isAllowedOrigin =
+          allowedOrigins.includes(origin) || origin.endsWith(".vercel.app");
+
+        if (isAllowedOrigin) {
+          response.headers.set("Access-Control-Allow-Origin", origin);
+          response.headers.set("Access-Control-Allow-Credentials", "true");
+        }
+
         return response;
       } catch (dbError) {
         console.error("Database error when fetching resources:", dbError);
@@ -393,6 +429,22 @@ export async function POST(request: NextRequest) {
         // Add cache control headers to prevent caching issues
         const response = NextResponse.json(formattedResponse);
         response.headers.set("Cache-Control", "no-store, max-age=0");
+
+        // Add CORS headers
+        const origin = request.headers.get("origin") || "";
+        const allowedOrigins = [
+          "https://advo-q83h0o0hr-kmje405s-projects.vercel.app",
+          "http://localhost:3000",
+          "http://localhost:3001",
+        ];
+        const isAllowedOrigin =
+          allowedOrigins.includes(origin) || origin.endsWith(".vercel.app");
+
+        if (isAllowedOrigin) {
+          response.headers.set("Access-Control-Allow-Origin", origin);
+          response.headers.set("Access-Control-Allow-Credentials", "true");
+        }
+
         return response;
       } catch (searchError: any) {
         console.error("Atlas Search error:", searchError);
@@ -478,18 +530,51 @@ export async function POST(request: NextRequest) {
       });
 
       response.headers.set("Cache-Control", "no-store, max-age=0");
+
+      // Add CORS headers
+      const origin = request.headers.get("origin") || "";
+      const allowedOrigins = [
+        "https://advo-q83h0o0hr-kmje405s-projects.vercel.app",
+        "http://localhost:3000",
+        "http://localhost:3001",
+      ];
+      const isAllowedOrigin =
+        allowedOrigins.includes(origin) || origin.endsWith(".vercel.app");
+
+      if (isAllowedOrigin) {
+        response.headers.set("Access-Control-Allow-Origin", origin);
+        response.headers.set("Access-Control-Allow-Credentials", "true");
+      }
+
       return response;
     }
   } catch (error) {
     const errorObj = error as Error;
     logError("Error fetching resources", errorObj);
 
-    return NextResponse.json(
+    const response = NextResponse.json(
       {
         error: "Failed to fetch resources",
         details: errorObj.message || "Unknown error",
       },
       { status: 500 },
     );
+
+    // Add CORS headers
+    const origin = request.headers.get("origin") || "";
+    const allowedOrigins = [
+      "https://advo-q83h0o0hr-kmje405s-projects.vercel.app",
+      "http://localhost:3000",
+      "http://localhost:3001",
+    ];
+    const isAllowedOrigin =
+      allowedOrigins.includes(origin) || origin.endsWith(".vercel.app");
+
+    if (isAllowedOrigin) {
+      response.headers.set("Access-Control-Allow-Origin", origin);
+      response.headers.set("Access-Control-Allow-Credentials", "true");
+    }
+
+    return response;
   }
 }

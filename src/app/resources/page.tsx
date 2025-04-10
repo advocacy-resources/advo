@@ -60,17 +60,14 @@ export default async function SearchResultsPage({
     // In local development, we can use a relative URL
     let apiUrl;
 
+    // In server components, we need to use absolute URLs
     if (process.env.VERCEL_URL) {
-      // On Vercel, use a relative URL to preserve authentication context
-      apiUrl = "/api/v1/resources/search";
-      console.log("Using relative URL on Vercel:", apiUrl);
+      // On Vercel, use the VERCEL_URL environment variable
+      apiUrl = `https://${process.env.VERCEL_URL}/api/v1/resources/search`;
+      console.log("Using Vercel URL:", apiUrl);
     } else {
-      // In local development, use the original approach that works
-      const baseUrl =
-        process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
-      apiUrl = baseUrl.includes("/api")
-        ? `${baseUrl}/resources/search`
-        : `${baseUrl}/api/v1/resources/search`;
+      // In local development, use localhost
+      apiUrl = "http://localhost:3000/api/v1/resources/search";
       console.log("Using local URL:", apiUrl);
     }
 
