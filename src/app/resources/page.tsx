@@ -25,7 +25,10 @@ export default async function SearchResultsPage({
   if (searchParams.search) {
     try {
       // Decode the JSON string from the URL
-      const searchString = typeof searchParams.search === 'string' ? searchParams.search : searchParams.search[0];
+      const searchString =
+        typeof searchParams.search === "string"
+          ? searchParams.search
+          : searchParams.search[0];
       searchQuery = JSON.parse(decodeURIComponent(searchString));
     } catch (error) {
       console.error("Error parsing search parameters:", error);
@@ -38,10 +41,14 @@ export default async function SearchResultsPage({
       // Ensure category and type are always arrays
       category: Array.isArray(searchParams.category)
         ? searchParams.category
-        : searchParams.category ? [searchParams.category] : [],
+        : searchParams.category
+          ? [searchParams.category]
+          : [],
       type: Array.isArray(searchParams.type)
         ? searchParams.type
-        : searchParams.type ? [searchParams.type] : [],
+        : searchParams.type
+          ? [searchParams.type]
+          : [],
     };
   }
   console.log("Sending search params to API:", searchQuery);
@@ -53,15 +60,17 @@ export default async function SearchResultsPage({
       ? `https://${process.env.VERCEL_URL}`
       : process.env.NEXT_PUBLIC_API_URL
         ? process.env.NEXT_PUBLIC_API_URL
-        : 'http://localhost:3001';
+        : "http://localhost:3001";
     const response = await fetch(
       // Fix the URL to avoid path duplication
-      baseUrl.includes('/api') ? `${baseUrl}/resources/search` : `${baseUrl}/api/v1/resources/search`,
+      baseUrl.includes("/api")
+        ? `${baseUrl}/resources/search`
+        : `${baseUrl}/api/v1/resources/search`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(searchQuery),
-        cache: "no-store"
+        cache: "no-store",
       },
     );
 
@@ -75,7 +84,7 @@ export default async function SearchResultsPage({
     }
 
     const responseData = await response.json();
-    
+
     // Check if the response has the expected format with data property
     if (responseData && responseData.data) {
       results = responseData.data.map((item: any) => ({
@@ -83,23 +92,31 @@ export default async function SearchResultsPage({
         // Ensure all required props are present
         id: item.id || item._id,
         // Make sure category is an array
-        category: Array.isArray(item.category) ? item.category :
-                 (item.category ? [item.category] : []),
+        category: Array.isArray(item.category)
+          ? item.category
+          : item.category
+            ? [item.category]
+            : [],
         // Make sure type is an array if it exists, otherwise use category
-        type: Array.isArray(item.type) ? item.type :
-              (Array.isArray(item.category) ? item.category :
-              (item.category ? [item.category] : [])),
+        type: Array.isArray(item.type)
+          ? item.type
+          : Array.isArray(item.category)
+            ? item.category
+            : item.category
+              ? [item.category]
+              : [],
         rating: item.rating || Rating.NULL,
         favored: item.favored || false,
         profilePhoto: item.profilePhoto || null,
-        profilePhotoUrl: item.profilePhotoUrl || null
+        profilePhotoUrl: item.profilePhotoUrl || null,
       }));
     } else if (responseData.error) {
       return (
         <div className="flex flex-col justify-center items-center gap-4 p-4 text-white bg-black min-h-screen">
           <div className="text-3xl font-bold">Search Results</div>
           <div>
-            {responseData.error || "Unexpected error occurred. Please try again."}
+            {responseData.error ||
+              "Unexpected error occurred. Please try again."}
           </div>
         </div>
       );
@@ -110,16 +127,23 @@ export default async function SearchResultsPage({
         // Ensure all required props are present
         id: item.id || item._id,
         // Make sure category is an array
-        category: Array.isArray(item.category) ? item.category :
-                 (item.category ? [item.category] : []),
+        category: Array.isArray(item.category)
+          ? item.category
+          : item.category
+            ? [item.category]
+            : [],
         // Make sure type is an array if it exists, otherwise use category
-        type: Array.isArray(item.type) ? item.type :
-              (Array.isArray(item.category) ? item.category :
-              (item.category ? [item.category] : [])),
+        type: Array.isArray(item.type)
+          ? item.type
+          : Array.isArray(item.category)
+            ? item.category
+            : item.category
+              ? [item.category]
+              : [],
         rating: item.rating || Rating.NULL,
         favored: item.favored || false,
         profilePhoto: item.profilePhoto || null,
-        profilePhotoUrl: item.profilePhotoUrl || null
+        profilePhotoUrl: item.profilePhotoUrl || null,
       }));
     } else {
       throw new Error("Unexpected response format from API");

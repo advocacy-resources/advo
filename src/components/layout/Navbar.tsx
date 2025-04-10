@@ -49,14 +49,12 @@ function Navbar() {
 
       // Remove empty string values
       const filteredPayload = Object.fromEntries(
-        Object.entries(searchPayload).filter(
-          ([_, value]) => {
-            if (typeof value === 'string') {
-              return value !== "";
-            }
-            return true; // Keep arrays even if empty
+        Object.entries(searchPayload).filter(([_, value]) => {
+          if (typeof value === "string") {
+            return value !== "";
           }
-        ),
+          return true; // Keep arrays even if empty
+        }),
       );
 
       // If no search parameters provided (only empty category and type arrays), redirect to all resources

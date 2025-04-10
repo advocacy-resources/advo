@@ -36,9 +36,9 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
   const [approvalPercentage, setApprovalPercentage] = useState<number>(0);
   const [totalVotes, setTotalVotes] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  
+
   // Safe conversion of id to string
-  const safeId = id ? String(id).replace('[object Object]', '') : '';
+  const safeId = id ? String(id).replace("[object Object]", "") : "";
 
   // Fetch initial rating and favorite status
   useEffect(() => {
@@ -47,9 +47,11 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
         setIsLoading(false);
         return;
       }
-      
+
       try {
-        const ratingResponse = await fetch(`/api/v1/resources/${safeId}/rating`);
+        const ratingResponse = await fetch(
+          `/api/v1/resources/${safeId}/rating`,
+        );
         if (ratingResponse.ok) {
           const ratingData = await ratingResponse.json();
           setCurrentRating(ratingData.userRating);
