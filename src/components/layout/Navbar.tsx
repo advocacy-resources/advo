@@ -224,7 +224,7 @@ function Navbar() {
                 description: e.target.value,
               }))
             }
-            className="px-4 py-2 border border-gray-300 focus:outline-none"
+            className="px-4 py-2 border border-gray-300 focus:outline-none bg-neutral-800 text-white placeholder:text-gray-300"
             aria-label="Search terms"
             disabled={isSearching}
           />
@@ -236,7 +236,7 @@ function Navbar() {
             onChange={(e) =>
               setSearchParams((prev) => ({ ...prev, zipCode: e.target.value }))
             }
-            className="px-4 py-2 border border-gray-300 focus:outline-none"
+            className="px-4 py-2 border border-gray-300 focus:outline-none bg-neutral-800 text-white placeholder:text-gray-300"
             aria-label="Zip code"
             pattern="[0-9]{5}"
             title="Five digit zip code"
@@ -288,7 +288,7 @@ function Navbar() {
                   description: e.target.value,
                 }))
               }
-              className="px-4 py-2 border-r border-gray-300 focus:outline-none"
+              className="px-4 py-2 border-r border-gray-300 focus:outline-none bg-neutral-800 text-white placeholder:text-gray-300"
               aria-label="Search terms"
               disabled={isSearching}
             />
@@ -303,7 +303,7 @@ function Navbar() {
                   zipCode: e.target.value,
                 }))
               }
-              className="px-4 py-2 focus:outline-none"
+              className="px-4 py-2 focus:outline-none bg-neutral-800 text-white placeholder:text-gray-300"
               aria-label="Zip code"
               pattern="[0-9]{5}"
               title="Five digit zip code"
