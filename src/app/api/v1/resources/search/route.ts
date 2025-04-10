@@ -367,34 +367,112 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Build search pipeline
-    const searchClause = buildSearchPipeline(normalizedParams);
-    const projectionStage = createProjectionStage();
-
-    // Base pipeline with projection
-    const basePipeline: PipelineStage[] = [searchClause, projectionStage];
-    // Add pagination to pipeline
-    const pipeline = addPaginationToPipeline(basePipeline, pagination);
-
-    // Execute the query - cast pipeline to avoid type issues with Prisma
+    // Try to use MongoDB Atlas Search if available, otherwise fall back to regular queries
     try {
-      const result = await prisma.resource.aggregateRaw({
-        pipeline: pipeline as unknown as InputJsonValue[],
-      });
+      // Build search pipeline
+      const searchClause = buildSearchPipeline(normalizedParams);
+      const projectionStage = createProjectionStage();
 
+      // Base pipeline with projection
+      const basePipeline: PipelineStage[] = [searchClause, projectionStage];
+      // Add pagination to pipeline
+      const pipeline = addPaginationToPipeline(basePipeline, pagination);
+
+      // Execute the query - cast pipeline to avoid type issues with Prisma
+      try {
+        const result = await prisma.resource.aggregateRaw({
+          pipeline: pipeline as unknown as InputJsonValue[],
+        });
+
+        // Format and return the response
+        const formattedResponse = formatResponse<Record<string, unknown>>(
+          result,
+          pagination,
+        );
+
+        // Add cache control headers to prevent caching issues
+        const response = NextResponse.json(formattedResponse);
+        response.headers.set("Cache-Control", "no-store, max-age=0");
+        return response;
+      } catch (searchError: any) {
+        console.error("Atlas Search error:", searchError);
+        
+        // Log detailed error information for debugging
+        console.log("Atlas Search error details:", {
+          message: searchError.message,
+          stack: searchError.stack,
+          code: searchError.code,
+          name: searchError.name,
+        });
+        
+        // If the error is related to the search index not being found, fall back to regular query
+        if (searchError.message &&
+            (searchError.message.includes("index not found") ||
+             searchError.message.includes("$search") ||
+             searchError.message.includes("call"))) {
+          console.log("Falling back to regular query without Atlas Search. The 'resource_index' search index is likely missing in MongoDB Atlas.");
+          throw new Error("Search index not available, using fallback");
+        }
+        
+        // For other database errors, rethrow
+        throw searchError;
+      }
+    } catch (fallbackError) {
+      console.log("Using fallback search method");
+      
+      // Fallback to regular Prisma queries when Atlas Search is not available
+      const { zipCode, category, description, type } = normalizedParams;
+      
+      // Build where clause for regular query
+      const where: any = {};
+      
+      if (zipCode && zipCode.trim() !== "") {
+        where.zipCode = zipCode.trim();
+      }
+      
+      if (category && category.length > 0) {
+        where.category = {
+          hasSome: category
+        };
+      }
+      
+      if (type && type.length > 0) {
+        where.type = {
+          hasSome: type
+        };
+      }
+      
+      if (description && description.trim() !== "") {
+        where.OR = [
+          { name: { contains: description.trim(), mode: 'insensitive' } },
+          { description: { contains: description.trim(), mode: 'insensitive' } }
+        ];
+      }
+      
+      // Execute regular query with pagination
+      const [resources, count] = await Promise.all([
+        prisma.resource.findMany({
+          where,
+          orderBy: { createdAt: "desc" },
+          skip: (pagination.page - 1) * pagination.limit,
+          take: pagination.limit,
+        }),
+        prisma.resource.count({ where }),
+      ]);
+      
       // Format and return the response
-      const formattedResponse = formatResponse<Record<string, unknown>>(
-        result,
-        pagination,
-      );
-
-      // Add cache control headers to prevent caching issues
-      const response = NextResponse.json(formattedResponse);
+      const response = NextResponse.json({
+        data: resources,
+        pagination: {
+          total: count,
+          page: pagination.page,
+          limit: pagination.limit,
+          totalPages: Math.ceil(count / pagination.limit),
+        },
+      });
+      
       response.headers.set("Cache-Control", "no-store, max-age=0");
       return response;
-    } catch (dbError) {
-      console.error("Database error during search query:", dbError);
-      throw new Error("Database error during search query");
     }
   } catch (error) {
     const errorObj = error as Error;

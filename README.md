@@ -23,6 +23,23 @@ myAdvo is a resource and referral tool in development that will allow users to h
    npm install
    ```
 
+## Database Setup
+
+This project uses MongoDB Atlas for data storage and MongoDB Atlas Search for advanced search capabilities.
+
+### MongoDB Atlas Search Setup
+
+To enable the search functionality, you need to set up a search index in MongoDB Atlas:
+
+1. Run the setup script to see the required configuration:
+   ```bash
+   node scripts/setup-atlas-search.js
+   ```
+
+2. Follow the instructions provided by the script to create the search index in MongoDB Atlas.
+
+3. Once the index is created, the application will automatically use Atlas Search for resource queries.
+
 ## Usage
 
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).

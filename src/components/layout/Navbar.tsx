@@ -32,7 +32,7 @@ function Navbar() {
     router.push("/auth/register");
   };
 
-  const handleSearch = async (e: React.FormEvent) => {
+  const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setIsSearching(true);
     setSearchError(null);
@@ -40,46 +40,33 @@ function Navbar() {
     try {
       // Only include non-empty parameters
       const searchPayload: Record<string, string | string[]> = {
-        description:
-          searchParams.description.trim() || (undefined as unknown as string),
-        zipCode:
-          searchParams.zipCode.trim() || (undefined as unknown as string),
+        description: searchParams.description.trim() || "",
+        zipCode: searchParams.zipCode.trim() || "",
         // Default values for required API parameters
         category: [],
         type: [],
       };
 
-      // Filter out undefined values
+      // Remove empty string values
       const filteredPayload = Object.fromEntries(
         Object.entries(searchPayload).filter(
-          ([_, value]) => value !== undefined,
+          ([_, value]) => {
+            if (typeof value === 'string') {
+              return value !== "";
+            }
+            return true; // Keep arrays even if empty
+          }
         ),
       );
 
-      // If no search parameters provided, show a message or redirect to all resources
-      if (Object.keys(filteredPayload).length <= 2) {
-        // Only category and type arrays
+      // If no search parameters provided (only empty category and type arrays), redirect to all resources
+      if (!filteredPayload.description && !filteredPayload.zipCode) {
         console.info("No search parameters provided");
         router.push("/resources");
         return;
       }
 
-      // Make API call to search endpoint
-      const response = await fetch("/api/v1/resources/search", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(filteredPayload),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Search failed: ${response.statusText}`);
-      }
-
-      await response.json(); // Process the response if needed
-
-      // Navigate to search results page with the search parameters
+      // Navigate directly to search results page with the search parameters
       router.push(
         `/resources?search=${encodeURIComponent(
           JSON.stringify(filteredPayload),

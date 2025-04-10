@@ -9,8 +9,8 @@ interface ResourceCardProps {
   id: string | number;
   name: string;
   description: string;
-  category: string;
-  type: string[];
+  category: string; // First category from the array
+  type: string[]; // Using the full category array as type
   rating: Rating;
   favored: boolean;
   profilePhoto?: string | null;
@@ -36,12 +36,20 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
   const [approvalPercentage, setApprovalPercentage] = useState<number>(0);
   const [totalVotes, setTotalVotes] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  
+  // Safe conversion of id to string
+  const safeId = id ? String(id).replace('[object Object]', '') : '';
 
   // Fetch initial rating and favorite status
   useEffect(() => {
     const fetchRatingData = async () => {
+      if (!safeId) {
+        setIsLoading(false);
+        return;
+      }
+      
       try {
-        const ratingResponse = await fetch(`/api/v1/resources/${id}/rating`);
+        const ratingResponse = await fetch(`/api/v1/resources/${safeId}/rating`);
         if (ratingResponse.ok) {
           const ratingData = await ratingResponse.json();
           setCurrentRating(ratingData.userRating);
@@ -50,7 +58,7 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
         }
 
         const favoriteResponse = await fetch(
-          `/api/v1/resources/${id}/favorite`,
+          `/api/v1/resources/${safeId}/favorite`,
         );
         if (favoriteResponse.ok) {
           const favoriteData = await favoriteResponse.json();
@@ -63,18 +71,16 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
       }
     };
 
-    if (id) {
-      fetchRatingData();
-    }
-  }, [id]);
+    fetchRatingData();
+  }, [safeId]);
 
   const handleRatingUp = async () => {
-    if (!session) return;
+    if (!session || !safeId) return;
 
     const newRating = currentRating === Rating.UP ? Rating.NULL : Rating.UP;
 
     try {
-      const response = await fetch(`/api/v1/resources/${id}/rating`, {
+      const response = await fetch(`/api/v1/resources/${safeId}/rating`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -94,12 +100,12 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
   };
 
   const handleRatingDown = async () => {
-    if (!session) return;
+    if (!session || !safeId) return;
 
     const newRating = currentRating === Rating.DOWN ? Rating.NULL : Rating.DOWN;
 
     try {
-      const response = await fetch(`/api/v1/resources/${id}/rating`, {
+      const response = await fetch(`/api/v1/resources/${safeId}/rating`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -119,10 +125,10 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
   };
 
   const handleToggleFavorite = async () => {
-    if (!session) return;
+    if (!session || !safeId) return;
 
     try {
-      const response = await fetch(`/api/v1/resources/${id}/favorite`, {
+      const response = await fetch(`/api/v1/resources/${safeId}/favorite`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -170,7 +176,7 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
       className="h-full w-full border border-gray-700 bg-black text-white transition-colors duration-200 rounded-lg shadow-md overflow-hidden hover:shadow-lg"
     >
       {/* Link wrapping the top part of the card */}
-      <Link href={`/resources/${id}`} className="block">
+      <Link href={`/resources/${safeId}`} className="block">
         <div className="p-4 hover:bg-gray-800 cursor-pointer">
           {/* Image and Title Row */}
           <div className="flex items-center gap-4">
