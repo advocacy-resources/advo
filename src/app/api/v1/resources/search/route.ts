@@ -312,8 +312,20 @@ function logError(message: string, error: Error & { stack?: string }) {
  */
 export async function POST(request: NextRequest) {
   try {
-    // Parse request body
-    const requestBody = await request.json();
+    // Parse request body with error handling
+    let requestBody;
+    try {
+      requestBody = await request.json();
+    } catch (parseError) {
+      console.error("Error parsing request body:", parseError);
+      return NextResponse.json(
+        {
+          error: "Invalid request format",
+          details: "Could not parse request body as JSON",
+        },
+        { status: 400 },
+      );
+    }
 
     // Validate and normalize parameters
     const { normalizedParams, pagination, hasSearchParams } =
@@ -325,25 +337,36 @@ export async function POST(request: NextRequest) {
         "No search parameters provided. Returning paginated list of all resources.",
       );
 
-      const [resources, count] = await Promise.all([
-        prisma.resource.findMany({
-          orderBy: { createdAt: "desc" },
-          skip: (pagination.page - 1) * pagination.limit,
-          take: pagination.limit,
-        }),
-        prisma.resource.count(),
-      ]);
+      try {
+        const [resources, count] = await Promise.all([
+          prisma.resource.findMany({
+            orderBy: { createdAt: "desc" },
+            skip: (pagination.page - 1) * pagination.limit,
+            take: pagination.limit,
+          }),
+          prisma.resource.count(),
+        ]);
 
-      return NextResponse.json({
-        data: resources,
-        pagination: {
-          total: count,
-          page: pagination.page,
-          limit: pagination.limit,
-          totalPages: Math.ceil(count / pagination.limit),
-        },
-      });
+        // Add cache control headers to prevent caching issues
+        const response = NextResponse.json({
+          data: resources,
+          pagination: {
+            total: count,
+            page: pagination.page,
+            limit: pagination.limit,
+            totalPages: Math.ceil(count / pagination.limit),
+          },
+        });
+
+        // Set cache control headers to prevent caching
+        response.headers.set("Cache-Control", "no-store, max-age=0");
+        return response;
+      } catch (dbError) {
+        console.error("Database error when fetching resources:", dbError);
+        throw new Error("Database error when fetching resources");
+      }
     }
+
     // Build search pipeline
     const searchClause = buildSearchPipeline(normalizedParams);
     const projectionStage = createProjectionStage();
@@ -354,16 +377,25 @@ export async function POST(request: NextRequest) {
     const pipeline = addPaginationToPipeline(basePipeline, pagination);
 
     // Execute the query - cast pipeline to avoid type issues with Prisma
-    const result = await prisma.resource.aggregateRaw({
-      pipeline: pipeline as unknown as InputJsonValue[],
-    });
+    try {
+      const result = await prisma.resource.aggregateRaw({
+        pipeline: pipeline as unknown as InputJsonValue[],
+      });
 
-    // Format and return the response
-    const formattedResponse = formatResponse<Record<string, unknown>>(
-      result,
-      pagination,
-    );
-    return NextResponse.json(formattedResponse);
+      // Format and return the response
+      const formattedResponse = formatResponse<Record<string, unknown>>(
+        result,
+        pagination,
+      );
+
+      // Add cache control headers to prevent caching issues
+      const response = NextResponse.json(formattedResponse);
+      response.headers.set("Cache-Control", "no-store, max-age=0");
+      return response;
+    } catch (dbError) {
+      console.error("Database error during search query:", dbError);
+      throw new Error("Database error during search query");
+    }
   } catch (error) {
     const errorObj = error as Error;
     logError("Error fetching resources", errorObj);

@@ -56,7 +56,8 @@ export default function ResourceEditPage({
   type ResourceFieldValue =
     | string
     | string[]
-    | { [key: string]: string }
+    | { [key: string]: string | object } // Allow nested objects
+    | Record<string, string | object> // Allow complex nested objects like operatingHours
     | Buffer
     | null
     | undefined;
@@ -69,29 +70,29 @@ export default function ResourceEditPage({
     );
     if (field === "profilePhoto" || field === "bannerImage") {
       console.log(
-        `Image data: ${value ? value.substring(0, 50) + "..." : "null"}`,
+        `Image data: ${typeof value === "string" ? value.substring(0, 50) + "..." : "null"}`,
       );
     }
-
     // Create a copy of the edited resource
     const updatedResource = { ...editedResource };
 
-    // Set the field value using a type-safe approach
-    // Create a record type that allows string indexing
-    const typedResource = editedResource as Record<string, ResourceFieldValue>;
-    typedResource[field] = value;
+    // Use type assertion with unknown as intermediate step for safer casting
+    (updatedResource as unknown as Record<string, ResourceFieldValue>)[field] =
+      value;
 
-    console.log(`Updated ${field} in resource:`, !!typedResource[field]);
+    console.log(`Updated ${field} in resource:`, !!value);
 
     // Special handling for image URLs to ensure they're persisted
     if (field === "profilePhotoUrl") {
       console.log("Setting profilePhotoUrl to:", value);
-      updatedResource.profilePhotoUrl = value;
+      updatedResource.profilePhotoUrl =
+        typeof value === "string" ? value : undefined;
     }
 
     if (field === "bannerImageUrl") {
       console.log("Setting bannerImageUrl to:", value);
-      updatedResource.bannerImageUrl = value;
+      updatedResource.bannerImageUrl =
+        typeof value === "string" ? value : undefined;
     }
 
     // Update the state
@@ -140,8 +141,8 @@ export default function ResourceEditPage({
         operatingHours: editedResource.operatingHours,
         profilePhotoType: editedResource.profilePhotoType,
         bannerImageType: editedResource.bannerImageType,
-        profilePhotoUrl: profilePhotoUrlRef.current,
-        bannerImageUrl: bannerImageUrlRef.current,
+        profilePhotoUrl: profilePhotoUrlRef.current || undefined,
+        bannerImageUrl: bannerImageUrlRef.current || undefined,
       };
 
       console.log(

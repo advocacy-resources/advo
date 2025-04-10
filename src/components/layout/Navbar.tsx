@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Logo from "../../assets/myAdvo-peachWhite.svg";
+import { X } from "lucide-react";
 
 function Navbar() {
   const { data: session } = useSession();
@@ -17,6 +18,7 @@ function Navbar() {
   });
   const [isSearching, setIsSearching] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleSignOut = () => {
     signOut({ callbackUrl: "/auth/signin" });
@@ -92,13 +94,13 @@ function Navbar() {
   };
 
   const buttonClass =
-    "bg-neutral-800 text-white hover:bg-neutral-700 transition-colors duration-200 px-4 py-2";
+    "bg-neutral-800 text-white rounded-full px-4 py-2 btn-gradient-hover";
 
   return (
     <header className="w-full">
       {/* Mobile Search (Top) */}
       <div className="md:hidden p-4 shadow-sm static top-0 z-10">
-        {/* Mobile Logo */}
+        {/* Mobile Logo and Menu */}
         <div className="flex justify-between items-center mb-4">
           <Image
             src={Logo}
@@ -107,13 +109,113 @@ function Navbar() {
             className="cursor-pointer"
             onClick={() => router.push("/")}
           />
+
+          {/* Mobile Menu Button */}
+          <button
+            className="p-2 rounded-full focus:outline-none btn-gradient-hover"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Toggle mobile menu"
+            aria-expanded={mobileMenuOpen}
+          >
+            {mobileMenuOpen ? (
+              <X size={24} className="text-white" />
+            ) : (
+              <div className="space-y-1.5">
+                <div className="w-6 h-0.5 bg-white"></div>
+                <div className="w-6 h-0.5 bg-white"></div>
+                <div className="w-6 h-0.5 bg-white"></div>
+              </div>
+            )}
+          </button>
         </div>
+
+        {/* Mobile Menu Overlay and Dropdown */}
+        {mobileMenuOpen && (
+          <>
+            {/* Overlay to capture clicks outside the menu */}
+            <div
+              className="fixed inset-0 bg-black bg-opacity-50 z-10"
+              onClick={() => setMobileMenuOpen(false)}
+              aria-hidden="true"
+            ></div>
+
+            {/* Menu Dropdown */}
+            <div className="absolute right-0 left-0 mt-2 mx-4 bg-neutral-800 rounded-md shadow-lg py-2 z-20 border border-neutral-700">
+              <button
+                onClick={() => {
+                  router.push("/recommend");
+                  setMobileMenuOpen(false);
+                }}
+                className="block w-full text-left px-4 py-3 text-sm text-white rounded-full btn-gradient-hover"
+              >
+                Recommend Resource
+              </button>
+
+              {session ? (
+                <>
+                  <button
+                    onClick={() => {
+                      router.push("/profile");
+                      setMobileMenuOpen(false);
+                    }}
+                    className="block w-full text-left px-4 py-3 text-sm text-white rounded-full btn-gradient-hover"
+                  >
+                    Profile
+                  </button>
+                  {session.user.role === "admin" && (
+                    <button
+                      onClick={() => {
+                        router.push("/admin");
+                        setMobileMenuOpen(false);
+                      }}
+                      className="block w-full text-left px-4 py-3 text-sm text-purple-300 rounded-full btn-gradient-hover"
+                    >
+                      Admin Dashboard
+                    </button>
+                  )}
+                  <button
+                    onClick={() => {
+                      handleSignOut();
+                      setMobileMenuOpen(false);
+                    }}
+                    className="block w-full text-left px-4 py-3 text-sm text-red-300 rounded-full btn-gradient-hover border-t border-neutral-700"
+                  >
+                    Sign Out
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={() => {
+                      handleSignIn();
+                      setMobileMenuOpen(false);
+                    }}
+                    className="block w-full text-left px-4 py-3 text-sm text-white rounded-full btn-gradient-hover"
+                  >
+                    Sign In
+                  </button>
+                  <button
+                    onClick={() => {
+                      handleSignUp();
+                      setMobileMenuOpen(false);
+                    }}
+                    className="block w-full text-left px-4 py-3 text-sm text-white rounded-full btn-gradient-hover"
+                  >
+                    Sign Up
+                  </button>
+                </>
+              )}
+            </div>
+          </>
+        )}
         <form
           onSubmit={handleSearch}
+          id="mobile-search-form"
           className="flex flex-col sm:flex-row gap-2"
         >
           <input
             type="text"
+            id="mobile-search-input"
             placeholder="Search terms..."
             value={searchParams.description}
             onChange={(e) =>
@@ -128,6 +230,7 @@ function Navbar() {
           />
           <input
             type="text"
+            id="mobile-zip-input"
             placeholder="Zip code"
             value={searchParams.zipCode}
             onChange={(e) =>
@@ -151,7 +254,7 @@ function Navbar() {
       </div>
 
       {/* Navbar */}
-      <div className="relative h-16 md:flex hidden items-center">
+      <nav className="relative h-16 md:flex hidden items-center">
         {/* Left Logo */}
         <div className="absolute left-0 h-full flex items-center z-10">
           <Image
@@ -171,10 +274,12 @@ function Navbar() {
         <div className="absolute inset-0 hidden md:flex justify-center items-center text-black">
           <form
             onSubmit={handleSearch}
+            id="desktop-search-form"
             className="flex shadow-sm overflow-hidden"
           >
             <input
               type="text"
+              id="desktop-search-input"
               placeholder="Search terms..."
               value={searchParams.description}
               onChange={(e) =>
@@ -189,6 +294,7 @@ function Navbar() {
             />
             <input
               type="text"
+              id="desktop-zip-input"
               placeholder="Zip code"
               value={searchParams.zipCode}
               onChange={(e) =>
@@ -234,7 +340,7 @@ function Navbar() {
               {session.user.role === "admin" && (
                 <button
                   onClick={() => router.push("/admin")}
-                  className={`${buttonClass} bg-purple-700 hover:bg-purple-600`}
+                  className="bg-purple-700 text-white rounded-full px-4 py-2 btn-gradient-hover"
                 >
                   Admin Dashboard
                 </button>
@@ -260,7 +366,7 @@ function Navbar() {
             </>
           )}
         </div>
-      </div>
+      </nav>
     </header>
   );
 }

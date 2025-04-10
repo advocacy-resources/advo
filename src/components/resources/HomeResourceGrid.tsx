@@ -16,6 +16,7 @@ const HomeResourceGrid: React.FC = () => {
   const [resources, setResources] = useState<Resource[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
   const [pagination, setPagination] = useState<PaginationData>({
     total: 0,
     page: 1,
@@ -41,6 +42,8 @@ const HomeResourceGrid: React.FC = () => {
             category: [],
             type: [],
           }),
+          // Add cache: 'no-store' to prevent caching issues
+          cache: "no-store",
         });
 
         if (!response.ok) {
@@ -60,9 +63,13 @@ const HomeResourceGrid: React.FC = () => {
           limit: data.pagination.limit || 12,
           totalPages: data.pagination.totalPages || 0,
         });
+        // Reset retry count on successful fetch
+        setRetryCount(0);
       } catch (e) {
         console.error("Error fetching resources:", e);
         setError(e instanceof Error ? e.message : "An unknown error occurred");
+        // Increment retry count on error
+        setRetryCount((prev) => prev + 1);
       } finally {
         setIsLoading(false);
       }
@@ -70,9 +77,27 @@ const HomeResourceGrid: React.FC = () => {
     [pagination.limit],
   );
 
+  // Initial fetch
   useEffect(() => {
     fetchResources();
   }, [fetchResources]);
+
+  // Auto-retry mechanism
+  useEffect(() => {
+    // Only retry if there was an error and we haven't exceeded max retries
+    if (error && retryCount < 3) {
+      const retryDelay = Math.min(1000 * 2 ** retryCount, 5000); // Exponential backoff with max 5s
+      console.log(
+        `Retrying fetch (attempt ${retryCount + 1}) in ${retryDelay}ms...`,
+      );
+      const retryTimer = setTimeout(() => {
+        console.log(`Executing retry attempt ${retryCount + 1}`);
+        fetchResources(pagination.page);
+      }, retryDelay);
+
+      return () => clearTimeout(retryTimer);
+    }
+  }, [error, retryCount, fetchResources, pagination.page]);
 
   const handlePageChange = (newPage: number) => {
     fetchResources(newPage);
@@ -156,6 +181,22 @@ const HomeResourceGrid: React.FC = () => {
     </>
   );
 
+  // Manual retry button for user
+  const retryButton = error && (
+    <div className="mt-4 flex justify-center">
+      <Button
+        onClick={() => {
+          setError(null);
+          fetchResources(pagination.page);
+        }}
+        variant="default"
+        className="bg-purple-600 hover:bg-purple-700"
+      >
+        Retry Loading Resources
+      </Button>
+    </div>
+  );
+
   return (
     <ResourceGridBase
       resources={resources}
@@ -165,13 +206,17 @@ const HomeResourceGrid: React.FC = () => {
       className="max-w-7xl mx-auto p-4 md:p-8 bg-black bg-opacity-80 rounded-lg shadow-xl"
       gridClassName="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 p-2"
       loadingMessage={
-        <div className="flex justify-center items-center h-64 bg-gray-900 rounded-lg border border-gray-700">
-          <div className="text-xl text-white">Loading resources...</div>
+        <div className="flex flex-col justify-center items-center h-64 bg-gray-900 rounded-lg border border-gray-700">
+          <div className="text-xl text-white mb-4">Loading resources...</div>
+          <div className="w-12 h-12 border-t-2 border-b-2 border-purple-500 rounded-full animate-spin"></div>
         </div>
       }
       errorPrefix={
-        <div className="flex justify-center items-center h-64 bg-gray-900 rounded-lg border border-gray-700">
-          <div className="text-xl text-red-500">Error:</div>
+        <div className="flex flex-col justify-center items-center h-64 bg-gray-900 rounded-lg border border-gray-700">
+          <div className="text-xl text-red-500 mb-4">
+            Error loading resources:
+          </div>
+          {retryButton}
         </div>
       }
       emptyMessage={
@@ -181,6 +226,7 @@ const HomeResourceGrid: React.FC = () => {
       }
     >
       {resources.length > 0 && paginationControls}
+      {error && retryButton}
     </ResourceGridBase>
   );
 };

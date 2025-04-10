@@ -51,12 +51,7 @@ const SignIn: React.FC<SignInProps> = ({ providers }) => {
       <div className="max-w-md w-full space-y-8 p-10 bg-gray-800 rounded-xl shadow-lg">
         {/* Logo */}
         <div className="flex justify-center">
-          <Image
-            src={LogoImage}
-            alt="Logo"
-            width={100}
-            height={100}
-          />
+          <Image src={LogoImage} alt="Logo" width={100} height={100} />
         </div>
         <div className="mt-6 text-center text-3xl font-extrabold">
           Sign in to your account

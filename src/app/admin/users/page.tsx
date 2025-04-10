@@ -23,12 +23,14 @@ export default function AdminUsersPage() {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/v1/admin/users?page=${page}&limit=${limit}`);
-      
+      const response = await fetch(
+        `/api/v1/admin/users?page=${page}&limit=${limit}`,
+      );
+
       if (!response.ok) {
         throw new Error("Failed to fetch users");
       }
-      
+
       const data = await response.json();
       setUsers(data.data);
       setTotalPages(data.pagination.totalPages);
@@ -43,17 +45,17 @@ export default function AdminUsersPage() {
   };
 
   const handleRoleChange = (userId: string, newRole: string) => {
-    setEditedUsers(prev => ({
+    setEditedUsers((prev) => ({
       ...prev,
-      [userId]: newRole
+      [userId]: newRole,
     }));
   };
 
   const handleSaveRole = async (userId: string) => {
     try {
-      setSavingUsers(prev => ({
+      setSavingUsers((prev) => ({
         ...prev,
-        [userId]: true
+        [userId]: true,
       }));
 
       const newRole = editedUsers[userId];
@@ -70,9 +72,11 @@ export default function AdminUsersPage() {
       }
 
       // Update the local users list
-      setUsers(users.map(user =>
-        user.id === userId ? { ...user, role: newRole } : user
-      ));
+      setUsers(
+        users.map((user) =>
+          user.id === userId ? { ...user, role: newRole } : user,
+        ),
+      );
 
       // Clear the edited state for this user
       const newEditedUsers = { ...editedUsers };
@@ -82,9 +86,9 @@ export default function AdminUsersPage() {
       setError("Error updating user role. Please try again.");
       console.error(err);
     } finally {
-      setSavingUsers(prev => ({
+      setSavingUsers((prev) => ({
         ...prev,
-        [userId]: false
+        [userId]: false,
       }));
     }
   };
@@ -97,17 +101,19 @@ export default function AdminUsersPage() {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-white">Users Management</h2>
+      <div className="md:flex md:justify-between md:items-center mb-6">
+        <h2 className="text-2xl font-bold text-white mb-4 md:mb-0">
+          Users Management
+        </h2>
         <Link href="/admin/users/create">
-          <Button className="bg-blue-600 hover:bg-blue-700">Add New User</Button>
+          <Button className="bg-blue-600 hover:bg-blue-700">
+            Add New User
+          </Button>
         </Link>
       </div>
 
       {error && (
-        <div className="bg-red-900 p-4 mb-4 text-white rounded">
-          {error}
-        </div>
+        <div className="bg-red-900 p-4 mb-4 text-white rounded">{error}</div>
       )}
 
       <div className="bg-gray-800 shadow-md rounded-lg overflow-hidden">
@@ -135,13 +141,19 @@ export default function AdminUsersPage() {
             <tbody className="bg-gray-800 divide-y divide-gray-700">
               {loading ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-4 text-center text-gray-300">
+                  <td
+                    colSpan={5}
+                    className="px-6 py-4 text-center text-gray-300"
+                  >
                     Loading...
                   </td>
                 </tr>
               ) : users.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-4 text-center text-gray-300">
+                  <td
+                    colSpan={5}
+                    className="px-6 py-4 text-center text-gray-300"
+                  >
                     No users found
                   </td>
                 </tr>
@@ -154,21 +166,25 @@ export default function AdminUsersPage() {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-300">
-                        {user.email}
-                      </div>
+                      <div className="text-sm text-gray-300">{user.email}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center space-x-2">
                         <select
                           className="text-sm bg-gray-700 text-white border border-gray-600 rounded p-1"
-                          value={editedUsers[user.id] !== undefined ? editedUsers[user.id] : user.role || "user"}
-                          onChange={(e) => handleRoleChange(user.id, e.target.value)}
+                          value={
+                            editedUsers[user.id] !== undefined
+                              ? editedUsers[user.id]
+                              : user.role || "user"
+                          }
+                          onChange={(e) =>
+                            handleRoleChange(user.id, e.target.value)
+                          }
                         >
                           <option value="user">User</option>
                           <option value="admin">Admin</option>
                         </select>
-                        
+
                         {editedUsers[user.id] !== undefined && (
                           <div className="flex space-x-1">
                             <Button
@@ -193,15 +209,21 @@ export default function AdminUsersPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
-                        <span className={`inline-block w-3 h-3 rounded-full mr-2 ${user.isActive ? "bg-green-500" : "bg-red-500"}`}></span>
-                        <span className="text-sm text-gray-300">{user.isActive ? "Active" : "Frozen"}</span>
+                        <span
+                          className={`inline-block w-3 h-3 rounded-full mr-2 ${user.isActive ? "bg-green-500" : "bg-red-500"}`}
+                        ></span>
+                        <span className="text-sm text-gray-300">
+                          {user.isActive ? "Active" : "Frozen"}
+                        </span>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <Button
                         variant="outline"
                         className="text-xs px-2 py-1 bg-transparent border-gray-500 text-gray-300 hover:bg-gray-700"
-                        onClick={() => window.location.href = `/admin/users/${user.id}`}
+                        onClick={() =>
+                          (window.location.href = `/admin/users/${user.id}`)
+                        }
                       >
                         View Details
                       </Button>

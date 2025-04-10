@@ -71,4 +71,53 @@ h6 {
 
 /* Any other global styles you want to add */
 
+/* Button gradient animation */
+.btn-gradient-hover {
+  position: relative;
+  overflow: hidden;
+  /* Ensure the button content is above the pseudo-element */
+  isolation: isolate;
+}
+
+.btn-gradient-hover::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(to right, #facc15, #f97316, #ec4899);
+  width: 0;
+  height: 100%;
+  transition: all 0.5s ease;
+  /* Ensure the pseudo-element is below the button content */
+  z-index: -1;
+  border-radius: 9999px; /* rounded-full */
+  pointer-events: none; /* Make sure the pseudo-element doesn't block clicks */
+}
+
+/* Desktop hover animation */
+@media (min-width: 768px) {
+  .btn-gradient-hover:hover::before {
+    width: 100%;
+    transition-delay: 0.1s;
+  }
+}
+
+/* Mobile active state - immediate gradient */
+@media (max-width: 767px) {
+  /* Use background-image instead of background for better performance */
+  .btn-gradient-hover:active {
+    background-image: linear-gradient(to right, #facc15, #f97316, #ec4899);
+  }
+  
+  /* Add a subtle scale effect for feedback */
+  .btn-gradient-hover {
+    transition: transform 0.2s ease;
+  }
+  
+  .btn-gradient-hover:active {
+    transform: scale(0.97);
+  }
+}
 

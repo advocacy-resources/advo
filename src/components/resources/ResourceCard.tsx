@@ -165,14 +165,19 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
   }
 
   return (
-    <div className="h-full w-full border border-gray-700 bg-black text-white transition-colors duration-200 rounded-lg shadow-md overflow-hidden hover:shadow-lg">
+    <div
+      data-testid="resource-card"
+      className="h-full w-full border border-gray-700 bg-black text-white transition-colors duration-200 rounded-lg shadow-md overflow-hidden hover:shadow-lg"
+    >
       {/* Link wrapping the top part of the card */}
       <Link href={`/resources/${id}`} className="block">
         <div className="p-4 hover:bg-gray-800 cursor-pointer">
           {/* Image and Title Row */}
           <div className="flex items-center gap-4">
             <Image
-              src={profilePhotoUrl || profilePhoto || "/images/tulsa-center.png"}
+              src={
+                profilePhotoUrl || profilePhoto || "/images/tulsa-center.png"
+              }
               alt={`${name} logo`}
               width={100}
               height={100}

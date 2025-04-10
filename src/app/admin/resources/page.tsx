@@ -15,19 +15,16 @@ export default function AdminResourcesPage() {
   const [resourceToDelete, setResourceToDelete] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  useEffect(() => {
-    fetchResources();
-  }, [page]);
-
   const fetchResources = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/v1/admin/resources?page=${page}&limit=${limit}`);
-      
+      const response = await fetch(
+        `/api/v1/admin/resources?page=${page}&limit=${limit}`,
+      );
       if (!response.ok) {
         throw new Error("Failed to fetch resources");
       }
-      
+
       const data = await response.json();
       setResources(data.data);
       setTotalPages(data.pagination.totalPages);
@@ -41,18 +38,25 @@ export default function AdminResourcesPage() {
     }
   };
 
+  useEffect(() => {
+    fetchResources();
+  }, [page, limit]);
+
   const handleDeleteClick = (id: string) => {
     setResourceToDelete(id);
   };
 
   const handleConfirmDelete = async () => {
     if (!resourceToDelete) return;
-    
+
     try {
       setIsDeleting(true);
-      const response = await fetch(`/api/v1/admin/resources/${resourceToDelete}`, {
-        method: "DELETE",
-      });
+      const response = await fetch(
+        `/api/v1/admin/resources/${resourceToDelete}`,
+        {
+          method: "DELETE",
+        },
+      );
 
       if (!response.ok) {
         throw new Error("Failed to delete resource");
@@ -77,9 +81,12 @@ export default function AdminResourcesPage() {
     <div>
       {resourceToDelete && (
         <div className="bg-gray-900 border border-red-500 p-4 mb-6 rounded-lg">
-          <h3 className="text-lg font-semibold text-white mb-2">Confirm Deletion</h3>
+          <h3 className="text-lg font-semibold text-white mb-2">
+            Confirm Deletion
+          </h3>
           <p className="text-gray-300 mb-4">
-            Are you sure you want to delete this resource? This action cannot be undone.
+            Are you sure you want to delete this resource? This action cannot be
+            undone.
           </p>
           <div className="flex space-x-3">
             <Button
@@ -102,40 +109,66 @@ export default function AdminResourcesPage() {
         </div>
       )}
 
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-white">Resources Management</h2>
+      <div className="md:flex md:justify-between md:items-center mb-6">
+        <h2 className="text-2xl font-bold text-white mb-4 md:mb-0">
+          Resources Management
+        </h2>
         <Link href="/admin/resources/create">
-          <Button className="bg-blue-600 hover:bg-blue-700">Add New Resource</Button>
+          <Button className="bg-blue-600 hover:bg-blue-700">
+            Add New Resource
+          </Button>
         </Link>
       </div>
 
-      {error && <div className="bg-red-900 p-4 mb-4 text-white rounded">{error}</div>}
+      {error && (
+        <div className="bg-red-900 p-4 mb-4 text-white rounded">{error}</div>
+      )}
 
       <div className="bg-gray-800 shadow-md rounded-lg overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-700">
             <thead className="bg-gray-700">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Name</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Category</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Created</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Actions</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                  Name
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                  Category
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                  Created
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody className="bg-gray-800 divide-y divide-gray-700">
               {loading ? (
                 <tr>
-                  <td colSpan={4} className="px-6 py-4 text-center text-gray-300">Loading...</td>
+                  <td
+                    colSpan={4}
+                    className="px-6 py-4 text-center text-gray-300"
+                  >
+                    Loading...
+                  </td>
                 </tr>
               ) : resources.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="px-6 py-4 text-center text-gray-300">No resources found</td>
+                  <td
+                    colSpan={4}
+                    className="px-6 py-4 text-center text-gray-300"
+                  >
+                    No resources found
+                  </td>
                 </tr>
               ) : (
                 resources.map((resource) => (
                   <tr key={resource.id} className="hover:bg-gray-700">
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-white">{resource.name}</div>
+                      <div className="text-sm font-medium text-white">
+                        {resource.name}
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-300">
@@ -150,7 +183,12 @@ export default function AdminResourcesPage() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                       <div className="flex space-x-2">
                         <Link href={`/admin/resources/${resource.id}`}>
-                          <Button variant="outline" className="text-xs px-2 py-1 bg-transparent border-gray-500 text-gray-300 hover:bg-gray-700">Edit</Button>
+                          <Button
+                            variant="outline"
+                            className="text-xs px-2 py-1 bg-transparent border-gray-500 text-gray-300 hover:bg-gray-700"
+                          >
+                            Edit
+                          </Button>
                         </Link>
                         <Button
                           variant="destructive"
