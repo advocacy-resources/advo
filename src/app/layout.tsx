@@ -10,6 +10,33 @@ import Navbar from "@/components/layout/Navbar";
 // Removed unused import: BackgroundContextProvider is commented out in the component
 // import { BackgroundContextProvider } from "@/providers/BackgroundProvider";
 import { BackgroundContextProvider } from "@/providers/BackgroundProvider";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Advo",
+  description: "Connecting you with resources that matter",
+  openGraph: {
+    title: "Advo",
+    description: "Connecting you with resources that matter",
+    images: [
+      {
+        url: "/opengraph-image",
+        width: 1200,
+        height: 630,
+        alt: "Advo Logo",
+      },
+    ],
+    type: "website",
+    siteName: "My Advo",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Advo",
+    description: "Connecting you with resources that matter",
+    images: ["/opengraph-image"],
+  },
+};
 
 export default function RootLayout({
   children,
