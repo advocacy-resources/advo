@@ -24,7 +24,7 @@ const ResourceGridBase: React.FC<ResourceGridBaseProps> = ({
   error,
   title = "Resources",
   className = "max-w-6xl mx-auto p-4 md:p-8",
-  gridClassName = "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 lg:gap-8",
+  gridClassName = "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8",
   emptyMessage = "No resources found.",
   loadingMessage = "Loading resources...",
   errorPrefix = "Error:",
@@ -33,7 +33,11 @@ const ResourceGridBase: React.FC<ResourceGridBaseProps> = ({
   if (isLoading && resources.length === 0) {
     return (
       <div className={className}>
-        {title && <div className="text-2xl md:text-3xl font-bold mb-4 md:mb-8">{title}</div>}
+        {title && (
+          <div className="text-2xl md:text-3xl font-bold mb-4 md:mb-8">
+            {title}
+          </div>
+        )}
         <div className="text-center py-8">{loadingMessage}</div>
       </div>
     );
@@ -52,9 +56,9 @@ const ResourceGridBase: React.FC<ResourceGridBaseProps> = ({
 
   return (
     <div className={className}>
-      {title && <div className="text-2xl md:text-3xl font-bold mb-4 md:mb-8">{title}</div>}
+      {title && <div className="text-2xl md:text-3xl font-bold">{title}</div>}
       {resources.length === 0 ? (
-        <div className="text-center py-8 text-gray-400">{emptyMessage}</div>
+        <div className="text-center  text-gray-400">{emptyMessage}</div>
       ) : (
         <div className={gridClassName}>
           {resources.map((resource) => (

@@ -79,8 +79,17 @@ export const setResourceRating = createAsyncThunk(
 // Async thunk for fetching user's favorites and ratings
 export const fetchUserData = createAsyncThunk(
   "user/fetchUserData",
-  async (_, { rejectWithValue }) => {
+  async (_, { rejectWithValue, getState }) => {
     try {
+      // Get the current session user ID from the state
+      const currentState = getState() as { user: UserState };
+      const userId = currentState.user.userId;
+      
+      if (!userId) {
+        console.log("No user ID available, cannot fetch user data");
+        return { favorites: {}, ratings: {} };
+      }
+      
       // Fetch user favorites
       const favoritesResponse = await fetch("/api/v1/user/favorites");
       if (!favoritesResponse.ok) {
@@ -94,21 +103,22 @@ export const fetchUserData = createAsyncThunk(
         throw new Error(`HTTP error! status: ${ratingsResponse.status}`);
       }
       const ratingsData = await ratingsResponse.json();
-
+      
       // Process favorites into a map
       const favorites: Record<string, boolean> = {};
       favoritesData.favorites.forEach((fav: any) => {
         favorites[fav.resourceId] = true;
       });
-
+      
       // Process ratings into a map
       const ratings: Record<string, Rating> = {};
       ratingsData.ratings.forEach((rating: any) => {
         ratings[rating.resourceId] = rating.rating;
       });
-
+      
       return { favorites, ratings };
     } catch (error) {
+      console.error("Error fetching user data:", error);
       return rejectWithValue(
         error instanceof Error ? error.message : "An unknown error occurred",
       );

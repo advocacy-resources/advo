@@ -15,7 +15,7 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-black text-white">
+    <div className="flex flex-col min-h-screen bg-black text-white mt-[180px] md:mt-0">
       <div className="container mx-auto py-8 px-4">
         <h1 className="text-3xl font-bold mb-8 text-center">Admin Dashboard</h1>
         <div className="bg-gray-900 rounded-lg shadow-lg p-6">{children}</div>

@@ -66,14 +66,13 @@ export async function PUT(
     const updateData = await request.json();
     console.log("Update data received:", updateData);
 
+    // Only update the name field directly
     const safeUpdateData = {
       name: updateData.name ?? undefined,
-      city: updateData.city ?? undefined,
-      state: updateData.state ?? undefined,
-      favorites: Array.isArray(updateData.favorites)
-        ? updateData.favorites
-        : [],
     };
+
+    // We don't update favorites directly through this endpoint
+    // If needed, create a separate endpoint for managing favorites
 
     const updatedUser = await prisma.user.update({
       where: { id: params.id },
@@ -87,6 +86,7 @@ export async function PUT(
             resourceId: true,
           },
         },
+        createdAt: true,
         updatedAt: true,
       },
     });

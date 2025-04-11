@@ -21,6 +21,7 @@ interface ResourcesState {
     type: string[];
     description?: string;
     zipCode?: string;
+    distance?: string;
   };
   lastFetched: number | null;
 }
@@ -40,6 +41,7 @@ const initialState: ResourcesState = {
   searchParams: {
     category: [],
     type: [],
+    distance: "25", // Default to 25 miles
   },
   lastFetched: null,
 };
@@ -54,15 +56,23 @@ const normalizeResources = (resources: Resource[]) => {
   resources.forEach((resource) => {
     // Handle MongoDB ObjectId format (_id with $oid property)
     let id: string;
-    
-    if (resource._id && typeof resource._id === "object" && (resource._id as any).$oid) {
+
+    if (
+      resource._id &&
+      typeof resource._id === "object" &&
+      (resource._id as any).$oid
+    ) {
       // MongoDB ObjectId format
       id = (resource._id as any).$oid;
       console.log("Found MongoDB ObjectId:", id);
     } else if (typeof resource.id === "string") {
       // Regular string ID
       id = resource.id;
-    } else if (resource.id && typeof resource.id === "object" && (resource.id as any)._id) {
+    } else if (
+      resource.id &&
+      typeof resource.id === "object" &&
+      (resource.id as any)._id
+    ) {
       // Nested ID object
       id = String((resource.id as any)._id);
     } else {
@@ -87,7 +97,7 @@ const normalizeResources = (resources: Resource[]) => {
   console.log("Normalized results:", {
     resourceCount: Object.keys(byId).length,
     idCount: allIds.length,
-    ids: allIds
+    ids: allIds,
   });
 
   return { byId, allIds };
@@ -101,27 +111,17 @@ export const fetchResources = createAsyncThunk(
       const { resources } = getState() as { resources: ResourcesState };
       const { pagination, searchParams } = resources;
 
-      // Check if we've fetched resources recently (within the last minute)
+      // Always fetch fresh data on homepage load to ensure resources are displayed
       const now = Date.now();
-      const shouldRefetch =
-        !resources.lastFetched || now - resources.lastFetched > 60000;
 
-      // If we have resources and they were fetched recently, return the current state
-      if (
-        resources.allIds.length > 0 &&
-        !shouldRefetch &&
-        page === 1 &&
-        Object.keys(searchParams.category).length === 0 &&
-        Object.keys(searchParams.type).length === 0 &&
-        !searchParams.description &&
-        !searchParams.zipCode
-      ) {
-        return {
-          items: resources.allIds.map((id) => resources.byId[id]),
-          pagination: resources.pagination,
-          lastFetched: resources.lastFetched,
-        };
-      }
+      // For debugging
+      console.log("Fetching resources:", {
+        existingResourceCount: resources.allIds.length,
+        lastFetched: resources.lastFetched
+          ? new Date(resources.lastFetched).toLocaleTimeString()
+          : "never",
+        currentTime: new Date(now).toLocaleTimeString(),
+      });
 
       const response = await fetch("/api/v1/resources/search", {
         method: "POST",
@@ -207,12 +207,12 @@ export const searchResources = createAsyncThunk(
 
       // Get all pages of results for the search query
       let allResults: Resource[] = [];
-      let currentPage = 1;
+      const currentPage = 1;
       let totalPages = 1;
 
       // First request to get initial results and pagination info
       console.log("Search params:", searchParams);
-      
+
       const initialResponse = await fetch(apiUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -229,23 +229,23 @@ export const searchResources = createAsyncThunk(
           `Failed to fetch search results. Status: ${initialResponse.status}`,
         );
       }
-const initialData = await initialResponse.json();
+      const initialData = await initialResponse.json();
 
-console.log("API response:", initialData);
+      console.log("API response:", initialData);
 
-if (!initialData.data || !Array.isArray(initialData.data)) {
-  throw new Error("API did not return expected data format");
-}
+      if (!initialData.data || !Array.isArray(initialData.data)) {
+        throw new Error("API did not return expected data format");
+      }
 
-console.log("First page resources:", initialData.data);
+      console.log("First page resources:", initialData.data);
 
-// Add first page results
-allResults = [...initialData.data];
+      // Add first page results
+      allResults = [...initialData.data];
 
-// Get pagination info
-totalPages = initialData.pagination.totalPages || 1;
+      // Get pagination info
+      totalPages = initialData.pagination.totalPages || 1;
 
-console.log("Total pages:", totalPages);
+      console.log("Total pages:", totalPages);
       totalPages = initialData.pagination.totalPages || 1;
 
       // If there are more pages, fetch them
@@ -272,7 +272,7 @@ console.log("Total pages:", totalPages);
           }
         }
       }
-      
+
       console.log("All results:", allResults);
 
       return {
@@ -308,6 +308,21 @@ const resourcesSlice = createSlice({
     },
     clearError: (state) => {
       state.error = null;
+    },
+    // Reset the entire state to initial values for homepage
+    resetHomeState: (state) => {
+      state.pagination = {
+        total: 0,
+        page: 1,
+        limit: 12,
+        totalPages: 0,
+      };
+      state.searchParams = {
+        category: [],
+        type: [],
+        distance: "25", // Default to 25 miles
+      };
+      state.lastFetched = null;
     },
     // Remove the selector from reducers as it's not a reducer function
   },
@@ -383,29 +398,32 @@ const resourcesSlice = createSlice({
       .addCase(searchResources.fulfilled, (state, action) => {
         state.isLoading = false;
 
-        console.log("Search results before normalization:", action.payload.items);
-        
+        console.log(
+          "Search results before normalization:",
+          action.payload.items,
+        );
+
         // Normalize the resources
         const { byId, allIds } = normalizeResources(action.payload.items);
-        
+
         console.log("Normalized resources:", { byId, allIds });
-        
+
         // Update the state with normalized data
         state.byId = { ...state.byId, ...byId };
-        
+
         // For search results, replace allIds with the new list
         state.allIds = allIds;
-        
+
         // Mark all search results as NOT having detailed data loaded
         // This ensures that when clicking on a search result, it will fetch the full resource data
-        allIds.forEach(id => {
+        allIds.forEach((id) => {
           state.detailsLoaded[id] = false;
         });
-        
+
         console.log("Updated state:", {
           byId: state.byId,
           allIds: state.allIds,
-          detailsLoaded: state.detailsLoaded
+          detailsLoaded: state.detailsLoaded,
         });
 
         state.pagination = action.payload.pagination;
@@ -448,7 +466,17 @@ export const selectResourcesPagination = createSelector(
   (resourcesState) => resourcesState.pagination,
 );
 
-export const { setSearchParams, setPage, setLimit, clearError } =
-  resourcesSlice.actions;
+export const selectResourcesSearchParams = createSelector(
+  [selectResourcesState],
+  (resourcesState) => resourcesState.searchParams,
+);
+
+export const {
+  setSearchParams,
+  setPage,
+  setLimit,
+  clearError,
+  resetHomeState,
+} = resourcesSlice.actions;
 
 export default resourcesSlice.reducer;

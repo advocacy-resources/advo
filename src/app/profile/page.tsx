@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useUserData } from "@/hooks/useUserData";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import UserProfileModal from "@/components/users/UserProfileModal";
 import {
   Tabs,
   TabsContent,
@@ -37,6 +38,7 @@ export default function ProfilePage() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [confirmEmail, setConfirmEmail] = useState("");
   const [deleteError, setDeleteError] = useState("");
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   interface Resource {
     id: string;
     name: string;
@@ -47,7 +49,7 @@ export default function ProfilePage() {
   const [favoriteResources, setFavoriteResources] = useState<Resource[]>([]);
   const [isLoadingFavorites, setIsLoadingFavorites] = useState(false);
 
-  const { userData, isLoading } = useUserData(session?.user?.id);
+  const { userData, isLoading, saveUserData } = useUserData(session?.user?.id);
 
   useEffect(() => {
     const fetchFavoriteResources = async () => {
@@ -55,6 +57,7 @@ export default function ProfilePage() {
 
       setIsLoadingFavorites(true);
       try {
+        // Make sure we're using the correct API endpoint
         const response = await fetch(`/api/v1/users/${session.user.id}`);
         if (response.ok) {
           const userData = await response.json();
@@ -63,13 +66,23 @@ export default function ProfilePage() {
             // Fetch details for each favorited resource
             const resourcePromises = userData.favorites.map(
               async (resourceId: string) => {
-                const resourceResponse = await fetch(
-                  `/api/v1/resources/${resourceId}`,
-                );
-                if (resourceResponse.ok) {
-                  return resourceResponse.json();
+                // Fetch resource details with proper error handling
+                try {
+                  const resourceResponse = await fetch(
+                    `/api/v1/resources/${resourceId}`,
+                  );
+                  if (resourceResponse.ok) {
+                    return resourceResponse.json();
+                  }
+                  console.log(`Resource not found: ${resourceId}`);
+                  return null;
+                } catch (error) {
+                  console.error(
+                    `Error fetching resource ${resourceId}:`,
+                    error,
+                  );
+                  return null;
                 }
-                return null;
               },
             );
 
@@ -151,7 +164,7 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-4 md:p-8">
+    <div className="min-h-screen bg-gray-900 text-white p-4 md:p-8 mt-[180px] md:mt-0">
       <div className="max-w-6xl mx-auto">
         <h1 className="text-3xl font-bold mb-6">Your Profile</h1>
 
@@ -188,38 +201,27 @@ export default function ProfilePage() {
                     {session.user?.email || "N/A"}
                   </p>
                 </div>
-                {userData && (
-                  <>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300">
-                        Phone
-                      </label>
-                      <p className="bg-gray-700 border border-gray-600 rounded-md p-2 text-white">
-                        {userData.phone || "Not provided"}
-                      </p>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300">
-                        Location
-                      </label>
-                      <p className="bg-gray-700 border border-gray-600 rounded-md p-2 text-white">
-                        {userData.city && userData.state
-                          ? `${userData.city}, ${userData.state}${userData.zipCode ? ` ${userData.zipCode}` : ""}`
-                          : "Not provided"}
-                      </p>
-                    </div>
-                  </>
-                )}
+                {/* Additional user information would go here */}
               </CardContent>
               <CardFooter>
                 <Button
-                  onClick={() => router.push("/dashboard/account")}
+                  onClick={() => setIsProfileModalOpen(true)}
                   className="bg-blue-600 hover:bg-blue-700"
                 >
                   Edit Profile
                 </Button>
               </CardFooter>
             </Card>
+
+            {/* User Profile Modal */}
+            {userData && (
+              <UserProfileModal
+                isOpen={isProfileModalOpen}
+                onClose={setIsProfileModalOpen}
+                userData={userData}
+                onUserUpdate={saveUserData}
+              />
+            )}
           </TabsContent>
 
           {/* Favorites Tab */}

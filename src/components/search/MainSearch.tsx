@@ -21,11 +21,9 @@ const categoryOptions: Record<string, string[]> = {
   SOCIAL: ["Community Center", "Support Group", "Events"],
 };
 
-const MainSearch: React.FC<{}> = () => {
+const MainSearch: React.FC = () => {
   const [showMoreFilters, setShowMoreFilters] = useState(false);
-
   const [searchType, setSearchType] = useState(categories[0]); // Default to the first category
-
   const [searchParams, setSearchParams] = useState({
     description: "",
     ageRange: "",
@@ -33,7 +31,6 @@ const MainSearch: React.FC<{}> = () => {
     category: searchType,
     categoryOption: "",
   });
-
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
@@ -46,6 +43,13 @@ const MainSearch: React.FC<{}> = () => {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate zipcode if provided
+    if (searchParams.zipCode && !/^\d{5}$/.test(searchParams.zipCode)) {
+      alert("Please enter a valid 5-digit US zipcode");
+      return;
+    }
+
     setIsLoading(true);
 
     // Filter out invalid or empty parameters
@@ -61,8 +65,20 @@ const MainSearch: React.FC<{}> = () => {
 
     console.log("Filtered search parameters:", filteredParams);
 
-    const queryString = new URLSearchParams(filteredParams).toString();
-    router.push(`/search-results?${queryString}`);
+    // Create a search object with the parameters
+    const searchObject = {
+      zipCode: filteredParams.zipCode || "",
+      distance: "25", // Default to 25 miles
+      category: filteredParams.category ? [filteredParams.category] : [],
+      type: filteredParams.categoryOption
+        ? [filteredParams.categoryOption]
+        : [],
+      description: filteredParams.description || "",
+    };
+
+    // Encode the search object as a JSON string in the URL
+    const searchParam = encodeURIComponent(JSON.stringify(searchObject));
+    router.push(`/resources?search=${searchParam}`);
   };
 
   return (
@@ -158,7 +174,20 @@ const MainSearch: React.FC<{}> = () => {
             placeholder="Zip Code"
             value={searchParams.zipCode}
             onChange={(e) => handleInputChange("zipCode", e.target.value)}
+            pattern="[0-9]{5}"
+            maxLength={5}
+            title="Please enter a valid 5-digit US zipcode"
+            className={
+              searchParams.zipCode && !/^\d{5}$/.test(searchParams.zipCode)
+                ? "border-red-500"
+                : ""
+            }
           />
+          {searchParams.zipCode && !/^\d{5}$/.test(searchParams.zipCode) && (
+            <p className="text-red-500 text-xs mt-1">
+              Please enter a valid 5-digit US zipcode
+            </p>
+          )}
         </div>
       </div>
 

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { BadgeCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Resource } from "@/interfaces/resource";
 import ResourceDetailsModal from "@/components/resources/ResourceDetailsModal";
@@ -164,6 +165,9 @@ export default function AdminResourcesPage() {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                   Created
                 </th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
+                  Verified
+                </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                   Actions
                 </th>
@@ -173,7 +177,7 @@ export default function AdminResourcesPage() {
               {loading ? (
                 <tr>
                   <td
-                    colSpan={4}
+                    colSpan={5}
                     className="px-6 py-4 text-center text-gray-300"
                   >
                     Loading...
@@ -182,7 +186,7 @@ export default function AdminResourcesPage() {
               ) : resources.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={4}
+                    colSpan={5}
                     className="px-6 py-4 text-center text-gray-300"
                   >
                     No resources found
@@ -206,6 +210,11 @@ export default function AdminResourcesPage() {
                         {new Date(resource.createdAt).toLocaleDateString()}
                       </div>
                     </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-center">
+                      {resource.verified && (
+                        <BadgeCheck className="h-5 w-5 text-green-500 inline-block" />
+                      )}
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                       <div className="flex space-x-2">
                         <Button
@@ -226,7 +235,7 @@ export default function AdminResourcesPage() {
                         <Button
                           variant="destructive"
                           className="text-xs px-3 py-1.5 bg-red-700 hover:bg-red-800"
-                          onClick={() => handleDeleteClick(resource.id)}
+                          onClick={() => resource.id && handleDeleteClick(resource.id)}
                         >
                           Delete
                         </Button>

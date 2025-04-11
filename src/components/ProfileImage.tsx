@@ -2,19 +2,36 @@ import Image from "next/image";
 
 interface ProfileImageProps {
   image: string | null;
+  size?: number;
+  className?: string;
 }
 
 const placeholderUrl = "https://via.placeholder.com/100";
 
-const ProfileImage: React.FC<ProfileImageProps> = ({ image }) => {
+/**
+ * Component to display a user's profile image
+ * Handles both local paths (/uploads/...) and cloud storage URLs (https://...)
+ */
+const ProfileImage: React.FC<ProfileImageProps> = ({
+  image,
+  size = 100,
+  className = "rounded-full mx-auto",
+}) => {
+  // Determine if the image is a cloud storage URL or a local path
+  const isCloudUrl =
+    image && (image.startsWith("http://") || image.startsWith("https://"));
+  const imageSrc = image || placeholderUrl;
+
   return (
     <div className="mb-4">
       <Image
-        src={image || placeholderUrl}
+        src={imageSrc}
         alt="User Profile Image"
-        width={100}
-        height={100}
-        className="rounded-full mx-auto"
+        width={size}
+        height={size}
+        className={className}
+        // Don't optimize external URLs (cloud storage)
+        unoptimized={!!isCloudUrl}
       />
     </div>
   );

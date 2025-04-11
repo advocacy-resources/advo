@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Resource, OperatingHours } from "@/interfaces/resource";
+import { BadgeCheck, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -72,6 +73,12 @@ const ResourceDetailsModal: React.FC<ResourceDetailsModalProps> = ({
       setIsSaving(true);
       setError(null);
 
+      // Ensure the verified field is included
+      const resourceToUpdate = {
+        ...editedResource,
+        verified: editedResource.verified || false,
+      };
+
       const response = await fetch(
         `/api/v1/admin/resources/${editedResource.id}`,
         {
@@ -79,7 +86,7 @@ const ResourceDetailsModal: React.FC<ResourceDetailsModalProps> = ({
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(editedResource),
+          body: JSON.stringify(resourceToUpdate),
         },
       );
 
@@ -260,6 +267,45 @@ const ResourceDetailsModal: React.FC<ResourceDetailsModalProps> = ({
                       {cat}
                     </span>
                   ))}
+                </div>
+              )}
+            </div>
+
+            {/* Verification Status */}
+            <div>
+              <h3 className="text-sm font-medium text-gray-400 mb-2">
+                Verification Status
+              </h3>
+              {isEditing ? (
+                <div className="flex items-center">
+                  <label className="flex items-center cursor-pointer">
+                    <div className="relative">
+                      <input
+                        type="checkbox"
+                        className="sr-only"
+                        checked={editedResource?.verified || false}
+                        onChange={(e) => handleInputChange("verified", e.target.checked)}
+                      />
+                      <div className={`block w-14 h-8 rounded-full ${
+                        editedResource?.verified ? "bg-green-600" : "bg-gray-600"
+                      }`}></div>
+                      <div className={`dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition ${
+                        editedResource?.verified ? "transform translate-x-6" : ""
+                      }`}></div>
+                    </div>
+                    <div className="ml-3 text-gray-300 font-medium">
+                      {editedResource?.verified ? "Verified" : "Not Verified"}
+                    </div>
+                  </label>
+                </div>
+              ) : (
+                <div className="flex items-center">
+                  {resource.verified ? (
+                    <BadgeCheck className="h-5 w-5 text-green-500 mr-2" />
+                  ) : (
+                    <XCircle className="h-5 w-5 text-gray-500 mr-2" />
+                  )}
+                  <span className="text-white text-sm">{resource.verified ? "Verified" : "Not Verified"}</span>
                 </div>
               )}
             </div>

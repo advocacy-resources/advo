@@ -9,10 +9,11 @@ import {
   fetchResources,
   setPage,
   setSearchParams,
+  resetHomeState,
   selectAllResources,
   selectResourcesLoading,
   selectResourcesError,
-  selectResourcesPagination
+  selectResourcesPagination,
 } from "@/store/slices/resourcesSlice";
 
 const HomeResourceGrid: React.FC = () => {
@@ -35,14 +36,9 @@ const HomeResourceGrid: React.FC = () => {
   // Initial fetch and reset search params
   useEffect(() => {
     console.log("HomeResourceGrid: Initial fetch effect running");
-    // Reset search parameters when component mounts
-    dispatch(
-      setSearchParams({
-        category: [],
-        type: [],
-      }),
-    );
-    // Then load resources with clean search params
+    // Reset the entire state for homepage when component mounts
+    dispatch(resetHomeState());
+    // Then load resources with clean state
     loadResources();
   }, [loadResources, dispatch]);
 
@@ -168,7 +164,7 @@ const HomeResourceGrid: React.FC = () => {
       error={error}
       title="Latest Resources"
       className="max-w-7xl mx-auto p-4 md:p-8 bg-black bg-opacity-80 rounded-lg shadow-xl"
-      gridClassName="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 lg:gap-8 p-2"
+      gridClassName="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 p-2"
       loadingMessage={
         <div className="flex flex-col justify-center items-center h-64 bg-gray-900 bg-opacity-50 rounded-lg border border-gray-700">
           <div className="text-lg md:text-xl text-white mb-4">

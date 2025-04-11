@@ -47,6 +47,7 @@ export interface Resource {
   updatedAt: Date;
   favoriteCount: number;
   upvoteCount?: number;
+  verified?: boolean; // Whether the resource is verified
   profilePhoto?: string; // Binary data in base64 format for display (legacy)
   profilePhotoType?: string; // MIME type
   bannerImage?: string; // Binary data in base64 format for display (legacy)

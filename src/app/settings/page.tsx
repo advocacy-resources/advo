@@ -43,7 +43,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-black text-white">
+    <div className="min-h-screen flex items-center justify-center bg-black text-white mt-[180px] md:mt-0">
       <div className="max-w-md w-full space-y-8 p-10 bg-gray-800 rounded-xl shadow-lg">
         {/* Logo */}
         <div className="flex justify-center">

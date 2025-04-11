@@ -4,13 +4,8 @@ import { useToast } from "@/components/ui/use-toast";
 export interface UserData {
   id: string;
   email: string;
-  phone: string;
   name: string | null;
-  city: string | null;
-  state: string | null;
-  zipCode: string | null;
   favorites: string[];
-  interests: string[];
   createdAt: string;
   updatedAt: string;
 }
@@ -24,7 +19,7 @@ export const useUserData = (userId: string | undefined) => {
     const fetchUserData = async () => {
       if (userId) {
         try {
-          const response = await fetch(`/api/users/${userId}`);
+          const response = await fetch(`/api/v1/users/${userId}`);
           if (!response.ok) {
             throw new Error("Failed to fetch user data");
           }
@@ -48,19 +43,38 @@ export const useUserData = (userId: string | undefined) => {
 
   const saveUserData = async (updatedData: UserData) => {
     try {
-      const response = await fetch(`/api/users/${updatedData.id}`, {
+      console.log("useUserData.saveUserData - Saving data:", updatedData);
+      
+      // Only send the fields that can be updated
+      const dataToSend = {
+        id: updatedData.id,
+        name: updatedData.name
+      };
+      
+      const response = await fetch(`/api/v1/users/${updatedData.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updatedData),
+        body: JSON.stringify(dataToSend),
       });
-      if (!response.ok) throw new Error("Failed to save user data");
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("API error response:", errorData);
+        throw new Error("Failed to save user data");
+      }
 
-      setUserData(updatedData);
+      const savedData = await response.json();
+      console.log("useUserData.saveUserData - Received response:", savedData);
+      
+      // Update the local state with the data returned from the API
+      setUserData(savedData);
 
       toast({
         title: "Success",
         description: "Your profile has been updated successfully.",
       });
+      
+      return savedData;
     } catch (error) {
       console.error("Error saving user data:", error);
       toast({
@@ -68,6 +82,7 @@ export const useUserData = (userId: string | undefined) => {
         description: "Failed to save user data. Please try again.",
         variant: "destructive",
       });
+      throw error;
     }
   };
 

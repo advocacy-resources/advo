@@ -8,18 +8,21 @@ datasource db {
 }
 
 model User {
-  id        String     @id @default(auto()) @map("_id") @db.ObjectId
-  email     String     @unique
-  name      String?
-  password  String
-  role      String     @default("user") // Added role field with default value "user"
-  isActive  Boolean    @default(true) // Added isActive field to control account status
-  favorites Favorite[] // One-to-many relationship with Favorite
-  likes     Like[] // One-to-many relationship with Like
-  ratings   Rating[] // One-to-many relationship with Rating
-  reviews   Review[] // One-to-many relationship with Review
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  id              String     @id @default(auto()) @map("_id") @db.ObjectId
+  email           String     @unique
+  name            String?
+  password        String
+  role            String     @default("user") // Added role field with default value "user"
+  isActive        Boolean    @default(true) // Added isActive field to control account status
+  isEmailVerified Boolean    @default(false) // Whether the email has been verified
+  otpSecret       String?    // Secret for OTP generation
+  otpExpiry       DateTime?  // When the OTP expires
+  favorites       Favorite[] // One-to-many relationship with Favorite
+  likes           Like[] // One-to-many relationship with Like
+  ratings         Rating[] // One-to-many relationship with Rating
+  reviews         Review[] // One-to-many relationship with Review
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
 }
 
 model Resource {
@@ -32,6 +35,7 @@ model Resource {
   operatingHours Json // JSON for operating hours (per day schedule)
   favoriteCount  Int      @default(0) // Integer for count of favorites
   upvoteCount    Int? // Nullable field for upvote count
+  verified       Boolean  @default(false) // Whether the resource is verified
   profilePhoto   Bytes?   // Binary data for the profile photo
   profilePhotoType String? // MIME type of the profile photo
   bannerImage    Bytes?   // Binary data for the banner image

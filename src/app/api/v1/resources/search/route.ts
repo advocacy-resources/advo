@@ -1,11 +1,47 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/prisma/client";
 import { InputJsonValue } from "@prisma/client/runtime/library";
+import geocodeAddress from "@/components/utils/geocode-address";
+import { isWithinDistance, calculateDistance } from "@/components/utils/distance-calculator";
+import { Resource, Address } from "@/interfaces/resource";
+
+// Debug configuration
+const DEBUG = {
+  enabled: false,
+  search: false,
+  distance: false,
+  geocode: false
+};
+
+// Debug logger utility
+function debugLog(category: 'SEARCH' | 'DISTANCE' | 'GEOCODE', message: string, data?: any): void {
+  if (!DEBUG.enabled) return;
+  
+  switch (category) {
+    case 'SEARCH':
+      if (!DEBUG.search) return;
+      break;
+    case 'DISTANCE':
+      if (!DEBUG.distance) return;
+      break;
+    case 'GEOCODE':
+      if (!DEBUG.geocode) return;
+      break;
+  }
+  
+  const prefix = `[${category} DEBUG]`;
+  if (data !== undefined) {
+    console.log(`${prefix} ${message}`, data);
+  } else {
+    console.log(`${prefix} ${message}`);
+  }
+}
 
 // Types
 export interface IResourceSearchPostRequest {
   ageRange: string; // Not implemented yet, but kept for future use
   zipCode: string;
+  distance: string; // Distance in miles
   category: string[];
   description: string | null | undefined;
   type: string[];
@@ -31,10 +67,11 @@ interface SearchResponse<T> {
  * Represents a text search clause in MongoDB Atlas Search
  */
 interface TextSearchClause {
-  text: {
+  text?: {
     query: string;
     path: string | string[];
   };
+  function?: any; // Add support for function-based search
 }
 
 /**
@@ -96,6 +133,7 @@ interface SearchRequestParams {
   page?: number | string;
   limit?: number | string;
   zipCode?: string;
+  distance?: string; // Distance in miles
   category?: string | string[];
   description?: string;
   type?: string | string[];
@@ -119,6 +157,7 @@ function validateAndNormalizeParams(params: SearchRequestParams): {
   // Extract and normalize search parameters
   const {
     zipCode,
+    distance,
     category,
     description: descriptionOrUndefined,
     type,
@@ -147,6 +186,7 @@ function validateAndNormalizeParams(params: SearchRequestParams): {
   return {
     normalizedParams: {
       zipCode: zipCode?.trim() || "",
+      distance: distance?.trim() || "25", // Default to 25 miles if not provided
       category: normalizedCategory,
       description,
       type: normalizedType,
@@ -162,7 +202,7 @@ function validateAndNormalizeParams(params: SearchRequestParams): {
 function buildSearchPipeline(
   params: Partial<IResourceSearchPostRequest>,
 ): CompoundSearchClause {
-  const { zipCode, category, description, type } = params;
+  const { zipCode, distance, category, description, type } = params;
   const mustClauses: TextSearchClause[] = [];
 
   if (category && category.length > 0) {
@@ -175,11 +215,22 @@ function buildSearchPipeline(
   }
 
   if (zipCode && zipCode.trim() !== "") {
+    // For MongoDB Atlas Search, we need to use a different approach for nested fields
+    // We'll use a custom score function to match the zipcode
     mustClauses.push({
-      text: {
-        query: zipCode.trim(),
-        path: "zipCode",
-      },
+      function: {
+        score: {
+          path: {
+            value: "address.zip",
+            multi: "first"
+          },
+          function: {
+            equals: {
+              value: zipCode.trim()
+            }
+          }
+        }
+      }
     });
   }
 
@@ -229,6 +280,12 @@ function createProjectionStage(): ProjectionStage {
       ageRange: 1,
       zipCode: 1,
       createdAt: 1,
+      profilePhoto: 1,
+      profilePhotoType: 1,
+      profilePhotoUrl: 1,
+      bannerImage: 1,
+      bannerImageType: 1,
+      bannerImageUrl: 1,
     },
   };
 }
@@ -393,15 +450,6 @@ export async function POST(request: NextRequest) {
         response.headers.set("Cache-Control", "no-store, max-age=0");
 
         // Add CORS headers
-        const origin = request.headers.get("origin") || "";
-        const allowedOrigins = [
-          "https://advo-q83h0o0hr-kmje405s-projects.vercel.app",
-          "http://localhost:3000",
-          "http://localhost:3001",
-        ];
-        const isAllowedOrigin =
-          allowedOrigins.includes(origin) || origin.endsWith(".vercel.app");
-
         if (isAllowedOrigin) {
           response.headers.set("Access-Control-Allow-Origin", origin);
           response.headers.set("Access-Control-Allow-Credentials", "true");
@@ -416,6 +464,32 @@ export async function POST(request: NextRequest) {
 
     // Try to use MongoDB Atlas Search if available, otherwise fall back to regular queries
     try {
+      // Check if we need to handle distance filtering
+      let filterByDistance = false;
+      let zipLocation: { latitude: number; longitude: number } | null = null;
+      
+      if (normalizedParams.zipCode && normalizedParams.distance) {
+        try {
+          debugLog('SEARCH', `Attempting to geocode zipcode: ${normalizedParams.zipCode.trim()}`);
+          zipLocation = await geocodeAddress(normalizedParams.zipCode.trim());
+          debugLog('SEARCH', 'Successfully geocoded zipcode to:', zipLocation);
+          filterByDistance = true;
+        } catch (error) {
+          console.error("Error geocoding zip code for Atlas Search:", error);
+          
+          // Return a more helpful error response instead of silently falling back
+          const errorMessage = error instanceof Error ? error.message : "Unknown geocoding error";
+          return NextResponse.json(
+            {
+              error: "Zipcode search error",
+              details: `Could not geocode the provided zipcode: ${errorMessage}`,
+              zipCode: normalizedParams.zipCode.trim()
+            },
+            { status: 400 }
+          );
+        }
+      }
+      
       // Build search pipeline
       const searchClause = buildSearchPipeline(normalizedParams);
       const projectionStage = createProjectionStage();
@@ -424,43 +498,102 @@ export async function POST(request: NextRequest) {
       const basePipeline: PipelineStage[] = [searchClause, projectionStage];
       // Add pagination to pipeline
       const pipeline = addPaginationToPipeline(basePipeline, pagination);
+      
+      // If we need to filter by distance, we'll need to post-process the results
+      let postProcessDistanceFilter = false;
 
       // Execute the query - cast pipeline to avoid type issues with Prisma
       try {
-        const result = await prisma.resource.aggregateRaw({
+        let result = await prisma.resource.aggregateRaw({
           pipeline: pipeline as unknown as InputJsonValue[],
         });
 
-        // Format and return the response
-        const formattedResponse = formatResponse<Record<string, unknown>>(
-          result,
-          pagination,
-        );
-
-        // Add cache control headers to prevent caching issues
+        // If we need to filter by distance, post-process the results
+        if (filterByDistance && zipLocation) {
+          const maxDistance = parseInt(normalizedParams.distance || "25", 10);
+          
+          // Extract the resources from the result
+          let resources: any[] = [];
+          if (Array.isArray(result) && result.length > 0 && "data" in result[0]) {
+            resources = (result[0] as AggregationResult).data as any[];
+          }
+          
+          // Filter resources by distance
+          const filteredResources = await Promise.all(
+            resources.map(async (resource: any) => {
+              try {
+                // Build the resource address
+                let resourceAddress = "";
+                
+                // Check if address is an object with the expected properties
+                if (resource.address &&
+                    typeof resource.address === 'object' &&
+                    'street' in resource.address &&
+                    'city' in resource.address &&
+                    'state' in resource.address) {
+                  
+                  const address = resource.address as Address;
+                  resourceAddress = `${address.street}, ${address.city}, ${address.state} ${address.zip || ''}`;
+                } else if (resource.address && resource.address.zip && typeof resource.address.zip === 'string') {
+                  resourceAddress = resource.address.zip;
+                } else {
+                  return null;
+                }
+                
+                if (!resourceAddress) return null;
+                
+                // Geocode the resource address
+                const resourceLocation = await geocodeAddress(resourceAddress);
+                
+                // Check if the resource is within the specified distance
+                const withinDistance = isWithinDistance(
+                  zipLocation.latitude,
+                  zipLocation.longitude,
+                  resourceLocation.latitude,
+                  resourceLocation.longitude,
+                  maxDistance
+                );
+                
+                return withinDistance ? resource : null;
+              } catch (error) {
+                console.error("Error calculating distance:", error);
+                return null;
+              }
+            })
+          );
+          
+          // Filter out null values
+          const validResources = filteredResources.filter(Boolean);
+          
+          // Create a new result with the filtered resources
+          if (Array.isArray(result) && result.length > 0 && "data" in result[0]) {
+            // Create a new result object with the filtered resources
+            const newResult = JSON.parse(JSON.stringify(result)) as typeof result;
+            (newResult[0] as AggregationResult).data = validResources;
+            (newResult[0] as AggregationResult).total = validResources.length;
+            result = newResult;
+          }
+        }
+        
+        // Format the response
+        const formattedResponse = formatResponse(result, pagination);
+        
+        // Create the response
         const response = NextResponse.json(formattedResponse);
+        
+        // Set cache control headers to prevent caching
         response.headers.set("Cache-Control", "no-store, max-age=0");
-
+        
         // Add CORS headers
-        const origin = request.headers.get("origin") || "";
-        const allowedOrigins = [
-          "https://advo-q83h0o0hr-kmje405s-projects.vercel.app",
-          "http://localhost:3000",
-          "http://localhost:3001",
-        ];
-        const isAllowedOrigin =
-          allowedOrigins.includes(origin) || origin.endsWith(".vercel.app");
-
         if (isAllowedOrigin) {
           response.headers.set("Access-Control-Allow-Origin", origin);
           response.headers.set("Access-Control-Allow-Credentials", "true");
         }
-
+        
         return response;
       } catch (searchError: any) {
         console.error("Atlas Search error:", searchError);
 
-        // Log detailed error information for debugging
         console.log("Atlas Search error details:", {
           message: searchError.message,
           stack: searchError.stack,
@@ -488,13 +621,71 @@ export async function POST(request: NextRequest) {
       console.log("Using fallback search method");
 
       // Fallback to regular Prisma queries when Atlas Search is not available
-      const { zipCode, category, description, type } = normalizedParams;
+      const { zipCode, distance, category, description, type } = normalizedParams;
+      
+      debugLog('DISTANCE', "Fallback search with params:", { zipCode, distance, category, description, type });
 
       // Build where clause for regular query
       const where: any = {};
-
+      
+      // If zipCode and distance are provided, we'll need to filter by distance later
+      // We don't add zipCode to the where clause because we want to get all resources
+      // and then filter them by distance
+      let filterByDistance = false;
+      let zipLocation: { latitude: number; longitude: number } | null = null;
+      
       if (zipCode && zipCode.trim() !== "") {
-        where.zipCode = zipCode.trim();
+        if (distance) {
+          debugLog('DISTANCE', `Filtering by distance with zipCode: ${zipCode.trim()} and distance: ${distance}`);
+          // Get coordinates for the provided zip code
+          try {
+            debugLog('DISTANCE', `Geocoding zipCode: ${zipCode.trim()}`);
+            zipLocation = await geocodeAddress(zipCode.trim());
+            debugLog('DISTANCE', "Geocoded zipCode to:", zipLocation);
+            filterByDistance = true;
+            // We don't filter by zipCode in the query, we'll do it after getting results
+          } catch (error) {
+            console.error("Error geocoding zip code:", error);
+            
+            // Return a more helpful error response instead of silently falling back
+            const errorMessage = error instanceof Error ? error.message : "Unknown geocoding error";
+            return NextResponse.json(
+              {
+                error: "Zipcode search error",
+                details: `Could not geocode the provided zipcode: ${errorMessage}`,
+                zipCode: zipCode.trim()
+              },
+              { status: 400 }
+            );
+          }
+        } else {
+          debugLog('DISTANCE', `No distance provided, filtering by exact zipCode match: ${zipCode.trim()}`);
+          
+          // For MongoDB, we need to use a different approach for nested JSON fields
+          // Let's find all resources and filter them manually
+          const allResources = await prisma.resource.findMany();
+          
+          // Filter resources with matching zipcode
+          const matchingResources = allResources.filter(resource => {
+            if (resource.address && typeof resource.address === 'object') {
+              const address = resource.address as any;
+              return address.zip === zipCode.trim();
+            }
+            return false;
+          });
+          
+          debugLog('DISTANCE', "Resources with zipcode (manual filter):",
+            matchingResources.map(r => ({
+              id: r.id,
+              name: r.name,
+              address: r.address
+            }))
+          );
+          
+          // For the regular query, we'll use a different approach since Prisma doesn't support
+          // direct JSON path queries in the type system
+          debugLog('DISTANCE', "Updated where clause:", where);
+        }
       }
 
       if (category && category.length > 0) {
@@ -518,16 +709,166 @@ export async function POST(request: NextRequest) {
         ];
       }
 
-      // Execute regular query with pagination
-      const [resources, count] = await Promise.all([
-        prisma.resource.findMany({
-          where,
-          orderBy: { createdAt: "desc" },
-          skip: (pagination.page - 1) * pagination.limit,
-          take: pagination.limit,
-        }),
-        prisma.resource.count({ where }),
-      ]);
+      // Debug query to find resources with zipcode 74104 using manual filtering
+      const allResourcesForDebug = await prisma.resource.findMany();
+      
+      // Filter resources with zipcode 74104
+      const zipCodeResources = allResourcesForDebug.filter(resource => {
+        if (resource.address && typeof resource.address === 'object') {
+          const address = resource.address as any;
+          return address.zip === '74104';
+        }
+        return false;
+      });
+      
+      debugLog('DISTANCE', "Resources with zipcode 74104 (manual filter):",
+        zipCodeResources.map(r => ({
+          id: r.id,
+          name: r.name,
+          address: r.address
+        }))
+      );
+      
+      // Execute regular query
+      debugLog('DISTANCE', "Executing database query with where clause:", where);
+      
+      // Get all resources first
+      let allResources = await prisma.resource.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+      });
+      
+      debugLog('DISTANCE', `All resources count: ${allResources.length}`);
+      
+      // Apply manual filtering for zipCode if needed
+      if (zipCode && zipCode.trim() !== "" && !filterByDistance) {
+        // We already have the matching resources from our debug query
+        allResources = zipCodeResources;
+        debugLog('DISTANCE', `Using zipcode filtered resources: ${allResources.length}`);
+      }
+      
+      // Apply pagination if not filtering by distance
+      let resources = allResources;
+      if (!filterByDistance) {
+        resources = resources.slice(
+          (pagination.page - 1) * pagination.limit,
+          pagination.page * pagination.limit
+        );
+      }
+      
+      // Debug log all resources and their address.zip values
+      debugLog('DISTANCE', "All resources in database:", resources.map(r => {
+        const address = typeof r.address === 'object' ? r.address as any : {};
+        return {
+          id: r.id,
+          name: r.name,
+          address: r.address,
+          addressZip: address.zip || 'not set'
+        };
+      }));
+      
+      debugLog('DISTANCE', `Query returned ${resources.length} resources`);
+      
+      // Filter resources by distance if needed
+      if (filterByDistance && zipLocation) {
+        debugLog('DISTANCE', "Filtering resources by distance");
+        const maxDistance = parseInt(distance || "25", 10); // Default to 25 miles
+        debugLog('DISTANCE', `Max distance: ${maxDistance} miles`);
+        
+        // For each resource, geocode its address and check if it's within the specified distance
+        debugLog('DISTANCE', `Processing ${resources.length} resources for distance filtering`);
+        const resourcesWithDistance = await Promise.all(
+          resources.map(async (resource: any) => {
+            try {
+              // Build the resource address
+              let resourceAddress = "";
+              
+              debugLog('DISTANCE', "Processing resource:", {
+                id: resource.id,
+                name: resource.name,
+                address: resource.address,
+                zipCode: resource.address?.zip || 'not set'
+              });
+              
+              // Check if address is an object with the expected properties
+              if (resource.address &&
+                  typeof resource.address === 'object' &&
+                  'street' in resource.address &&
+                  'city' in resource.address &&
+                  'state' in resource.address) {
+                
+                const address = resource.address as Address;
+                resourceAddress = `${address.street}, ${address.city}, ${address.state} ${address.zip || ''}`;
+                debugLog('DISTANCE', `Using full address: ${resourceAddress}`);
+              } else if (resource.address && resource.address.zip && typeof resource.address.zip === 'string') {
+                resourceAddress = resource.address.zip;
+                debugLog('DISTANCE', `Using address.zip: ${resourceAddress}`);
+              } else {
+                debugLog('DISTANCE', "No valid address found for resource");
+                return { ...resource, withinDistance: false };
+              }
+              
+              if (!resourceAddress) {
+                debugLog('DISTANCE', "Empty resource address");
+                return { ...resource, withinDistance: false };
+              }
+              
+              // Geocode the resource address
+              debugLog('DISTANCE', `Geocoding resource address: ${resourceAddress}`);
+              const resourceLocation = await geocodeAddress(resourceAddress);
+              debugLog('DISTANCE', "Resource location:", resourceLocation);
+              
+              // Check if the resource is within the specified distance
+              debugLog('DISTANCE', "Calculating distance for resource:", {
+                id: resource.id,
+                name: resource.name,
+                resourceLocation,
+                zipLocation
+              });
+              
+              const distance = calculateDistance(
+                zipLocation.latitude,
+                zipLocation.longitude,
+                resourceLocation.latitude,
+                resourceLocation.longitude
+              );
+              
+              const withinDistance = distance <= maxDistance;
+              
+              debugLog('DISTANCE', `Resource distance: ${distance.toFixed(2)} miles, within range: ${withinDistance}`);
+              
+              return { ...resource, withinDistance, distance };
+            } catch (error) {
+              console.error("Error calculating distance:", error);
+              return { ...resource, withinDistance: false };
+            }
+          })
+        );
+        
+        // Filter resources that are within the specified distance
+        const filteredResources = resourcesWithDistance.filter(resource => resource.withinDistance);
+        debugLog('DISTANCE', `Filtered resources: ${filteredResources.length} out of ${resourcesWithDistance.length}`);
+        
+        // Log each filtered resource for debugging
+        filteredResources.forEach((resource, index) => {
+          debugLog('DISTANCE', `Filtered resource ${index + 1}:`, {
+            id: resource.id,
+            name: resource.name,
+            distance: resource.distance ? resource.distance.toFixed(2) + " miles" : "unknown"
+          });
+        });
+        
+        // Apply pagination after filtering
+        resources = filteredResources.slice(
+          (pagination.page - 1) * pagination.limit,
+          pagination.page * pagination.limit
+        );
+        
+        debugLog('DISTANCE', `Final resources after pagination: ${resources.length}`);
+      }
+      
+      // Get the total count
+      const count = filterByDistance ? resources.length : await prisma.resource.count({ where });
 
       // Format and return the response
       const response = NextResponse.json({
@@ -540,18 +881,10 @@ export async function POST(request: NextRequest) {
         },
       });
 
+      // Set cache control headers to prevent caching
       response.headers.set("Cache-Control", "no-store, max-age=0");
 
       // Add CORS headers
-      const origin = request.headers.get("origin") || "";
-      const allowedOrigins = [
-        "https://advo-q83h0o0hr-kmje405s-projects.vercel.app",
-        "http://localhost:3000",
-        "http://localhost:3001",
-      ];
-      const isAllowedOrigin =
-        allowedOrigins.includes(origin) || origin.endsWith(".vercel.app");
-
       if (isAllowedOrigin) {
         response.headers.set("Access-Control-Allow-Origin", origin);
         response.headers.set("Access-Control-Allow-Credentials", "true");
@@ -563,29 +896,12 @@ export async function POST(request: NextRequest) {
     const errorObj = error as Error;
     logError("Error fetching resources", errorObj);
 
-    const response = NextResponse.json(
+    return NextResponse.json(
       {
         error: "Failed to fetch resources",
         details: errorObj.message || "Unknown error",
       },
       { status: 500 },
     );
-
-    // Add CORS headers
-    const origin = request.headers.get("origin") || "";
-    const allowedOrigins = [
-      "https://advo-q83h0o0hr-kmje405s-projects.vercel.app",
-      "http://localhost:3000",
-      "http://localhost:3001",
-    ];
-    const isAllowedOrigin =
-      allowedOrigins.includes(origin) || origin.endsWith(".vercel.app");
-
-    if (isAllowedOrigin) {
-      response.headers.set("Access-Control-Allow-Origin", origin);
-      response.headers.set("Access-Control-Allow-Credentials", "true");
-    }
-
-    return response;
   }
 }

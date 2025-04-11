@@ -12,6 +12,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { FileUpload } from "@/components/ui/file-upload";
+import Image from "next/image";
 
 interface UserDetailsModalProps {
   isOpen: boolean;
@@ -41,7 +42,7 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
 
   const handleInputChange = (field: string, value: any) => {
     if (!editedUser) return;
-    
+
     setEditedUser({
       ...editedUser,
       [field]: value,
@@ -50,11 +51,11 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
 
   const handleSave = async () => {
     if (!editedUser) return;
-    
+
     try {
       setIsSaving(true);
       setError(null);
-      
+
       const response = await fetch(`/api/v1/admin/users/${editedUser.id}`, {
         method: "PUT",
         headers: {
@@ -62,18 +63,18 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
         },
         body: JSON.stringify(editedUser),
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || "Failed to update user");
       }
-      
+
       const updatedUser = await response.json();
-      
+
       if (onUserUpdate) {
         onUserUpdate(updatedUser);
       }
-      
+
       setIsEditing(false);
       setError(null);
     } catch (err) {
@@ -124,7 +125,7 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
             {isEditing ? "Edit User" : "User Details"}
           </DialogDescription>
         </DialogHeader>
-        
+
         {error && (
           <div className="bg-red-900 p-4 mb-4 text-white rounded">{error}</div>
         )}
@@ -134,7 +135,9 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
           <div className="space-y-4">
             {/* User Profile Image */}
             <div className="mb-4">
-              <h3 className="text-sm font-medium text-gray-400 mb-2">Profile Picture</h3>
+              <h3 className="text-sm font-medium text-gray-400 mb-2">
+                Profile Picture
+              </h3>
               {isEditing ? (
                 <FileUpload
                   label="Profile Picture"
@@ -149,10 +152,12 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
               ) : user.image ? (
                 <div className="flex justify-center">
                   <div className="w-32 h-32 rounded-full overflow-hidden border-2 border-gray-700">
-                    <img
+                    <Image
                       src={user.image}
                       alt={`${user.name || "User"}'s profile`}
                       className="w-full h-full object-cover"
+                      width={128}
+                      height={128}
                     />
                   </div>
                 </div>
@@ -169,7 +174,9 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
 
             {/* Basic Info */}
             <div>
-              <h3 className="text-sm font-medium text-gray-400 mb-2">Basic Information</h3>
+              <h3 className="text-sm font-medium text-gray-400 mb-2">
+                Basic Information
+              </h3>
               {isEditing ? (
                 <div className="space-y-2 text-sm text-white">
                   <div className="grid grid-cols-2 gap-x-4 items-center">
@@ -178,7 +185,9 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
                       type="text"
                       className="bg-gray-700 text-white border border-gray-600 rounded p-1"
                       value={editedUser.name || ""}
-                      onChange={(e) => handleInputChange("name", e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("name", e.target.value)
+                      }
                       placeholder="N/A"
                     />
                   </div>
@@ -188,7 +197,9 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
                       type="email"
                       className="bg-gray-700 text-white border border-gray-600 rounded p-1"
                       value={editedUser.email}
-                      onChange={(e) => handleInputChange("email", e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("email", e.target.value)
+                      }
                       required
                     />
                   </div>
@@ -197,7 +208,9 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
                     <select
                       className="bg-gray-700 text-white border border-gray-600 rounded p-1"
                       value={editedUser.role || "user"}
-                      onChange={(e) => handleInputChange("role", e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("role", e.target.value)
+                      }
                     >
                       <option value="user">User</option>
                       <option value="admin">Admin</option>
@@ -210,10 +223,14 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
                         type="checkbox"
                         id="isActive"
                         checked={editedUser.isActive}
-                        onChange={(e) => handleInputChange("isActive", e.target.checked)}
+                        onChange={(e) =>
+                          handleInputChange("isActive", e.target.checked)
+                        }
                         className="rounded bg-gray-700 border-gray-600"
                       />
-                      <label htmlFor="isActive" className="text-white">Active</label>
+                      <label htmlFor="isActive" className="text-white">
+                        Active
+                      </label>
                     </div>
                   </div>
                 </div>
@@ -251,7 +268,9 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
           <div className="space-y-4">
             {/* Account Info */}
             <div>
-              <h3 className="text-sm font-medium text-gray-400 mb-2">Account Information</h3>
+              <h3 className="text-sm font-medium text-gray-400 mb-2">
+                Account Information
+              </h3>
               <div className="space-y-2 text-sm text-white">
                 <div className="grid grid-cols-2 gap-x-4">
                   <p className="font-medium">Email Verified:</p>
@@ -278,7 +297,9 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
 
             {/* Additional Info */}
             <div>
-              <h3 className="text-sm font-medium text-gray-400 mb-2">Additional Information</h3>
+              <h3 className="text-sm font-medium text-gray-400 mb-2">
+                Additional Information
+              </h3>
               <div className="space-y-2 text-sm text-white">
                 <div className="grid grid-cols-2 gap-x-4">
                   <p className="font-medium">User ID:</p>

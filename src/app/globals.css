@@ -3,6 +3,11 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Add padding to the top of the navbar */
+header {
+  padding-top: 1rem;
+}
+
 @font-face {
   font-family: "Anonymous Pro";
   src: url("/fonts/AnonymousPro-Regular.woff2") format("woff2");
@@ -121,15 +126,16 @@ h6 {
   }
 }
 
-/* Resource card responsive styles */
-@media (max-width: 640px) {
-  [data-testid="resource-card"] {
-    height: 420px !important; /* Fixed height on mobile */
-    max-height: 420px !important;
-  }
-  
-  [data-testid="resource-card"] .line-clamp-3 {
-    -webkit-line-clamp: 2; /* Show fewer lines on mobile */
+/* Resource cards should have consistent height across all devices */
+[data-testid="resource-card"] {
+  height: auto; /* Let the content determine the height */
+}
+
+/* Adjust content position when mobile search is visible */
+@media (max-width: 767px) {
+  body.mobile-search-visible .min-h-screen {
+    margin-top: 240px; /* Additional space for search form */
+    transition: margin-top 0.3s ease;
   }
 }
 

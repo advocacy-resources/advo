@@ -3,6 +3,7 @@ import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import prisma from "@/prisma/client";
 import { IUser } from "@/interfaces/user";
+import { isOtpVerificationEnabled } from "./feature-flags";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -42,6 +43,12 @@ export const authOptions: NextAuthOptions = {
           if (!user.isActive) {
             console.log("Authorization failed: User account is frozen.");
             return null;
+          }
+          
+          // Check if email is verified (only if OTP verification is enabled)
+          if (isOtpVerificationEnabled() && !user.isEmailVerified) {
+            console.log("Authorization failed: Email not verified.");
+            throw new Error("Please verify your email before signing in.");
           }
 
           if (isValid) {

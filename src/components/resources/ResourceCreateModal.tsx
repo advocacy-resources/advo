@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
+import { BadgeCheck, XCircle } from "lucide-react";
 import { Resource, OperatingHours } from "@/interfaces/resource";
 import Logo from "../../assets/myAdvo-peachWhite.svg";
 import { Button } from "@/components/ui/button";
@@ -37,6 +38,7 @@ const ResourceCreateModal: React.FC<ResourceCreateModalProps> = ({
     category: [],
     profilePhoto: "",
     bannerImage: "",
+    verified: false,
     contact: {
       phone: "",
       email: "",
@@ -113,6 +115,7 @@ const ResourceCreateModal: React.FC<ResourceCreateModalProps> = ({
         contact: newResource.contact,
         address: newResource.address,
         operatingHours: newResource.operatingHours,
+        verified: newResource.verified || false,
         profilePhotoType: newResource.profilePhotoType,
         bannerImageType: newResource.bannerImageType,
         profilePhotoUrl: newResource.profilePhotoUrl,
@@ -166,6 +169,7 @@ const ResourceCreateModal: React.FC<ResourceCreateModalProps> = ({
       category: [],
       profilePhoto: "",
       bannerImage: "",
+      verified: false,
       contact: {
         phone: "",
         email: "",
@@ -351,6 +355,35 @@ const ResourceCreateModal: React.FC<ResourceCreateModalProps> = ({
                   ))}
                 </div>
               )}
+            </div>
+
+            {/* Verification Status */}
+            <div>
+              <h3 className="text-sm font-medium text-gray-400 mb-2">
+                Verification Status
+              </h3>
+              <div className="flex items-center">
+                <label className="flex items-center cursor-pointer">
+                  <div className="relative">
+                    <input
+                      type="checkbox"
+                      className="sr-only"
+                      checked={newResource?.verified || false}
+                      onChange={(e) =>
+                        handleInputChange("verified", e.target.checked)
+                      }
+                    />
+                    {newResource?.verified ? (
+                      <BadgeCheck className="h-6 w-6 text-green-500 mr-2" />
+                    ) : (
+                      <XCircle className="h-6 w-6 text-gray-500 mr-2" />
+                    )}
+                  </div>
+                  <div className="ml-1 text-gray-300 font-medium">
+                    {newResource?.verified ? "Verified" : "Not Verified"}
+                  </div>
+                </label>
+              </div>
             </div>
 
             {/* Contact Information */}

@@ -309,11 +309,11 @@ describe("Resources Search API Route", () => {
       // Use includes instead of exact match to handle potential whitespace
       expect(typeClause?.text.query.trim()).toBe("Service");
 
-      // Check that zipCode was trimmed
+      // Check that zipCode was trimmed and using the function-based search
       const zipCodeClause = searchClause.$search?.compound.must.find(
-        (clause: { text: { path: string } }) => clause.text.path === "zipCode",
+        (clause: any) => clause.function?.score?.path?.value === "address.zip",
       );
-      expect(zipCodeClause?.text.query).toBe("12345");
+      expect(zipCodeClause?.function?.score?.function?.equals?.value).toBe("12345");
 
       // Check that empty description was ignored
       expect(searchClause.$search?.compound.should).toHaveLength(0);

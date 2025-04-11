@@ -4,6 +4,8 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import "leaflet/dist/leaflet.css";
 import dynamic from "next/dynamic";
+import { useSession } from "next-auth/react";
+import { ThumbsUp, ThumbsDown, Heart, BadgeCheck } from "lucide-react";
 import ReviewList from "@/components/resources/ReviewList";
 import ReviewForm from "@/components/resources/ReviewForm";
 import { Resource } from "@/interfaces/resource";
@@ -13,6 +15,13 @@ import {
   selectResourceById,
   selectResourcesState,
 } from "@/store/slices/resourcesSlice";
+import {
+  toggleFavorite,
+  setResourceRating,
+  fetchUserData,
+  setUserId,
+} from "@/store/slices/userSlice";
+import { Rating } from "@/enums/rating.enum";
 
 // Dynamically import the MapComponent to avoid SSR issues
 const MapComponent = dynamic(() => import("@/components/sidebar/SidebarMap"), {
@@ -40,34 +49,7 @@ interface OperatingHours {
 }
 
 // This component is now client-side, so we need to fetch data differently
-
-const VerifiedCircle = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 100 100"
-    width="30"
-    height="30"
-  >
-    <defs>
-      <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" style={{ stopColor: "pink", stopOpacity: 1 }} />
-        <stop offset="100%" style={{ stopColor: "yellow", stopOpacity: 1 }} />
-      </linearGradient>
-    </defs>
-    <circle cx="50" cy="50" r="45" fill="url(#gradient)" />
-    <text
-      x="50"
-      y="55"
-      fontSize="24"
-      fill="white"
-      textAnchor="middle"
-      dominantBaseline="middle"
-      fontFamily="Arial, sans-serif"
-    >
-      ✔
-    </text>
-  </svg>
-);
+const VerifiedCircle = () => <BadgeCheck className="h-6 w-6 text-green-500" />;
 
 const ResourcePage = ({ params }: ResourcePageProps) => {
   const dispatch = useAppDispatch();
@@ -83,6 +65,11 @@ const ResourcePage = ({ params }: ResourcePageProps) => {
     latitude: number;
     longitude: number;
   } | null>(null);
+  const { data: session } = useSession();
+  const userRatings = useAppSelector((state) => state.user.ratings);
+  const userFavorites = useAppSelector((state) => state.user.favorites);
+  const [currentRating, setCurrentRating] = useState<Rating>(Rating.NULL);
+  const [isFavored, setIsFavored] = useState<boolean>(false);
   const defaultBanner = "/resourcebannerimage.png";
   const defaultProfilePhoto = "/images/advo-logo-color.png";
 
@@ -158,9 +145,90 @@ const ResourcePage = ({ params }: ResourcePageProps) => {
     };
 
     fetchResourceData();
-  }, [params.id, dispatch, resourceFromStore]);
+  }, [params.id, dispatch, resourceFromStore, resourcesState.detailsLoaded]);
 
   // Handle review refresh
+  // Set user ID and fetch user data when session is available
+  useEffect(() => {
+    if (session?.user?.id) {
+      // Set the user ID in the Redux store
+      dispatch(setUserId(session.user.id));
+      // Fetch user data from the server
+      dispatch(fetchUserData());
+    }
+  }, [session, dispatch]);
+
+  // Load user's rating and favorite status
+  useEffect(() => {
+    if (session && params.id) {
+      // Load rating from Redux if available
+      if (params.id in userRatings) {
+        setCurrentRating(userRatings[params.id]);
+      }
+      
+      // Load favorite status from Redux if available
+      if (params.id in userFavorites) {
+        setIsFavored(userFavorites[params.id]);
+      }
+    }
+  }, [session, params.id, userRatings, userFavorites]);
+
+  // Handle rating up
+  const handleRatingUp = async () => {
+    if (!session || !params.id) return;
+
+    const newRating = currentRating === Rating.UP ? Rating.NULL : Rating.UP;
+
+    try {
+      // Dispatch the action to update the rating in Redux
+      const resultAction = await dispatch(
+        setResourceRating({ resourceId: params.id, rating: newRating }),
+      );
+      if (resultAction && setResourceRating.fulfilled.match(resultAction)) {
+        // Update local state with the result
+        setCurrentRating(newRating);
+      }
+    } catch (error) {
+      console.error("Error updating rating:", error);
+    }
+  };
+
+  // Handle rating down
+  const handleRatingDown = async () => {
+    if (!session || !params.id) return;
+
+    const newRating = currentRating === Rating.DOWN ? Rating.NULL : Rating.DOWN;
+
+    try {
+      // Dispatch the action to update the rating in Redux
+      const resultAction = await dispatch(
+        setResourceRating({ resourceId: params.id, rating: newRating }),
+      );
+      if (resultAction && setResourceRating.fulfilled.match(resultAction)) {
+        // Update local state with the result
+        setCurrentRating(newRating);
+      }
+    } catch (error) {
+      console.error("Error updating rating:", error);
+    }
+  };
+
+  // Handle toggle favorite
+  const handleToggleFavorite = async () => {
+    if (!session || !params.id) return;
+
+    try {
+      // Dispatch the action to toggle favorite in Redux
+      const resultAction = await dispatch(toggleFavorite(params.id));
+      if (resultAction && toggleFavorite.fulfilled.match(resultAction)) {
+        // Update local state with the result
+        setIsFavored(resultAction.payload.isFavorited);
+      }
+    } catch (error) {
+      console.error("Error toggling favorite:", error);
+    }
+  };
+
   const handleReviewAdded = () => {
     setRefreshReviews((prev) => prev + 1);
   };
@@ -183,21 +251,9 @@ const ResourcePage = ({ params }: ResourcePageProps) => {
   const operatingHours = resource.operatingHours as unknown as OperatingHours;
 
   return (
-    <>
-      {/* Banner Section */}
-      <div className="relative w-full h-48">
-        {/* Debug info */}
-        <div className="absolute top-0 left-0 z-10 bg-black bg-opacity-70 p-2 text-white text-xs">
-          <div>
-            Banner Image URL:{" "}
-            {resource.bannerImageUrl ||
-              (resource.bannerImage ? "Base64 Data" : defaultBanner)}
-          </div>
-          <div>
-            Has Banner Image:{" "}
-            {resource.bannerImageUrl || resource.bannerImage ? "Yes" : "No"}
-          </div>
-        </div>
+    <div className="relative"> {/* Remove top padding to allow banner to go behind navbar */}
+      {/* Banner Section - Extends behind navbar but scrolls with content */}
+      <div className="relative w-full h-80 overflow-hidden -mt-16 pt-0"> {/* Negative margin to extend behind navbar */}
         <Image
           src={resource.bannerImageUrl || resource.bannerImage || defaultBanner}
           alt="Resource Banner"
@@ -206,207 +262,237 @@ const ResourcePage = ({ params }: ResourcePageProps) => {
           priority
           unoptimized={!!resource.bannerImage}
         />
+        {/* Gradient overlay to improve text readability */}
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black opacity-60"></div>
       </div>
 
       {/* Main Content Section */}
-      <div className="flex flex-col gap-6 md:gap-8 p-4 md:p-8 mx-auto w-full max-w-2xl bg-black text-white">
-        {/* Logo and Name */}
-        <section className="mb-6">
+      <div className="relative z-10"> {/* Add z-index to ensure content is above banner */}
+        <div className="flex flex-col gap-6 md:gap-8 p-4 pt-8 md:p-8 md:pt-8 mx-auto w-full max-w-2xl text-white -mt-20"> {/* Negative margin to overlap with banner */}
           {/* Logo and Name */}
-          <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
-            {/* Profile Photo */}
-            <div className="w-20 h-20 sm:w-16 sm:h-16">
-              {/* Debug info */}
-              <div className="absolute top-0 left-0 z-10 bg-black bg-opacity-70 p-2 text-white text-xs">
-                <div>
-                  Profile Photo URL:{" "}
-                  {resource.profilePhotoUrl ||
-                    (resource.profilePhoto
-                      ? "Base64 Data"
-                      : defaultProfilePhoto)}
+          <section className="mb-6 mt-24"> {/* Increased top margin to position below navbar */}
+            {/* Logo and Name */}
+            <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left bg-black bg-opacity-70 p-4 rounded-lg">
+              {/* Profile Photo */}
+              <div className="w-20 h-20 sm:w-16 sm:h-16">
+                <Image
+                  src={
+                    resource.profilePhotoUrl ||
+                    resource.profilePhoto ||
+                    defaultProfilePhoto
+                  }
+                  alt={`${resource.name} logo`}
+                  width={80}
+                  height={80}
+                  className="rounded-md"
+                  style={{ objectFit: "cover" }}
+                  unoptimized={!!resource.profilePhoto}
+                />
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-bold">{resource.name}</h1>
+            </div>
+
+            {/* Centered Icons and Stats */}
+            <div className="flex flex-col sm:flex-row justify-center items-center gap-6 mt-4 bg-black bg-opacity-70 p-3 rounded-lg">
+              {/* Rating Section */}
+              <div className="flex items-center gap-4">
+                {/* Thumbs Up and Rating */}
+                <div className="flex items-center gap-2">
+                  <Image
+                    src="/thumbs-up.svg"
+                    alt="Thumbs Up"
+                    width={20}
+                    height={20}
+                    className="object-contain"
+                  />
+                  <span className="text-sm">
+                    {resource.upvoteCount ? `${resource.upvoteCount} upvotes` : "No rating yet"}
+                  </span>
                 </div>
-                <div>
-                  Has Profile Photo:{" "}
-                  {resource.profilePhotoUrl || resource.profilePhoto
-                    ? "Yes"
-                    : "No"}
-                </div>
+
+                {/* Rating Buttons - Only shown if user is logged in */}
+                {session && (
+                  <div className="flex items-center gap-2">
+                    <button
+                      className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                        currentRating === Rating.UP ? "bg-green-600" : "bg-gray-700"
+                      } text-white transition-colors duration-200 hover:bg-opacity-80`}
+                      onClick={handleRatingUp}
+                      aria-label="Rate up"
+                      title="Rate up"
+                    >
+                      <ThumbsUp size={18} />
+                    </button>
+                    <button
+                      className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                        currentRating === Rating.DOWN ? "bg-red-600" : "bg-gray-700"
+                      } text-white transition-colors duration-200 hover:bg-opacity-80`}
+                      onClick={handleRatingDown}
+                      aria-label="Rate down"
+                      title="Rate down"
+                    >
+                      <ThumbsDown size={18} />
+                    </button>
+                    <button
+                      className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                        isFavored ? "bg-pink-600" : "bg-gray-700"
+                      } text-white transition-colors duration-200 hover:bg-opacity-80`}
+                      onClick={handleToggleFavorite}
+                      aria-label="Favorite"
+                      title="Favorite"
+                    >
+                      <Heart size={18} fill={isFavored ? "currentColor" : "none"} />
+                    </button>
+                  </div>
+                )}
               </div>
 
-              <Image
-                src={
-                  resource.profilePhotoUrl ||
-                  resource.profilePhoto ||
-                  defaultProfilePhoto
-                }
-                alt={`${resource.name} logo`}
-                width={80}
-                height={80}
-                className="rounded-md"
-                style={{ objectFit: "cover" }}
-                unoptimized={!!resource.profilePhoto}
+              {/* Verified Listing - Only shown if resource is verified */}
+              {resource.verified && (
+                <div className="flex items-center gap-2">
+                  <BadgeCheck className="h-6 w-6 text-green-500" />
+                  <span className="text-lg">Verified Listing</span>
+                </div>
+              )}
+            </div>
+
+            {/* Description */}
+            <p className="mt-4 text-base md:text-lg text-center sm:text-left bg-black bg-opacity-70 p-4 rounded-lg">
+              {resource.description || "No description available."}
+            </p>
+          </section>
+
+          <hr className="h-[.1rem] bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 border-0" />
+
+          {/* Contact Information */}
+          <section className="text-center sm:text-left bg-black bg-opacity-80 p-4 rounded-lg">
+            <h2 className="text-xl md:text-2xl font-semibold mb-3 text-center sm:text-left">
+              Contact Information
+            </h2>
+            {contact ? (
+              <>
+                {contact.phone && (
+                  <p className="text-base md:text-lg">Phone: {contact.phone}</p>
+                )}
+                {contact.email && (
+                  <p className="text-base md:text-lg">Email: {contact.email}</p>
+                )}
+                {contact.website && (
+                  <p className="text-base md:text-lg">
+                    Website:{" "}
+                    <a
+                      href={`https://${contact.website}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-500 underline"
+                    >
+                      {contact.website}
+                    </a>
+                  </p>
+                )}
+                {!contact.phone && !contact.email && !contact.website && (
+                  <p className="text-base md:text-lg text-red-500">
+                    Contact information not available.
+                  </p>
+                )}
+              </>
+            ) : (
+              <p className="text-base md:text-lg text-red-500">
+                Contact information not available.
+              </p>
+            )}
+          </section>
+
+          {/* Operating Hours */}
+          <section className="text-center sm:text-left bg-black bg-opacity-80 p-4 rounded-lg">
+            <h2 className="text-xl md:text-2xl font-semibold mb-3 text-center sm:text-left">
+              Operating Hours
+            </h2>
+            {operatingHours ? (
+              <ul className="space-y-1">
+                {Object.entries(operatingHours).map(([day, hours]) => (
+                  <li key={day} className="text-base md:text-lg">
+                    <strong>{day.charAt(0).toUpperCase() + day.slice(1)}:</strong>{" "}
+                    {hours.open && hours.close
+                      ? `${hours.open} - ${hours.close}`
+                      : "Closed"}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-base md:text-lg text-red-500">
+                Operating hours not available.
+              </p>
+            )}
+          </section>
+
+          {/* Address and Map */}
+          <section className="text-center sm:text-left bg-black bg-opacity-80 p-4 rounded-lg">
+            <h2 className="text-xl md:text-2xl font-semibold mb-3 text-center sm:text-left">
+              Address
+            </h2>
+            {address ? (
+              <p className="text-base md:text-lg mb-4">
+                {address.street}, {address.city}, {address.state}{" "}
+                {address.zip ? address.zip : ""}
+              </p>
+            ) : (
+              <p className="text-base md:text-lg text-red-500">
+                Address not available.
+              </p>
+            )}
+            {location ? (
+              <div className="h-64 sm:h-80 md:h-96 w-full bg-gray-200 rounded overflow-hidden relative">
+                <MapComponent
+                  lat={location.latitude}
+                  lon={location.longitude}
+                  resourceName={resource.name}
+                />
+              </div>
+            ) : (
+              <p className="text-base md:text-lg text-red-500">
+                Unable to display map. Location data unavailable.
+              </p>
+            )}
+          </section>
+
+          {/* Additional Details */}
+          <section className="text-center sm:text-left bg-black bg-opacity-80 p-4 rounded-lg">
+            <h2 className="text-xl md:text-2xl font-semibold mb-3 text-center sm:text-left">
+              Additional Details
+            </h2>
+            <p className="text-base md:text-lg">
+              <strong>Category:</strong> {resource.category.join(", ")}
+            </p>
+            <p className="text-base md:text-lg">
+              <strong>Favorites:</strong> {resource.favoriteCount}
+            </p>
+            <p className="text-base md:text-lg">
+              <strong>Upvotes:</strong> {resource.upvoteCount ?? 0}
+            </p>
+          </section>
+
+          {/* Reviews Section */}
+          <section className="text-center sm:text-left bg-black bg-opacity-80 p-4 rounded-lg">
+            <h2 className="text-xl md:text-2xl font-semibold mb-4 text-center sm:text-left">
+              Reviews
+            </h2>
+            <div className="mb-6">
+              <ReviewList
+                resourceId={params.id}
+                refreshTrigger={refreshReviews}
               />
             </div>
-            <h1 className="text-2xl sm:text-3xl font-bold">{resource.name}</h1>
-          </div>
-
-          {/* Centered Icons and Stats */}
-          <div className="flex justify-center items-center gap-6 mt-4">
-            {/* Thumbs Up and Rating */}
-            <div className="flex items-center gap-2">
-              <Image
-                src="/thumbs-up.svg"
-                alt="Thumbs Up"
-                width={20}
-                height={20}
-                className="object-contain"
-              />
-              <span className="text-sm">{"No rating yet"}</span>
-            </div>
-
-            {/* Verified Listing */}
-            <div className="flex items-center gap-2">
-              <VerifiedCircle />
-              <span className="text-lg">Verified Listing</span>
-            </div>
-          </div>
-
-          {/* Description */}
-          <p className="mt-4 text-base md:text-lg text-center sm:text-left">
-            {resource.description || "No description available."}
-          </p>
-        </section>
-
-        <hr className="h-[.1rem] bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 border-0" />
-
-        {/* Contact Information */}
-        <section className="text-center sm:text-left">
-          <h2 className="text-xl md:text-2xl font-semibold mb-3 text-center sm:text-left">
-            Contact Information
-          </h2>
-          {contact ? (
-            <>
-              {contact.phone && (
-                <p className="text-base md:text-lg">Phone: {contact.phone}</p>
-              )}
-              {contact.email && (
-                <p className="text-base md:text-lg">Email: {contact.email}</p>
-              )}
-              {contact.website && (
-                <p className="text-base md:text-lg">
-                  Website:{" "}
-                  <a
-                    href={`https://${contact.website}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-500 underline"
-                  >
-                    {contact.website}
-                  </a>
-                </p>
-              )}
-              {!contact.phone && !contact.email && !contact.website && (
-                <p className="text-base md:text-lg text-red-500">
-                  Contact information not available.
-                </p>
-              )}
-            </>
-          ) : (
-            <p className="text-base md:text-lg text-red-500">
-              Contact information not available.
-            </p>
-          )}
-        </section>
-
-        {/* Operating Hours */}
-        <section className="text-center sm:text-left">
-          <h2 className="text-xl md:text-2xl font-semibold mb-3 text-center sm:text-left">
-            Operating Hours
-          </h2>
-          {operatingHours ? (
-            <ul className="space-y-1">
-              {Object.entries(operatingHours).map(([day, hours]) => (
-                <li key={day} className="text-base md:text-lg">
-                  <strong>{day.charAt(0).toUpperCase() + day.slice(1)}:</strong>{" "}
-                  {hours.open && hours.close
-                    ? `${hours.open} - ${hours.close}`
-                    : "Closed"}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-base md:text-lg text-red-500">
-              Operating hours not available.
-            </p>
-          )}
-        </section>
-
-        {/* Address and Map */}
-        <section className="text-center sm:text-left">
-          <h2 className="text-xl md:text-2xl font-semibold mb-3 text-center sm:text-left">
-            Address
-          </h2>
-          {address ? (
-            <p className="text-base md:text-lg mb-4">
-              {address.street}, {address.city}, {address.state}{" "}
-              {address.zip ? address.zip : ""}
-            </p>
-          ) : (
-            <p className="text-base md:text-lg text-red-500">
-              Address not available.
-            </p>
-          )}
-          {location ? (
-            <div className="h-64 sm:h-80 md:h-96 w-full bg-gray-200 rounded overflow-hidden relative">
-              <MapComponent
-                lat={location.latitude}
-                lon={location.longitude}
-                resourceName={resource.name}
+            <div className="mt-4 flex justify-center sm:justify-start">
+              <ReviewForm
+                resourceId={params.id}
+                onReviewAdded={handleReviewAdded}
               />
             </div>
-          ) : (
-            <p className="text-base md:text-lg text-red-500">
-              Unable to display map. Location data unavailable.
-            </p>
-          )}
-        </section>
-
-        {/* Additional Details */}
-        <section className="text-center sm:text-left">
-          <h2 className="text-xl md:text-2xl font-semibold mb-3 text-center sm:text-left">
-            Additional Details
-          </h2>
-          <p className="text-base md:text-lg">
-            <strong>Category:</strong> {resource.category.join(", ")}
-          </p>
-          <p className="text-base md:text-lg">
-            <strong>Favorites:</strong> {resource.favoriteCount}
-          </p>
-          <p className="text-base md:text-lg">
-            <strong>Upvotes:</strong> {resource.upvoteCount ?? 0}
-          </p>
-        </section>
-
-        {/* Reviews Section */}
-        <section className="text-center sm:text-left">
-          <h2 className="text-xl md:text-2xl font-semibold mb-4 text-center sm:text-left">
-            Reviews
-          </h2>
-          <div className="mb-6">
-            <ReviewList
-              resourceId={params.id}
-              refreshTrigger={refreshReviews}
-            />
-          </div>
-          <div className="mt-4 flex justify-center sm:justify-start">
-            <ReviewForm
-              resourceId={params.id}
-              onReviewAdded={handleReviewAdded}
-            />
-          </div>
-        </section>
+          </section>
+        </div>
       </div>
-    </>
+    </div>
   );
 };
 
