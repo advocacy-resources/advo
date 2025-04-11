@@ -9,13 +9,13 @@
 
 // Debug configuration
 const DEBUG = {
-  enabled: false
+  enabled: false,
 };
 
 // Debug logger utility
 function debugLog(message: string, data?: any): void {
   if (!DEBUG.enabled) return;
-  
+
   const prefix = "[DISTANCE DEBUG]";
   if (data !== undefined) {
     console.log(`${prefix} ${message}`, data);
@@ -27,10 +27,9 @@ export function calculateDistance(
   lat1: number,
   lon1: number,
   lat2: number,
-  lon2: number
+  lon2: number,
 ): number {
-  debugLog("Calculating distance between:",
-    { lat1, lon1, lat2, lon2 });
+  debugLog("Calculating distance between:", { lat1, lon1, lat2, lon2 });
   // Earth's radius in miles
   const earthRadius = 3958.8;
 
@@ -47,7 +46,10 @@ export function calculateDistance(
   // Haversine formula
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(latRad1) * Math.cos(latRad2) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    Math.cos(latRad1) *
+      Math.cos(latRad2) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   const distance = earthRadius * c;
 
@@ -69,11 +71,13 @@ export function isWithinDistance(
   lon1: number,
   lat2: number,
   lon2: number,
-  maxDistance: number
+  maxDistance: number,
 ): boolean {
   debugLog(`Checking if within distance: ${maxDistance} miles`);
   const distance = calculateDistance(lat1, lon1, lat2, lon2);
   const result = distance <= maxDistance;
-  debugLog(`Is within distance: ${result} (${distance.toFixed(2)} miles <= ${maxDistance} miles)`);
+  debugLog(
+    `Is within distance: ${result} (${distance.toFixed(2)} miles <= ${maxDistance} miles)`,
+  );
   return result;
 }

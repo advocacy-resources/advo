@@ -120,7 +120,9 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
               <div className="flex justify-center">
                 <div className="w-32 h-32 rounded-full bg-gray-800 flex items-center justify-center border-2 border-gray-600">
                   <span className="text-gray-400 text-5xl">
-                    {userData.name ? userData.name.charAt(0).toUpperCase() : "U"}
+                    {userData.name
+                      ? userData.name.charAt(0).toUpperCase()
+                      : "U"}
                   </span>
                 </div>
               </div>
@@ -139,7 +141,9 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
                       type="text"
                       className="bg-gray-700 text-white border border-gray-600 rounded p-1"
                       value={editedUser.name || ""}
-                      onChange={(e) => handleInputChange("name", e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("name", e.target.value)
+                      }
                       placeholder="Enter name"
                     />
                   </div>
@@ -149,7 +153,9 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
                       type="email"
                       className="bg-gray-700 text-white border border-gray-600 rounded p-1"
                       value={editedUser.email}
-                      onChange={(e) => handleInputChange("email", e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("email", e.target.value)
+                      }
                       disabled
                     />
                   </div>

@@ -80,7 +80,17 @@ export default function SearchResultsPage() {
 
   useEffect(() => {
     // Parse the search parameter if it exists
-    let searchQuery = {};
+    // Initialize with required properties to satisfy SearchParams interface
+    let searchQuery: {
+      category: string[];
+      type: string[];
+      description?: string;
+      zipCode?: string;
+      distance?: string;
+    } = {
+      category: [],
+      type: [],
+    };
     if (searchParams.get("search")) {
       try {
         // Decode the JSON string from the URL

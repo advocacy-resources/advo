@@ -46,7 +46,11 @@ const ResourceGridBase: React.FC<ResourceGridBaseProps> = ({
   if (error && resources.length === 0) {
     return (
       <div className={className}>
-        {title && <div className="text-2xl md:text-3xl font-bold mb-4 md:mb-8">{title}</div>}
+        {title && (
+          <div className="text-2xl md:text-3xl font-bold mb-4 md:mb-8">
+            {title}
+          </div>
+        )}
         <div className="bg-red-900 bg-opacity-30 p-4 rounded-lg text-center">
           <span className="font-bold">{errorPrefix}</span> {error}
         </div>
@@ -61,10 +65,10 @@ const ResourceGridBase: React.FC<ResourceGridBaseProps> = ({
         <div className="text-center  text-gray-400">{emptyMessage}</div>
       ) : (
         <div className={gridClassName}>
-          {resources.map((resource) => (
+          {resources.map((resource, index) => (
             <ResourceCard
-              key={resource.id}
-              id={resource.id}
+              key={resource.id || `resource-${index}`}
+              id={resource.id || `unknown-${index}`}
               name={resource.name}
               description={resource.description}
               category={resource.category[0] || ""}

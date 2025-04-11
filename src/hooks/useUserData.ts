@@ -8,6 +8,11 @@ export interface UserData {
   favorites: string[];
   createdAt: string;
   updatedAt: string;
+  // Contact information
+  phone?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
 }
 
 export const useUserData = (userId: string | undefined) => {
@@ -44,19 +49,23 @@ export const useUserData = (userId: string | undefined) => {
   const saveUserData = async (updatedData: UserData) => {
     try {
       console.log("useUserData.saveUserData - Saving data:", updatedData);
-      
+
       // Only send the fields that can be updated
       const dataToSend = {
         id: updatedData.id,
-        name: updatedData.name
+        name: updatedData.name,
+        phone: updatedData.phone,
+        city: updatedData.city,
+        state: updatedData.state,
+        zipCode: updatedData.zipCode,
       };
-      
+
       const response = await fetch(`/api/v1/users/${updatedData.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(dataToSend),
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json();
         console.error("API error response:", errorData);
@@ -65,7 +74,7 @@ export const useUserData = (userId: string | undefined) => {
 
       const savedData = await response.json();
       console.log("useUserData.saveUserData - Received response:", savedData);
-      
+
       // Update the local state with the data returned from the API
       setUserData(savedData);
 
@@ -73,7 +82,7 @@ export const useUserData = (userId: string | undefined) => {
         title: "Success",
         description: "Your profile has been updated successfully.",
       });
-      
+
       return savedData;
     } catch (error) {
       console.error("Error saving user data:", error);

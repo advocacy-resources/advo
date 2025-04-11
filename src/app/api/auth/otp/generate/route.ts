@@ -9,7 +9,7 @@ export async function POST(req: Request) {
     if (!email) {
       return NextResponse.json(
         { message: "Email is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -22,7 +22,7 @@ export async function POST(req: Request) {
       // Don't reveal that the user doesn't exist for security reasons
       return NextResponse.json(
         { message: "If the email exists, an OTP has been sent" },
-        { status: 200 }
+        { status: 200 },
       );
     }
 
@@ -38,22 +38,22 @@ export async function POST(req: Request) {
     if (!emailSent) {
       return NextResponse.json(
         { message: "Failed to send OTP email" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
     return NextResponse.json(
-      { 
+      {
         message: "OTP sent successfully",
-        userId: user.id 
+        userId: user.id,
       },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error) {
     console.error("Error generating OTP:", error);
     return NextResponse.json(
       { message: "An error occurred while generating OTP" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

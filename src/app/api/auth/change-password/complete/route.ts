@@ -10,7 +10,7 @@ export async function POST(req: Request) {
     if (!userId || !otp || !newPassword) {
       return NextResponse.json(
         { message: "User ID, OTP, and new password are required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -20,10 +20,7 @@ export async function POST(req: Request) {
     });
 
     if (!user) {
-      return NextResponse.json(
-        { message: "User not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
 
     // Verify OTP
@@ -32,7 +29,7 @@ export async function POST(req: Request) {
     if (!isValid) {
       return NextResponse.json(
         { message: "Invalid or expired OTP" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -50,13 +47,13 @@ export async function POST(req: Request) {
 
     return NextResponse.json(
       { message: "Password updated successfully" },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error) {
     console.error("Error completing password change:", error);
     return NextResponse.json(
       { message: "An error occurred while changing the password" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

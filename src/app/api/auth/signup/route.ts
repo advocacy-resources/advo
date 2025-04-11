@@ -40,13 +40,13 @@ export async function POST(req: Request) {
     if (otpEnabled) {
       // Generate OTP for email verification
       const otp = generateOTP();
-      
+
       // Save OTP to user record
       await saveOTP(user.id, otp);
-      
+
       // Send OTP via email
       const emailSent = await sendOTPEmail(email, otp);
-      
+
       if (!emailSent) {
         console.error("Failed to send verification email");
         // Continue anyway, user can request a new OTP later
@@ -54,9 +54,10 @@ export async function POST(req: Request) {
 
       return NextResponse.json(
         {
-          message: "User created successfully. Please verify your email with the OTP sent.",
+          message:
+            "User created successfully. Please verify your email with the OTP sent.",
           userId: user.id,
-          requiresVerification: true
+          requiresVerification: true,
         },
         { status: 201 },
       );
@@ -66,7 +67,7 @@ export async function POST(req: Request) {
         {
           message: "User created successfully.",
           userId: user.id,
-          requiresVerification: false
+          requiresVerification: false,
         },
         { status: 201 },
       );

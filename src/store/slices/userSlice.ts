@@ -1,7 +1,20 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { Rating } from "@/enums/rating.enum";
 
-interface UserState {
+// Define interfaces for API responses
+interface FavoriteItem {
+  resourceId: string;
+  userId: string;
+}
+
+interface RatingItem {
+  resourceId: string;
+  userId: string;
+  rating: Rating;
+}
+
+// Export the UserState interface so it can be used in other files
+export interface UserState {
   favorites: Record<string, boolean>;
   ratings: Record<string, Rating>;
   isAuthenticated: boolean;
@@ -84,12 +97,12 @@ export const fetchUserData = createAsyncThunk(
       // Get the current session user ID from the state
       const currentState = getState() as { user: UserState };
       const userId = currentState.user.userId;
-      
+
       if (!userId) {
         console.log("No user ID available, cannot fetch user data");
         return { favorites: {}, ratings: {} };
       }
-      
+
       // Fetch user favorites
       const favoritesResponse = await fetch("/api/v1/user/favorites");
       if (!favoritesResponse.ok) {
@@ -103,19 +116,19 @@ export const fetchUserData = createAsyncThunk(
         throw new Error(`HTTP error! status: ${ratingsResponse.status}`);
       }
       const ratingsData = await ratingsResponse.json();
-      
+
       // Process favorites into a map
       const favorites: Record<string, boolean> = {};
-      favoritesData.favorites.forEach((fav: any) => {
+      favoritesData.favorites.forEach((fav: FavoriteItem) => {
         favorites[fav.resourceId] = true;
       });
-      
+
       // Process ratings into a map
       const ratings: Record<string, Rating> = {};
-      ratingsData.ratings.forEach((rating: any) => {
+      ratingsData.ratings.forEach((rating: RatingItem) => {
         ratings[rating.resourceId] = rating.rating;
       });
-      
+
       return { favorites, ratings };
     } catch (error) {
       console.error("Error fetching user data:", error);

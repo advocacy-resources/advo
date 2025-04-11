@@ -235,7 +235,9 @@ export default function AdminResourcesPage() {
                         <Button
                           variant="destructive"
                           className="text-xs px-3 py-1.5 bg-red-700 hover:bg-red-800"
-                          onClick={() => resource.id && handleDeleteClick(resource.id)}
+                          onClick={() =>
+                            resource.id && handleDeleteClick(resource.id)
+                          }
                         >
                           Delete
                         </Button>

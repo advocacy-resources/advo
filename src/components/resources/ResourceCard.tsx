@@ -5,7 +5,12 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useAppSelector } from "@/store/hooks";
-import { PhoneIcon, MapPinIcon, ArrowRightIcon, BadgeCheck } from "lucide-react";
+import {
+  PhoneIcon,
+  MapPinIcon,
+  ArrowRightIcon,
+  BadgeCheck,
+} from "lucide-react";
 import { Address } from "@/interfaces/resource";
 import { selectResourceById } from "@/store/slices/resourcesSlice";
 
@@ -165,7 +170,7 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
                 {approvalPercentage}%
               </span>
             </div>
-            
+
             {/* Verified Badge - only shown if resource is verified */}
             {resourceFromStore?.verified && (
               <div className="flex items-center">
@@ -184,10 +189,7 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
                 aria-label="Call resource"
                 title="Call resource"
               >
-                <PhoneIcon
-                  size={24}
-                  className="w-[24px] h-[24px]"
-                />
+                <PhoneIcon size={24} className="w-[24px] h-[24px]" />
               </a>
             )}
 
@@ -201,10 +203,7 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
                 aria-label="View on map"
                 title="View on map"
               >
-                <MapPinIcon
-                  size={24}
-                  className="w-[24px] h-[24px]"
-                />
+                <MapPinIcon size={24} className="w-[24px] h-[24px]" />
               </a>
             )}
 
@@ -215,10 +214,7 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
               aria-label="View details"
               title="View details"
             >
-              <ArrowRightIcon
-                size={24}
-                className="w-[24px] h-[24px]"
-              />
+              <ArrowRightIcon size={24} className="w-[24px] h-[24px]" />
             </Link>
           </div>
         </div>

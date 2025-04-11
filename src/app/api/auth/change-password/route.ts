@@ -39,13 +39,13 @@ export async function POST(req: Request) {
     if (otpEnabled) {
       // Generate OTP for password change verification
       const otp = generateOTP();
-      
+
       // Save OTP to user record
       await saveOTP(user._id.toString(), otp);
-      
+
       // Send OTP via email
       const emailSent = await sendOTPEmail(email, otp);
-      
+
       if (!emailSent) {
         return NextResponse.json(
           { message: "Failed to send verification email" },
@@ -57,7 +57,7 @@ export async function POST(req: Request) {
         {
           message: "Verification code sent to your email",
           userId: user._id.toString(),
-          requiresOTP: true
+          requiresOTP: true,
         },
         { status: 200 },
       );

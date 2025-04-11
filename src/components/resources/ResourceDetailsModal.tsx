@@ -284,14 +284,24 @@ const ResourceDetailsModal: React.FC<ResourceDetailsModalProps> = ({
                         type="checkbox"
                         className="sr-only"
                         checked={editedResource?.verified || false}
-                        onChange={(e) => handleInputChange("verified", e.target.checked)}
+                        onChange={(e) =>
+                          handleInputChange("verified", e.target.checked)
+                        }
                       />
-                      <div className={`block w-14 h-8 rounded-full ${
-                        editedResource?.verified ? "bg-green-600" : "bg-gray-600"
-                      }`}></div>
-                      <div className={`dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition ${
-                        editedResource?.verified ? "transform translate-x-6" : ""
-                      }`}></div>
+                      <div
+                        className={`block w-14 h-8 rounded-full ${
+                          editedResource?.verified
+                            ? "bg-green-600"
+                            : "bg-gray-600"
+                        }`}
+                      ></div>
+                      <div
+                        className={`dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition ${
+                          editedResource?.verified
+                            ? "transform translate-x-6"
+                            : ""
+                        }`}
+                      ></div>
                     </div>
                     <div className="ml-3 text-gray-300 font-medium">
                       {editedResource?.verified ? "Verified" : "Not Verified"}
@@ -305,7 +315,9 @@ const ResourceDetailsModal: React.FC<ResourceDetailsModalProps> = ({
                   ) : (
                     <XCircle className="h-5 w-5 text-gray-500 mr-2" />
                   )}
-                  <span className="text-white text-sm">{resource.verified ? "Verified" : "Not Verified"}</span>
+                  <span className="text-white text-sm">
+                    {resource.verified ? "Verified" : "Not Verified"}
+                  </span>
                 </div>
               )}
             </div>

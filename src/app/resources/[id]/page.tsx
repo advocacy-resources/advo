@@ -165,7 +165,7 @@ const ResourcePage = ({ params }: ResourcePageProps) => {
       if (params.id in userRatings) {
         setCurrentRating(userRatings[params.id]);
       }
-      
+
       // Load favorite status from Redux if available
       if (params.id in userFavorites) {
         setIsFavored(userFavorites[params.id]);
@@ -251,9 +251,13 @@ const ResourcePage = ({ params }: ResourcePageProps) => {
   const operatingHours = resource.operatingHours as unknown as OperatingHours;
 
   return (
-    <div className="relative"> {/* Remove top padding to allow banner to go behind navbar */}
+    <div className="relative">
+      {" "}
+      {/* Remove top padding to allow banner to go behind navbar */}
       {/* Banner Section - Extends behind navbar but scrolls with content */}
-      <div className="relative w-full h-80 overflow-hidden -mt-16 pt-0"> {/* Negative margin to extend behind navbar */}
+      <div className="relative w-full h-80 overflow-hidden -mt-16 pt-0">
+        {" "}
+        {/* Negative margin to extend behind navbar */}
         <Image
           src={resource.bannerImageUrl || resource.bannerImage || defaultBanner}
           alt="Resource Banner"
@@ -265,12 +269,17 @@ const ResourcePage = ({ params }: ResourcePageProps) => {
         {/* Gradient overlay to improve text readability */}
         <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black opacity-60"></div>
       </div>
-
       {/* Main Content Section */}
-      <div className="relative z-10"> {/* Add z-index to ensure content is above banner */}
-        <div className="flex flex-col gap-6 md:gap-8 p-4 pt-8 md:p-8 md:pt-8 mx-auto w-full max-w-2xl text-white -mt-20"> {/* Negative margin to overlap with banner */}
+      <div className="relative z-10">
+        {" "}
+        {/* Add z-index to ensure content is above banner */}
+        <div className="flex flex-col gap-6 md:gap-8 p-4 pt-8 md:p-8 md:pt-8 mx-auto w-full max-w-2xl text-white -mt-20">
+          {" "}
+          {/* Negative margin to overlap with banner */}
           {/* Logo and Name */}
-          <section className="mb-6 mt-24"> {/* Increased top margin to position below navbar */}
+          <section className="mb-6 mt-24">
+            {" "}
+            {/* Increased top margin to position below navbar */}
             {/* Logo and Name */}
             <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left bg-black bg-opacity-70 p-4 rounded-lg">
               {/* Profile Photo */}
@@ -289,9 +298,10 @@ const ResourcePage = ({ params }: ResourcePageProps) => {
                   unoptimized={!!resource.profilePhoto}
                 />
               </div>
-              <h1 className="text-2xl sm:text-3xl font-bold">{resource.name}</h1>
+              <h1 className="text-2xl sm:text-3xl font-bold">
+                {resource.name}
+              </h1>
             </div>
-
             {/* Centered Icons and Stats */}
             <div className="flex flex-col sm:flex-row justify-center items-center gap-6 mt-4 bg-black bg-opacity-70 p-3 rounded-lg">
               {/* Rating Section */}
@@ -306,7 +316,9 @@ const ResourcePage = ({ params }: ResourcePageProps) => {
                     className="object-contain"
                   />
                   <span className="text-sm">
-                    {resource.upvoteCount ? `${resource.upvoteCount} upvotes` : "No rating yet"}
+                    {resource.upvoteCount
+                      ? `${resource.upvoteCount} upvotes`
+                      : "No rating yet"}
                   </span>
                 </div>
 
@@ -315,7 +327,9 @@ const ResourcePage = ({ params }: ResourcePageProps) => {
                   <div className="flex items-center gap-2">
                     <button
                       className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                        currentRating === Rating.UP ? "bg-green-600" : "bg-gray-700"
+                        currentRating === Rating.UP
+                          ? "bg-green-600"
+                          : "bg-gray-700"
                       } text-white transition-colors duration-200 hover:bg-opacity-80`}
                       onClick={handleRatingUp}
                       aria-label="Rate up"
@@ -325,7 +339,9 @@ const ResourcePage = ({ params }: ResourcePageProps) => {
                     </button>
                     <button
                       className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                        currentRating === Rating.DOWN ? "bg-red-600" : "bg-gray-700"
+                        currentRating === Rating.DOWN
+                          ? "bg-red-600"
+                          : "bg-gray-700"
                       } text-white transition-colors duration-200 hover:bg-opacity-80`}
                       onClick={handleRatingDown}
                       aria-label="Rate down"
@@ -341,7 +357,10 @@ const ResourcePage = ({ params }: ResourcePageProps) => {
                       aria-label="Favorite"
                       title="Favorite"
                     >
-                      <Heart size={18} fill={isFavored ? "currentColor" : "none"} />
+                      <Heart
+                        size={18}
+                        fill={isFavored ? "currentColor" : "none"}
+                      />
                     </button>
                   </div>
                 )}
@@ -355,15 +374,12 @@ const ResourcePage = ({ params }: ResourcePageProps) => {
                 </div>
               )}
             </div>
-
             {/* Description */}
             <p className="mt-4 text-base md:text-lg text-center sm:text-left bg-black bg-opacity-70 p-4 rounded-lg">
               {resource.description || "No description available."}
             </p>
           </section>
-
           <hr className="h-[.1rem] bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 border-0" />
-
           {/* Contact Information */}
           <section className="text-center sm:text-left bg-black bg-opacity-80 p-4 rounded-lg">
             <h2 className="text-xl md:text-2xl font-semibold mb-3 text-center sm:text-left">
@@ -402,7 +418,6 @@ const ResourcePage = ({ params }: ResourcePageProps) => {
               </p>
             )}
           </section>
-
           {/* Operating Hours */}
           <section className="text-center sm:text-left bg-black bg-opacity-80 p-4 rounded-lg">
             <h2 className="text-xl md:text-2xl font-semibold mb-3 text-center sm:text-left">
@@ -412,7 +427,9 @@ const ResourcePage = ({ params }: ResourcePageProps) => {
               <ul className="space-y-1">
                 {Object.entries(operatingHours).map(([day, hours]) => (
                   <li key={day} className="text-base md:text-lg">
-                    <strong>{day.charAt(0).toUpperCase() + day.slice(1)}:</strong>{" "}
+                    <strong>
+                      {day.charAt(0).toUpperCase() + day.slice(1)}:
+                    </strong>{" "}
                     {hours.open && hours.close
                       ? `${hours.open} - ${hours.close}`
                       : "Closed"}
@@ -425,7 +442,6 @@ const ResourcePage = ({ params }: ResourcePageProps) => {
               </p>
             )}
           </section>
-
           {/* Address and Map */}
           <section className="text-center sm:text-left bg-black bg-opacity-80 p-4 rounded-lg">
             <h2 className="text-xl md:text-2xl font-semibold mb-3 text-center sm:text-left">
@@ -455,7 +471,6 @@ const ResourcePage = ({ params }: ResourcePageProps) => {
               </p>
             )}
           </section>
-
           {/* Additional Details */}
           <section className="text-center sm:text-left bg-black bg-opacity-80 p-4 rounded-lg">
             <h2 className="text-xl md:text-2xl font-semibold mb-3 text-center sm:text-left">
@@ -471,7 +486,6 @@ const ResourcePage = ({ params }: ResourcePageProps) => {
               <strong>Upvotes:</strong> {resource.upvoteCount ?? 0}
             </p>
           </section>
-
           {/* Reviews Section */}
           <section className="text-center sm:text-left bg-black bg-opacity-80 p-4 rounded-lg">
             <h2 className="text-xl md:text-2xl font-semibold mb-4 text-center sm:text-left">

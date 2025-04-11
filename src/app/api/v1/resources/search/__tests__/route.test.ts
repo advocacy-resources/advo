@@ -313,7 +313,9 @@ describe("Resources Search API Route", () => {
       const zipCodeClause = searchClause.$search?.compound.must.find(
         (clause: any) => clause.function?.score?.path?.value === "address.zip",
       );
-      expect(zipCodeClause?.function?.score?.function?.equals?.value).toBe("12345");
+      expect(zipCodeClause?.function?.score?.function?.equals?.value).toBe(
+        "12345",
+      );
 
       // Check that empty description was ignored
       expect(searchClause.$search?.compound.should).toHaveLength(0);

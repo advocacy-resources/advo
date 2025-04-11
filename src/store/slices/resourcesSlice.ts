@@ -2,6 +2,28 @@ import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { createSelector } from "@reduxjs/toolkit";
 import { Resource } from "@/interfaces/resource";
 
+// Define interfaces for MongoDB ObjectId and nested ID structures
+interface MongoDBObjectId {
+  $oid: string;
+}
+
+interface NestedIdObject {
+  _id: string;
+}
+
+// Define interface for search parameters to match ResourcesState.searchParams
+interface SearchParams {
+  category: string[];
+  type: string[];
+  description?: string;
+  zipCode?: string;
+  distance?: string;
+  page?: number;
+  limit?: number;
+  // Use unknown instead of any for additional properties
+  [key: string]: unknown;
+}
+
 interface PaginationData {
   total: number;
   page: number;
@@ -9,7 +31,8 @@ interface PaginationData {
   totalPages: number;
 }
 
-interface ResourcesState {
+// Export the ResourcesState interface so it can be used in other files
+export interface ResourcesState {
   byId: Record<string, Resource>;
   allIds: string[];
   detailsLoaded: Record<string, boolean>;
@@ -60,10 +83,10 @@ const normalizeResources = (resources: Resource[]) => {
     if (
       resource._id &&
       typeof resource._id === "object" &&
-      (resource._id as any).$oid
+      (resource._id as MongoDBObjectId).$oid
     ) {
       // MongoDB ObjectId format
-      id = (resource._id as any).$oid;
+      id = (resource._id as MongoDBObjectId).$oid;
       console.log("Found MongoDB ObjectId:", id);
     } else if (typeof resource.id === "string") {
       // Regular string ID
@@ -71,10 +94,10 @@ const normalizeResources = (resources: Resource[]) => {
     } else if (
       resource.id &&
       typeof resource.id === "object" &&
-      (resource.id as any)._id
+      (resource.id as NestedIdObject)._id
     ) {
       // Nested ID object
-      id = String((resource.id as any)._id);
+      id = String((resource.id as NestedIdObject)._id);
     } else {
       // Fallback
       id = String(resource.id || "unknown");
@@ -109,7 +132,7 @@ export const fetchResources = createAsyncThunk(
   async (page: number = 1, { getState, rejectWithValue }) => {
     try {
       const { resources } = getState() as { resources: ResourcesState };
-      const { pagination, searchParams } = resources;
+      const { searchParams } = resources; // Remove unused pagination variable
 
       // Always fetch fresh data on homepage load to ensure resources are displayed
       const now = Date.now();
@@ -200,9 +223,10 @@ export const fetchResourceById = createAsyncThunk(
 // Unified search function that replaces the old searchResources
 export const searchResources = createAsyncThunk(
   "resources/searchResources",
-  async (searchParams: any, { rejectWithValue, getState }) => {
+  async (searchParams: SearchParams, { rejectWithValue, getState }) => {
     try {
-      const { resources } = getState() as { resources: ResourcesState };
+      // We don't need to access the state here
+      // const _state = getState();
       const apiUrl = "/api/v1/resources/search";
 
       // Get all pages of results for the search query
@@ -297,7 +321,7 @@ const resourcesSlice = createSlice({
   name: "resources",
   initialState,
   reducers: {
-    setSearchParams: (state, action: PayloadAction<any>) => {
+    setSearchParams: (state, action: PayloadAction<SearchParams>) => {
       state.searchParams = action.payload;
     },
     setPage: (state, action: PayloadAction<number>) => {
@@ -367,8 +391,8 @@ const resourcesSlice = createSlice({
             ? resource.id
             : resource.id &&
                 typeof resource.id === "object" &&
-                (resource.id as any)._id
-              ? String((resource.id as any)._id)
+                (resource.id as NestedIdObject)._id
+              ? String((resource.id as NestedIdObject)._id)
               : String(resource.id);
 
         // Add or update the resource in the byId map

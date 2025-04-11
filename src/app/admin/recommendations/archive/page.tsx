@@ -55,10 +55,10 @@ export default async function RecommendationsArchivePage() {
           Back to Pending
         </a>
       </div>
-<RecommendationsTable
-  recommendations={recommendations}
-  showActions={false}
-/>
+      <RecommendationsTable
+        recommendations={recommendations}
+        showActions={false}
+      />
     </div>
   );
 }
