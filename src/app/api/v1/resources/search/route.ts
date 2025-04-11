@@ -19,11 +19,35 @@ interface AddressWithZip {
 
 // Debug configuration
 const DEBUG = {
-  enabled: false,
-  search: false,
-  distance: false,
-  geocode: false,
+  enabled: true, // Enable debugging
+  search: true,
+  distance: true,
+  geocode: true,
+  performance: true, // Track performance
 };
+
+// Performance tracking
+const performanceMarkers: Record<string, number> = {};
+
+// Start timing an operation
+function startTiming(operationName: string) {
+  performanceMarkers[`${operationName}_start`] = Date.now();
+  console.log(`[PERFORMANCE] Starting: ${operationName}`);
+}
+
+// End timing an operation and log the duration
+function endTiming(operationName: string) {
+  const startTime = performanceMarkers[`${operationName}_start`];
+  if (!startTime) {
+    console.log(`[PERFORMANCE] Error: No start time for ${operationName}`);
+    return;
+  }
+
+  const endTime = Date.now();
+  const duration = endTime - startTime;
+  console.log(`[PERFORMANCE] ${operationName} took ${duration}ms`);
+  return duration;
+}
 
 // Debug logger utility
 function debugLog(
@@ -384,6 +408,7 @@ function logError(message: string, error: Error & { stack?: string }) {
  * Main API handler for resource search
  */
 export async function POST(request: NextRequest) {
+  startTiming("total_request");
   // Set CORS headers
   const origin = request.headers.get("origin") || "";
   const allowedOrigins = [
@@ -403,10 +428,13 @@ export async function POST(request: NextRequest) {
   try {
     // Test database connection
     try {
+      startTiming("db_connection_test");
       const testCount = await prisma.resource.count();
+      const dbTestTime = endTiming("db_connection_test");
       console.log(
         "MongoDB Connection Test - Success, resource count:",
         testCount,
+        `(took ${dbTestTime}ms)`,
       );
     } catch (dbConnError) {
       console.error("MongoDB Connection Test - Failed:", dbConnError);
@@ -414,7 +442,9 @@ export async function POST(request: NextRequest) {
     // Parse request body with error handling
     let requestBody;
     try {
+      startTiming("parse_request");
       requestBody = await request.json();
+      endTiming("parse_request");
     } catch (parseError) {
       console.error("Error parsing request body:", parseError);
       const response = NextResponse.json(
@@ -435,8 +465,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate and normalize parameters
+    startTiming("validate_params");
     const { normalizedParams, pagination, hasSearchParams } =
       validateAndNormalizeParams(requestBody);
+    endTiming("validate_params");
 
     // If no search parameters, return paginated list of all resources
     if (!hasSearchParams) {
@@ -445,6 +477,7 @@ export async function POST(request: NextRequest) {
       );
 
       try {
+        startTiming("fetch_all_resources");
         const [resources, count] = await Promise.all([
           prisma.resource.findMany({
             orderBy: { createdAt: "desc" },
@@ -453,6 +486,7 @@ export async function POST(request: NextRequest) {
           }),
           prisma.resource.count(),
         ]);
+        endTiming("fetch_all_resources");
 
         // Create response with data
         const response = NextResponse.json({
@@ -493,7 +527,10 @@ export async function POST(request: NextRequest) {
             "SEARCH",
             `Attempting to geocode zipcode: ${normalizedParams.zipCode.trim()}`,
           );
+          startTiming("geocode_zipcode");
           zipLocation = await geocodeAddress(normalizedParams.zipCode.trim());
+          const geocodeTime = endTiming("geocode_zipcode");
+          console.log(`Geocoding zipcode took ${geocodeTime}ms`);
           debugLog("SEARCH", "Successfully geocoded zipcode to:", zipLocation);
           filterByDistance = true;
         } catch (error) {
@@ -514,6 +551,7 @@ export async function POST(request: NextRequest) {
       }
 
       // Build search pipeline
+      startTiming("build_pipeline");
       const searchClause = buildSearchPipeline(normalizedParams);
       const projectionStage = createProjectionStage();
 
@@ -521,15 +559,19 @@ export async function POST(request: NextRequest) {
       const basePipeline: PipelineStage[] = [searchClause, projectionStage];
       // Add pagination to pipeline
       const pipeline = addPaginationToPipeline(basePipeline, pagination);
+      endTiming("build_pipeline");
 
       // If we need to filter by distance, we'll need to post-process the results
       const postProcessDistanceFilter = false;
 
       // Execute the query - cast pipeline to avoid type issues with Prisma
       try {
+        startTiming("mongodb_aggregate_raw");
         let result = await prisma.resource.aggregateRaw({
           pipeline: pipeline as unknown as InputJsonValue[],
         });
+        const aggregateTime = endTiming("mongodb_aggregate_raw");
+        console.log(`MongoDB aggregateRaw took ${aggregateTime}ms`);
 
         // If we need to filter by distance, post-process the results
         if (filterByDistance && zipLocation) {
@@ -546,6 +588,7 @@ export async function POST(request: NextRequest) {
           }
 
           // Process resources in batches to avoid overwhelming the geocoding API
+          startTiming("distance_filtering");
           const BATCH_SIZE = 10;
           let filteredResources: any[] = [];
 
@@ -614,6 +657,10 @@ export async function POST(request: NextRequest) {
 
           // Filter out null values
           const validResources = filteredResources.filter(Boolean);
+          const filterTime = endTiming("distance_filtering");
+          console.log(
+            `Distance filtering took ${filterTime}ms for ${resources.length} resources, found ${validResources.length} valid resources`,
+          );
 
           // Create a new result with the filtered resources
           if (
@@ -632,7 +679,9 @@ export async function POST(request: NextRequest) {
         }
 
         // Format the response
+        startTiming("format_response");
         const formattedResponse = formatResponse(result, pagination);
+        endTiming("format_response");
 
         // Create the response
         const response = NextResponse.json(formattedResponse);
@@ -706,7 +755,10 @@ export async function POST(request: NextRequest) {
           // Get coordinates for the provided zip code
           try {
             debugLog("DISTANCE", `Geocoding zipCode: ${zipCode.trim()}`);
+            startTiming("geocode_zipcode_fallback");
             zipLocation = await geocodeAddress(zipCode.trim());
+            const geocodeTime = endTiming("geocode_zipcode_fallback");
+            console.log(`Geocoding zipcode in fallback took ${geocodeTime}ms`);
             debugLog("DISTANCE", "Geocoded zipCode to:", zipLocation);
             filterByDistance = true;
             // We don't filter by zipCode in the query, we'll do it after getting results
@@ -735,7 +787,9 @@ export async function POST(request: NextRequest) {
 
           // For MongoDB, we need to use a different approach for nested JSON fields
           // Let's find all resources and filter them manually
+          startTiming("fetch_all_resources_for_zip_filter");
           const allResources = await prisma.resource.findMany();
+          endTiming("fetch_all_resources_for_zip_filter");
 
           // Filter resources with matching zipcode
           const matchingResources = allResources.filter((resource) => {
@@ -784,7 +838,9 @@ export async function POST(request: NextRequest) {
       }
 
       // Debug query to find resources with zipcode 74104 using manual filtering
+      startTiming("fetch_all_resources_for_debug");
       const allResourcesForDebug = await prisma.resource.findMany();
+      endTiming("fetch_all_resources_for_debug");
 
       // Filter resources with zipcode 74104
       const zipCodeResources = allResourcesForDebug.filter((resource) => {
@@ -813,10 +869,15 @@ export async function POST(request: NextRequest) {
       );
 
       // Get all resources first
+      startTiming("fetch_filtered_resources");
       let allResources = await prisma.resource.findMany({
         where: whereClause,
         orderBy: { createdAt: "desc" },
       });
+      const fetchTime = endTiming("fetch_filtered_resources");
+      console.log(
+        `Fetching filtered resources took ${fetchTime}ms, found ${allResources.length} resources`,
+      );
 
       debugLog("DISTANCE", `All resources count: ${allResources.length}`);
 
@@ -869,6 +930,7 @@ export async function POST(request: NextRequest) {
           `Processing ${resources.length} resources for distance filtering`,
         );
         // Process resources in batches to avoid overwhelming the geocoding API
+        startTiming("distance_filtering_fallback");
         const BATCH_SIZE = 10;
         let resourcesWithDistance: any[] = [];
 
@@ -933,7 +995,14 @@ export async function POST(request: NextRequest) {
                   "DISTANCE",
                   `Geocoding resource address: ${resourceAddress}`,
                 );
+                // Use a unique identifier instead of index which isn't available here
+                startTiming(
+                  `geocode_resource_fallback_${resource.id || "unknown"}`,
+                );
                 const resourceLocation = await geocodeAddress(resourceAddress);
+                endTiming(
+                  `geocode_resource_fallback_${resource.id || "unknown"}`,
+                );
                 debugLog("DISTANCE", "Resource location:", resourceLocation);
 
                 // Check if the resource is within the specified distance
@@ -975,10 +1044,20 @@ export async function POST(request: NextRequest) {
           }
         }
 
+        const batchProcessingTime = endTiming("distance_filtering_fallback");
+        console.log(
+          `Batch processing for distance filtering took ${batchProcessingTime}ms`,
+        );
+
         // Filter resources that are within the specified distance
+        startTiming("filter_by_distance");
         const filteredResources = resourcesWithDistance.filter(
           (resource) => resource.withinDistance,
         ) as any[];
+        const filterTime = endTiming("filter_by_distance");
+        console.log(
+          `Filtering by distance took ${filterTime}ms, found ${filteredResources.length} resources within distance`,
+        );
         debugLog(
           "DISTANCE",
           `Filtered resources: ${filteredResources.length} out of ${resourcesWithDistance.length}`,
@@ -1033,6 +1112,8 @@ export async function POST(request: NextRequest) {
         response.headers.set("Access-Control-Allow-Credentials", "true");
       }
 
+      const totalTime = endTiming("total_request");
+      console.log(`Total request processing time: ${totalTime}ms`);
       return response;
     }
   } catch (error) {
