@@ -44,7 +44,6 @@ export const authOptions: NextAuthOptions = {
             console.log("Authorization failed: User account is frozen.");
             return null;
           }
-          
           // Check if email is verified (only if OTP verification is enabled)
           if (isOtpVerificationEnabled() && !user.isEmailVerified) {
             console.log("Authorization failed: Email not verified.");

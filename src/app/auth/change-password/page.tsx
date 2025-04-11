@@ -93,7 +93,7 @@ const ChangePasswordPage: React.FC = () => {
 
   const handleResendOTP = async () => {
     setError("");
-    
+
     try {
       const response = await fetch("/api/auth/otp/generate", {
         method: "POST",
@@ -120,102 +120,119 @@ const ChangePasswordPage: React.FC = () => {
       <div className="max-w-md w-full space-y-8 p-10 bg-gray-900 rounded-xl shadow-lg">
         {/* Logo */}
         <div className="flex justify-center">
-          <Image
-            src={LogoImage}
-            alt="Logo"
-            width={120}
-            height={120}
-            priority
-          />
+          <Image src={LogoImage} alt="Logo" width={120} height={120} priority />
         </div>
         <div className="mt-6 text-center text-3xl font-extrabold font-univers">
           {showOtpForm ? "Verify Your Identity" : "Change Your Password"}
         </div>
-        
+
         {/* Error and Success Messages */}
-        {error && <div className="text-red-500 bg-red-900/30 p-3 rounded-lg text-center font-anonymous-pro">{error}</div>}
-        {success && <div className="text-green-500 bg-green-900/30 p-3 rounded-lg text-center font-anonymous-pro">{success}</div>}
-        
+        {error && (
+          <div className="text-red-500 bg-red-900/30 p-3 rounded-lg text-center font-anonymous-pro">
+            {error}
+          </div>
+        )}
+        {success && (
+          <div className="text-green-500 bg-green-900/30 p-3 rounded-lg text-center font-anonymous-pro">
+            {success}
+          </div>
+        )}
+
         {!showOtpForm ? (
-          <form onSubmit={handleInitiatePasswordChange} className="space-y-6 font-anonymous-pro">
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-300">
-              Email
-            </label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              autoComplete="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 block w-full px-4 py-3 border border-gray-700 bg-neutral-800 text-white rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
-            />
-          </div>
-          <div>
-            <label
-              htmlFor="currentPassword"
-              className="block text-sm font-medium text-gray-300"
-            >
-              Current Password
-            </label>
-            <input
-              id="currentPassword"
-              name="currentPassword"
-              type="password"
-              autoComplete="current-password"
-              required
-              value={currentPassword}
-              onChange={(e) => setCurrentPassword(e.target.value)}
-              className="mt-1 block w-full px-4 py-3 border border-gray-700 bg-neutral-800 text-white rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
-            />
-          </div>
-          <div>
-            <label htmlFor="newPassword" className="block text-sm font-medium text-gray-300">
-              New Password
-            </label>
-            <input
-              id="newPassword"
-              name="newPassword"
-              type="password"
-              autoComplete="new-password"
-              required
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              className="mt-1 block w-full px-4 py-3 border border-gray-700 bg-neutral-800 text-white rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
-            />
-          </div>
-          <div>
-            <label
-              htmlFor="confirmPassword"
-              className="block text-sm font-medium text-gray-300"
-            >
-              Confirm New Password
-            </label>
-            <input
-              id="confirmPassword"
-              name="confirmPassword"
-              type="password"
-              autoComplete="new-password"
-              required
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="mt-1 block w-full px-4 py-3 border border-gray-700 bg-neutral-800 text-white rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
-            />
-          </div>
-          <button
-            type="submit"
-            className="w-full py-3 px-4 rounded-full bg-neutral-800 text-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500 btn-gradient-hover"
+          <form
+            onSubmit={handleInitiatePasswordChange}
+            className="space-y-6 font-anonymous-pro"
           >
-            Change Password
-          </button>
+            <div>
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-300"
+              >
+                Email
+              </label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="mt-1 block w-full px-4 py-3 border border-gray-700 bg-neutral-800 text-white rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="currentPassword"
+                className="block text-sm font-medium text-gray-300"
+              >
+                Current Password
+              </label>
+              <input
+                id="currentPassword"
+                name="currentPassword"
+                type="password"
+                autoComplete="current-password"
+                required
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                className="mt-1 block w-full px-4 py-3 border border-gray-700 bg-neutral-800 text-white rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="newPassword"
+                className="block text-sm font-medium text-gray-300"
+              >
+                New Password
+              </label>
+              <input
+                id="newPassword"
+                name="newPassword"
+                type="password"
+                autoComplete="new-password"
+                required
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                className="mt-1 block w-full px-4 py-3 border border-gray-700 bg-neutral-800 text-white rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="confirmPassword"
+                className="block text-sm font-medium text-gray-300"
+              >
+                Confirm New Password
+              </label>
+              <input
+                id="confirmPassword"
+                name="confirmPassword"
+                type="password"
+                autoComplete="new-password"
+                required
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="mt-1 block w-full px-4 py-3 border border-gray-700 bg-neutral-800 text-white rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
+              />
+            </div>
+            <button
+              type="submit"
+              className="w-full py-3 px-4 rounded-full bg-neutral-800 text-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500 btn-gradient-hover"
+            >
+              Change Password
+            </button>
           </form>
         ) : (
           /* OTP Verification Form */
-          <form onSubmit={handleCompletePasswordChange} className="space-y-6 font-anonymous-pro">
+          <form
+            onSubmit={handleCompletePasswordChange}
+            className="space-y-6 font-anonymous-pro"
+          >
             <div>
-              <label htmlFor="otp" className="block text-sm font-medium text-gray-300">
+              <label
+                htmlFor="otp"
+                className="block text-sm font-medium text-gray-300"
+              >
                 Verification Code
               </label>
               <input
@@ -240,21 +257,24 @@ const ChangePasswordPage: React.FC = () => {
             >
               {isVerifying ? "Verifying..." : "Verify & Change Password"}
             </button>
-            
+
             <div className="text-center">
               <button
                 type="button"
                 onClick={handleResendOTP}
                 className="text-pink-400 hover:text-pink-300 transition-colors text-sm"
               >
-                Didn't receive the code? Resend
+                Didn&apos;t receive the code? Resend
               </button>
             </div>
           </form>
         )}
         <hr className="hr-gradient-hover my-6" />
         <div className="text-center text-sm font-anonymous-pro">
-          <Link href="/auth/signin" className="text-pink-400 hover:text-pink-300 transition-colors">
+          <Link
+            href="/auth/signin"
+            className="text-pink-400 hover:text-pink-300 transition-colors"
+          >
             Back to Sign In
           </Link>
         </div>

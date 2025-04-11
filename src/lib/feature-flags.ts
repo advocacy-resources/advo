@@ -8,5 +8,5 @@
  */
 export function isOtpVerificationEnabled(): boolean {
   // Convert string to boolean, default to false if not set
-  return process.env.ENABLE_OTP_VERIFICATION === 'true';
+  return process.env.ENABLE_OTP_VERIFICATION === "true";
 }

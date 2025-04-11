@@ -1,6 +1,6 @@
-import { randomBytes } from 'crypto';
+import { randomBytes } from "crypto";
 import prisma from "@/prisma/client";
-import nodemailer from 'nodemailer';
+import nodemailer from "nodemailer";
 
 // Generate a random 6-digit OTP
 export function generateOTP(): string {
@@ -12,7 +12,7 @@ export function generateOTP(): string {
 export async function saveOTP(userId: string, otp: string): Promise<void> {
   // OTP expires in 10 minutes
   const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
-  
+
   await prisma.user.update({
     where: { id: userId },
     data: {
@@ -64,13 +64,16 @@ export async function markEmailAsVerified(userId: string): Promise<void> {
 }
 
 // Send OTP via email
-export async function sendOTPEmail(email: string, otp: string): Promise<boolean> {
+export async function sendOTPEmail(
+  email: string,
+  otp: string,
+): Promise<boolean> {
   try {
     // Create a transporter
     const transporter = nodemailer.createTransport({
       host: process.env.EMAIL_SERVER_HOST,
       port: Number(process.env.EMAIL_SERVER_PORT),
-      secure: process.env.EMAIL_SERVER_SECURE === 'true',
+      secure: process.env.EMAIL_SERVER_SECURE === "true",
       auth: {
         user: process.env.EMAIL_SERVER_USER,
         pass: process.env.EMAIL_SERVER_PASSWORD,
@@ -81,7 +84,7 @@ export async function sendOTPEmail(email: string, otp: string): Promise<boolean>
     await transporter.sendMail({
       from: process.env.EMAIL_FROM,
       to: email,
-      subject: 'Your Verification Code',
+      subject: "Your Verification Code",
       text: `Your verification code is: ${otp}. It will expire in 10 minutes.`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9; border-radius: 10px;">
@@ -97,7 +100,7 @@ export async function sendOTPEmail(email: string, otp: string): Promise<boolean>
 
     return true;
   } catch (error) {
-    console.error('Error sending email:', error);
+    console.error("Error sending email:", error);
     return false;
   }
 }
