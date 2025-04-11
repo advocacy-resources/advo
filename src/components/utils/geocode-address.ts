@@ -1,5 +1,8 @@
 import axios from "axios";
 
+// Simple in-memory cache for geocoded addresses
+const geocodeCache: Record<string, { latitude: number; longitude: number }> = {};
+
 // Debug configuration
 const DEBUG = {
   enabled: false,
@@ -21,6 +24,15 @@ const geocodeAddress = async (
   address: string,
 ): Promise<{ latitude: number; longitude: number }> => {
   debugLog("Geocoding address:", address);
+  
+  // Normalize the address to ensure consistent cache keys
+  const normalizedAddress = address.trim().toLowerCase();
+  
+  // Check if we have this address cached
+  if (geocodeCache[normalizedAddress]) {
+    debugLog("Using cached geocode result for:", normalizedAddress);
+    return geocodeCache[normalizedAddress];
+  }
 
   // Get API key from environment variable
   const apiKey = process.env.GOOGLE_MAPS_API_KEY;
@@ -33,7 +45,7 @@ const geocodeAddress = async (
   }
 
   // Handle empty or invalid addresses
-  if (!address || address.trim() === "") {
+  if (!address || normalizedAddress === "") {
     console.error("Empty or invalid address provided");
     throw new Error("Empty or invalid address provided for geocoding");
   }
@@ -57,10 +69,15 @@ const geocodeAddress = async (
     ) {
       const location = response.data.results[0].geometry.location;
       debugLog("Successfully geocoded to:", location);
-      return {
+      
+      // Cache the result
+      const result = {
         latitude: location.lat,
         longitude: location.lng,
       };
+      geocodeCache[normalizedAddress] = result;
+      
+      return result;
     } else {
       console.error(`Geocoding error: ${response.data.status}`);
       debugLog("Full error response:", response.data);
