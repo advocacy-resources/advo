@@ -50,24 +50,15 @@ export default async function RecommendationsArchivePage() {
         </div>
         <a
           href="/admin/recommendations"
-          className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-md transition-colors"
+          className="bg-neutral-800 text-white rounded-full px-4 py-2 btn-gradient-hover inline-block"
         >
           Back to Pending
         </a>
       </div>
-
-      {recommendations.length === 0 ? (
-        <div className="bg-gray-100 p-8 rounded-lg text-center">
-          <p className="text-gray-600 text-lg">
-            No archived recommendations found.
-          </p>
-        </div>
-      ) : (
-        <RecommendationsTable
-          recommendations={recommendations}
-          showActions={false}
-        />
-      )}
+<RecommendationsTable
+  recommendations={recommendations}
+  showActions={false}
+/>
     </div>
   );
 }

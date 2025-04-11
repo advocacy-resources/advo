@@ -111,7 +111,7 @@ export default function CreateUserPage() {
         <div className="flex space-x-2">
           <Button
             variant="outline"
-            className="bg-green-700 hover:bg-green-800 text-white border-0"
+            className="bg-green-700 hover:bg-green-800 text-white border-0 px-4 py-2 rounded-full"
             onClick={handleSave}
             disabled={isSaving}
           >
@@ -119,7 +119,7 @@ export default function CreateUserPage() {
           </Button>
           <Button
             variant="outline"
-            className="bg-gray-700 hover:bg-gray-800 text-white border-0"
+            className="bg-neutral-800 hover:bg-neutral-700 text-white border-0 px-4 py-2 rounded-full"
             onClick={handleCancel}
             disabled={isSaving}
           >
@@ -187,7 +187,7 @@ export default function CreateUserPage() {
                   />
                   <button
                     type="button"
-                    className="absolute right-2 top-2 text-gray-400"
+                    className="absolute right-2 top-1.5 text-xs px-2 py-1 bg-neutral-800 hover:bg-neutral-700 text-white rounded-full"
                     onClick={() => setPasswordVisible(!passwordVisible)}
                   >
                     {passwordVisible ? "Hide" : "Show"}

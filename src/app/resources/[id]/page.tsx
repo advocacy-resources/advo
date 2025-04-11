@@ -1,12 +1,18 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import "leaflet/dist/leaflet.css";
 import dynamic from "next/dynamic";
 import ReviewList from "@/components/resources/ReviewList";
 import ReviewForm from "@/components/resources/ReviewForm";
 import { Resource } from "@/interfaces/resource";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import {
+  fetchResourceById,
+  selectResourceById,
+  selectResourcesState,
+} from "@/store/slices/resourcesSlice";
 
 // Dynamically import the MapComponent to avoid SSR issues
 const MapComponent = dynamic(() => import("@/components/sidebar/SidebarMap"), {
@@ -64,6 +70,11 @@ const VerifiedCircle = () => (
 );
 
 const ResourcePage = ({ params }: ResourcePageProps) => {
+  const dispatch = useAppDispatch();
+  const resourceFromStore = useAppSelector((state) =>
+    selectResourceById(state, params.id),
+  );
+  const resourcesState = useAppSelector(selectResourcesState);
   const [resource, setResource] = useState<Resource | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -75,35 +86,69 @@ const ResourcePage = ({ params }: ResourcePageProps) => {
   const defaultBanner = "/resourcebannerimage.png";
   const defaultProfilePhoto = "/images/advo-logo-color.png";
 
-  // Fetch resource data
-  React.useEffect(() => {
+  // Fetch resource data using Redux
+  useEffect(() => {
     const fetchResourceData = async () => {
       try {
-        const response = await fetch(`/api/v1/resources/${params.id}`);
-        if (!response.ok) {
-          throw new Error("Failed to fetch resource");
-        }
-        const data = await response.json();
-        console.log("Resource data:", data.resource);
-        console.log("Profile photo exists:", !!data.resource.profilePhoto);
-        console.log("Banner image exists:", !!data.resource.bannerImage);
-        setResource(data.resource);
+        // Check if we already have the resource with detailed data in the store
+        const hasDetailedData = resourcesState.detailsLoaded[params.id];
 
-        // Handle address geocoding
-        const address = data.resource.address as unknown as Address;
-        const addressString =
-          address && address.street && address.city && address.state
-            ? `${address.street}, ${address.city}, ${address.state}${address.zip ? " " + address.zip : ""}`
-            : "";
-
-        if (addressString) {
-          const geocoded = await fetch(
-            `/api/geocode?address=${encodeURIComponent(addressString)}`,
+        // Only use the resource from the store if it has detailed data loaded
+        if (resourceFromStore && hasDetailedData) {
+          console.log(
+            "Using resource from store with detailed data:",
+            resourceFromStore,
           );
-          if (geocoded.ok) {
-            const locationData = await geocoded.json();
-            setLocation(locationData);
+          setResource(resourceFromStore);
+
+          // Handle address geocoding
+          const address = resourceFromStore.address as unknown as Address;
+          const addressString =
+            address && address.street && address.city && address.state
+              ? `${address.street}, ${address.city}, ${address.state}${address.zip ? " " + address.zip : ""}`
+              : "";
+
+          if (addressString) {
+            const geocoded = await fetch(
+              `/api/geocode?address=${encodeURIComponent(addressString)}`,
+            );
+            if (geocoded.ok) {
+              const locationData = await geocoded.json();
+              setLocation(locationData);
+            }
           }
+
+          setLoading(false);
+          return;
+        }
+
+        console.log("Fetching resource from API:", params.id);
+
+        // Otherwise, fetch it using the Redux action
+        const resultAction = await dispatch(fetchResourceById(params.id));
+
+        if (fetchResourceById.fulfilled.match(resultAction)) {
+          setResource(resultAction.payload.resource);
+
+          // Handle address geocoding
+          const address = resultAction.payload.resource
+            .address as unknown as Address;
+          const addressString =
+            address && address.street && address.city && address.state
+              ? `${address.street}, ${address.city}, ${address.state}${address.zip ? " " + address.zip : ""}`
+              : "";
+
+          if (addressString) {
+            const geocoded = await fetch(
+              `/api/geocode?address=${encodeURIComponent(addressString)}`,
+            );
+            if (geocoded.ok) {
+              const locationData = await geocoded.json();
+              setLocation(locationData);
+            }
+          }
+        } else {
+          setError("Failed to fetch resource");
         }
       } catch (err) {
         setError((err as Error).message);
@@ -113,7 +158,7 @@ const ResourcePage = ({ params }: ResourcePageProps) => {
     };
 
     fetchResourceData();
-  }, [params.id]);
+  }, [params.id, dispatch, resourceFromStore]);
 
   // Handle review refresh
   const handleReviewAdded = () => {
@@ -239,26 +284,34 @@ const ResourcePage = ({ params }: ResourcePageProps) => {
           <h2 className="text-xl md:text-2xl font-semibold mb-3 text-center sm:text-left">
             Contact Information
           </h2>
-          {contact.phone && (
-            <p className="text-base md:text-lg">Phone: {contact.phone}</p>
-          )}
-          {contact.email && (
-            <p className="text-base md:text-lg">Email: {contact.email}</p>
-          )}
-          {contact.website && (
-            <p className="text-base md:text-lg">
-              Website:{" "}
-              <a
-                href={`https://${contact.website}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-500 underline"
-              >
-                {contact.website}
-              </a>
-            </p>
-          )}
-          {!contact.phone && !contact.email && !contact.website && (
+          {contact ? (
+            <>
+              {contact.phone && (
+                <p className="text-base md:text-lg">Phone: {contact.phone}</p>
+              )}
+              {contact.email && (
+                <p className="text-base md:text-lg">Email: {contact.email}</p>
+              )}
+              {contact.website && (
+                <p className="text-base md:text-lg">
+                  Website:{" "}
+                  <a
+                    href={`https://${contact.website}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-500 underline"
+                  >
+                    {contact.website}
+                  </a>
+                </p>
+              )}
+              {!contact.phone && !contact.email && !contact.website && (
+                <p className="text-base md:text-lg text-red-500">
+                  Contact information not available.
+                </p>
+              )}
+            </>
+          ) : (
             <p className="text-base md:text-lg text-red-500">
               Contact information not available.
             </p>

@@ -120,3 +120,47 @@ h6 {
     transform: scale(0.97);
   }
 }
+
+/* Resource card responsive styles */
+@media (max-width: 640px) {
+  [data-testid="resource-card"] {
+    height: 420px !important; /* Fixed height on mobile */
+    max-height: 420px !important;
+  }
+  
+  [data-testid="resource-card"] .line-clamp-3 {
+    -webkit-line-clamp: 2; /* Show fewer lines on mobile */
+  }
+}
+
+/* Horizontal rule gradient animation */
+.hr-gradient-hover {
+  position: relative;
+  height: 2px;
+  background-color: #4b5563; /* gray-600 as default color */
+  border: 0;
+  border-radius: 9999px; /* rounded-full */
+  overflow: hidden;
+  margin: 1rem 0;
+}
+
+.hr-gradient-hover::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(to right, #facc15, #f97316, #ec4899);
+  width: 0;
+  height: 100%;
+  transition: all 0.5s ease;
+  z-index: 1;
+  border-radius: 9999px; /* rounded-full */
+}
+
+/* Parent hover triggers the gradient animation */
+.hover\:bg-gray-800:hover .hr-gradient-hover::before {
+  width: 100%;
+  transition-delay: 0.1s;
+}

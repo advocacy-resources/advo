@@ -5,11 +5,14 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Logo from "../../assets/myAdvo-peachWhite.svg";
+import { useAppDispatch } from "@/store/hooks";
+import { setSearchParams } from "@/store/slices/resourcesSlice";
 import { X } from "lucide-react";
 
 function Navbar() {
   const { data: session } = useSession();
   const router = useRouter();
+  const dispatch = useAppDispatch();
 
   // Consolidated search state for better maintainability
   const [searchParams, setSearchParams] = useState({
@@ -92,7 +95,14 @@ function Navbar() {
             alt="The myAdvo Logo."
             height={40}
             className="cursor-pointer"
-            onClick={() => router.push("/")}
+            onClick={() => {
+              // Reset search parameters in Redux store
+              dispatch(setSearchParams({
+                category: [],
+                type: []
+              }));
+              router.push("/");
+            }}
           />
 
           {/* Mobile Menu Button */}
@@ -196,7 +206,7 @@ function Navbar() {
         <form
           onSubmit={handleSearch}
           id="mobile-search-form"
-          className="flex flex-col sm:flex-row gap-2"
+          className="flex flex-col sm:flex-row sm:overflow-hidden sm:rounded-full"
         >
           <input
             type="text"
@@ -209,7 +219,7 @@ function Navbar() {
                 description: e.target.value,
               }))
             }
-            className="px-4 py-2 border border-gray-300 focus:outline-none bg-neutral-800 text-white placeholder:text-gray-300"
+            className="px-4 py-2 border border-gray-600 focus:outline-none bg-neutral-800 text-white placeholder:text-gray-300 sm:rounded-l-full rounded-t-lg sm:rounded-t-none mb-2 sm:mb-0"
             aria-label="Search terms"
             disabled={isSearching}
           />
@@ -221,13 +231,17 @@ function Navbar() {
             onChange={(e) =>
               setSearchParams((prev) => ({ ...prev, zipCode: e.target.value }))
             }
-            className="px-4 py-2 border border-gray-300 focus:outline-none bg-neutral-800 text-white placeholder:text-gray-300"
+            className="px-4 py-2 border border-gray-600 focus:outline-none bg-neutral-800 text-white placeholder:text-gray-300 sm:border-l-0 sm:border-r-0 rounded-b-lg sm:rounded-b-none sm:rounded-none mb-2 sm:mb-0"
             aria-label="Zip code"
             pattern="[0-9]{5}"
             title="Five digit zip code"
             disabled={isSearching}
           />
-          <button type="submit" className={buttonClass} disabled={isSearching}>
+          <button
+            type="submit"
+            className="bg-neutral-800 text-white rounded-full sm:rounded-l-none px-4 py-2 btn-gradient-hover"
+            disabled={isSearching}
+          >
             {isSearching ? "Searching..." : "Search"}
           </button>
           {searchError && (
@@ -249,6 +263,11 @@ function Navbar() {
             width={120}
             className="cursor-pointer m-8 p-8"
             onClick={() => {
+              // Reset search parameters in Redux store
+              dispatch(setSearchParams({
+                category: [],
+                type: []
+              }));
               router.push("/");
             }}
             priority
@@ -260,7 +279,7 @@ function Navbar() {
           <form
             onSubmit={handleSearch}
             id="desktop-search-form"
-            className="flex shadow-sm overflow-hidden"
+            className="flex shadow-sm overflow-hidden rounded-full"
           >
             <input
               type="text"
@@ -273,7 +292,7 @@ function Navbar() {
                   description: e.target.value,
                 }))
               }
-              className="px-4 py-2 border-r border-gray-300 focus:outline-none bg-neutral-800 text-white placeholder:text-gray-300"
+              className="px-4 py-2 border-r border-gray-600 focus:outline-none bg-neutral-800 text-white placeholder:text-gray-300 rounded-l-full"
               aria-label="Search terms"
               disabled={isSearching}
             />
@@ -296,7 +315,7 @@ function Navbar() {
             />
             <button
               type="submit"
-              className={buttonClass}
+              className="bg-neutral-800 text-white px-4 py-2 rounded-r-full btn-gradient-hover"
               disabled={isSearching}
             >
               {isSearching ? "Searching..." : "Search"}

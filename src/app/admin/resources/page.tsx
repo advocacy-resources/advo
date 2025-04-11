@@ -4,6 +4,9 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Resource } from "@/interfaces/resource";
+import ResourceDetailsModal from "@/components/resources/ResourceDetailsModal";
+import ResourceCreateModal from "@/components/resources/ResourceCreateModal";
+
 export default function AdminResourcesPage() {
   const [resources, setResources] = useState<Resource[]>([]);
   const [loading, setLoading] = useState(true);
@@ -14,6 +17,11 @@ export default function AdminResourcesPage() {
   const [limit] = useState(10);
   const [resourceToDelete, setResourceToDelete] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [selectedResource, setSelectedResource] = useState<Resource | null>(
+    null,
+  );
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   const fetchResources = async () => {
     try {
@@ -73,6 +81,23 @@ export default function AdminResourcesPage() {
     }
   };
 
+  const handleViewDetails = (resource: Resource) => {
+    setSelectedResource(resource);
+    setIsModalOpen(true);
+  };
+
+  const handleResourceUpdate = (updatedResource: Resource) => {
+    // Update the resource in the local state
+    setResources(
+      resources.map((r) => (r.id === updatedResource.id ? updatedResource : r)),
+    );
+  };
+
+  const handleResourceCreated = (createdResource: Resource) => {
+    // Add the newly created resource to the list and refresh
+    fetchResources();
+  };
+
   const handleCancelDelete = () => {
     setResourceToDelete(null);
   };
@@ -91,7 +116,7 @@ export default function AdminResourcesPage() {
           <div className="flex space-x-3">
             <Button
               variant="destructive"
-              className="bg-red-700 hover:bg-red-800"
+              className="bg-red-700 hover:bg-red-800 px-4 py-2 rounded-full"
               onClick={handleConfirmDelete}
               disabled={isDeleting}
             >
@@ -99,7 +124,7 @@ export default function AdminResourcesPage() {
             </Button>
             <Button
               variant="outline"
-              className="bg-gray-700 hover:bg-gray-800 text-white border-0"
+              className="bg-neutral-800 hover:bg-neutral-700 text-white border-0 px-4 py-2 rounded-full"
               onClick={handleCancelDelete}
               disabled={isDeleting}
             >
@@ -113,11 +138,12 @@ export default function AdminResourcesPage() {
         <h2 className="text-2xl font-bold text-white mb-4 md:mb-0">
           Resources Management
         </h2>
-        <Link href="/admin/resources/create">
-          <Button className="bg-blue-600 hover:bg-blue-700">
-            Add New Resource
-          </Button>
-        </Link>
+        <Button
+          className="bg-neutral-800 text-white rounded-full px-4 py-2 btn-gradient-hover"
+          onClick={() => setIsCreateModalOpen(true)}
+        >
+          Add New Resource
+        </Button>
       </div>
 
       {error && (
@@ -182,17 +208,24 @@ export default function AdminResourcesPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                       <div className="flex space-x-2">
+                        <Button
+                          variant="outline"
+                          className="text-xs px-3 py-1.5 bg-neutral-800 hover:bg-neutral-700 text-white border-0 whitespace-nowrap overflow-hidden"
+                          onClick={() => handleViewDetails(resource)}
+                        >
+                          View Details
+                        </Button>
                         <Link href={`/admin/resources/${resource.id}`}>
                           <Button
                             variant="outline"
-                            className="text-xs px-2 py-1 bg-transparent border-gray-500 text-gray-300 hover:bg-gray-700"
+                            className="text-xs px-3 py-1.5 bg-transparent border-gray-500 text-gray-300 hover:bg-gray-700"
                           >
                             Edit
                           </Button>
                         </Link>
                         <Button
                           variant="destructive"
-                          className="text-xs px-2 py-1 bg-red-700 hover:bg-red-800"
+                          className="text-xs px-3 py-1.5 bg-red-700 hover:bg-red-800"
                           onClick={() => handleDeleteClick(resource.id)}
                         >
                           Delete
@@ -215,7 +248,7 @@ export default function AdminResourcesPage() {
           <div className="flex space-x-2">
             <Button
               variant="outline"
-              className="text-xs px-2 py-1 bg-transparent border-gray-500 text-gray-300 hover:bg-gray-700"
+              className="text-xs px-3 py-1.5 bg-neutral-800 hover:bg-neutral-700 text-white border-0"
               onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
               disabled={page === 1}
             >
@@ -223,7 +256,7 @@ export default function AdminResourcesPage() {
             </Button>
             <Button
               variant="outline"
-              className="text-xs px-2 py-1 bg-transparent border-gray-500 text-gray-300 hover:bg-gray-700"
+              className="text-xs px-3 py-1.5 bg-neutral-800 hover:bg-neutral-700 text-white border-0"
               onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
               disabled={page === totalPages}
             >
@@ -232,6 +265,20 @@ export default function AdminResourcesPage() {
           </div>
         </div>
       </div>
+
+      {/* Resource Details Modal */}
+      <ResourceDetailsModal
+        isOpen={isModalOpen}
+        onClose={setIsModalOpen}
+        resource={selectedResource}
+        onResourceUpdate={handleResourceUpdate}
+      />
+      {/* Resource Create Modal */}
+      <ResourceCreateModal
+        isOpen={isCreateModalOpen}
+        onClose={setIsCreateModalOpen}
+        onResourceCreated={handleResourceCreated}
+      />
     </div>
   );
 }

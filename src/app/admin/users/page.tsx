@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { IUser } from "@/interfaces/user";
-import Link from "next/link";
+import UserDetailsModal from "@/components/users/UserDetailsModal";
+import UserCreateModal from "@/components/users/UserCreateModal";
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<IUser[]>([]);
@@ -15,6 +16,9 @@ export default function AdminUsersPage() {
   const [totalItems, setTotalItems] = useState(0);
   const [savingUsers, setSavingUsers] = useState<Record<string, boolean>>({});
   const [limit] = useState(10);
+  const [selectedUser, setSelectedUser] = useState<IUser | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   useEffect(() => {
     fetchUsers();
@@ -98,6 +102,20 @@ export default function AdminUsersPage() {
     delete newEditedUsers[userId];
     setEditedUsers(newEditedUsers);
   };
+  const handleViewDetails = (user: IUser) => {
+    setSelectedUser(user);
+    setIsModalOpen(true);
+  };
+
+  const handleUserUpdate = (updatedUser: IUser) => {
+    // Update the user in the local state
+    setUsers(users.map((u) => (u.id === updatedUser.id ? updatedUser : u)));
+  };
+
+  const handleUserCreated = (createdUser: IUser) => {
+    // Add the newly created user to the list and refresh
+    fetchUsers();
+  };
 
   return (
     <div>
@@ -105,11 +123,12 @@ export default function AdminUsersPage() {
         <h2 className="text-2xl font-bold text-white mb-4 md:mb-0">
           Users Management
         </h2>
-        <Link href="/admin/users/create">
-          <Button className="bg-blue-600 hover:bg-blue-700">
-            Add New User
-          </Button>
-        </Link>
+        <Button
+          className="bg-neutral-800 text-white rounded-full px-4 py-2 btn-gradient-hover"
+          onClick={() => setIsCreateModalOpen(true)}
+        >
+          Add New User
+        </Button>
       </div>
 
       {error && (
@@ -189,7 +208,7 @@ export default function AdminUsersPage() {
                           <div className="flex space-x-1">
                             <Button
                               variant="outline"
-                              className="text-xs px-1 py-0.5 bg-green-700 hover:bg-green-800 text-white border-0"
+                              className="text-xs px-3 py-1.5 bg-green-700 hover:bg-green-800 text-white border-0"
                               onClick={() => handleSaveRole(user.id)}
                               disabled={savingUsers[user.id]}
                             >
@@ -197,7 +216,7 @@ export default function AdminUsersPage() {
                             </Button>
                             <Button
                               variant="outline"
-                              className="text-xs px-1 py-0.5 bg-gray-700 hover:bg-gray-800 text-white border-0"
+                              className="text-xs px-3 py-1.5 bg-neutral-800 hover:bg-neutral-700 text-white border-0"
                               onClick={() => handleCancelEdit(user.id)}
                               disabled={savingUsers[user.id]}
                             >
@@ -220,10 +239,8 @@ export default function AdminUsersPage() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <Button
                         variant="outline"
-                        className="text-xs px-2 py-1 bg-transparent border-gray-500 text-gray-300 hover:bg-gray-700"
-                        onClick={() =>
-                          (window.location.href = `/admin/users/${user.id}`)
-                        }
+                        className="text-xs px-3 py-1.5 bg-neutral-800 hover:bg-neutral-700 text-white border-0 whitespace-nowrap overflow-hidden"
+                        onClick={() => handleViewDetails(user)}
                       >
                         View Details
                       </Button>
@@ -244,7 +261,7 @@ export default function AdminUsersPage() {
           <div className="flex space-x-2">
             <Button
               variant="outline"
-              className="text-xs px-2 py-1 bg-transparent border-gray-500 text-gray-300 hover:bg-gray-700"
+              className="text-xs px-3 py-1.5 bg-neutral-800 hover:bg-neutral-700 text-white border-0"
               onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
               disabled={page === 1}
             >
@@ -252,7 +269,7 @@ export default function AdminUsersPage() {
             </Button>
             <Button
               variant="outline"
-              className="text-xs px-2 py-1 bg-transparent border-gray-500 text-gray-300 hover:bg-gray-700"
+              className="text-xs px-3 py-1.5 bg-neutral-800 hover:bg-neutral-700 text-white border-0"
               onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
               disabled={page === totalPages}
             >
@@ -261,6 +278,20 @@ export default function AdminUsersPage() {
           </div>
         </div>
       </div>
+      {/* User Details Modal */}
+      <UserDetailsModal
+        isOpen={isModalOpen}
+        onClose={setIsModalOpen}
+        user={selectedUser}
+        onUserUpdate={handleUserUpdate}
+      />
+
+      {/* User Create Modal */}
+      <UserCreateModal
+        isOpen={isCreateModalOpen}
+        onClose={setIsCreateModalOpen}
+        onUserCreated={handleUserCreated}
+      />
     </div>
   );
 }

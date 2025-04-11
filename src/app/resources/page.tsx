@@ -1,5 +1,17 @@
+"use client";
+
+import { useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { Rating } from "@/enums/rating.enum";
-import ResourceCard from "@/components/resources/ResourceCard";
+import ResourceGridBase from "@/components/resources/ResourceGridBase";
+import { Resource } from "@/interfaces/resource";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import {
+  searchResources,
+  selectAllResources,
+  selectResourcesLoading,
+  selectResourcesError
+} from "@/store/slices/resourcesSlice";
 
 interface SearchResult {
   id: string | number;
@@ -15,148 +27,65 @@ interface SearchResult {
   profilePhotoUrl?: string;
 }
 
-export default async function SearchResultsPage({
-  searchParams,
-}: {
-  searchParams: { [key: string]: string | string[] | undefined };
-}) {
-  // Parse the search parameter if it exists
-  let searchQuery = {};
-  if (searchParams.search) {
-    try {
-      // Decode the JSON string from the URL
-      const searchString =
-        typeof searchParams.search === "string"
-          ? searchParams.search
-          : searchParams.search[0];
-      searchQuery = JSON.parse(decodeURIComponent(searchString));
-    } catch (error) {
-      console.error("Error parsing search parameters:", error);
-    }
-  } else {
-    // If no search parameter, use the raw query parameters
-    searchQuery = {
-      description: searchParams.description || "",
-      zipCode: searchParams.zipCode || "",
-      // Ensure category and type are always arrays
-      category: Array.isArray(searchParams.category)
-        ? searchParams.category
-        : searchParams.category
-          ? [searchParams.category]
-          : [],
-      type: Array.isArray(searchParams.type)
-        ? searchParams.type
-        : searchParams.type
-          ? [searchParams.type]
-          : [],
-    };
-  }
-  console.log("Sending search params to API:", searchQuery);
+export default function SearchResultsPage() {
+  const searchParams = useSearchParams();
+  const dispatch = useAppDispatch();
+  const resources = useAppSelector(selectAllResources);
+  const isLoading = useAppSelector(selectResourcesLoading);
+  const error = useAppSelector(selectResourcesError);
+  
+  // Debug resources
+  console.log("Resources in search page:", resources);
 
-  let results: SearchResult[] = [];
-  try {
-    // For server components, use the absolute URL based on the request
-    // In Vercel, we need to use the VERCEL_URL environment variable with https
-    // In local development, we can use a relative URL
-    let apiUrl;
-
-    // In server components, we need to use absolute URLs
-    if (process.env.VERCEL_URL) {
-      // On Vercel, use the VERCEL_URL environment variable
-      apiUrl = `https://${process.env.VERCEL_URL}/api/v1/resources/search`;
-      console.log("Using Vercel URL:", apiUrl);
+  useEffect(() => {
+    // Parse the search parameter if it exists
+    let searchQuery = {};
+    if (searchParams.get("search")) {
+      try {
+        // Decode the JSON string from the URL
+        const searchString = searchParams.get("search") || "";
+        searchQuery = JSON.parse(decodeURIComponent(searchString));
+      } catch (error) {
+        console.error("Error parsing search parameters:", error);
+      }
     } else {
-      // In local development, use localhost
-      apiUrl = "http://localhost:3000/api/v1/resources/search";
-      console.log("Using local URL:", apiUrl);
+      // If no search parameter, use the raw query parameters
+      const description = searchParams.get("description") || "";
+      const zipCode = searchParams.get("zipCode") || "";
+      const category = searchParams.getAll("category");
+      const type = searchParams.getAll("type");
+
+      searchQuery = {
+        description,
+        zipCode,
+        category,
+        type,
+      };
     }
 
-    const response = await fetch(apiUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(searchQuery),
-      cache: "no-store",
-    });
+    // Dispatch the search action
+    dispatch(searchResources(searchQuery));
+  }, [searchParams, dispatch]);
 
-    console.log("API response status:", response.status);
-
-    if (!response.ok) {
-      console.error("API responded with an error:", await response.text());
-      throw new Error(
-        `Failed to fetch search results. Status: ${response.status}`,
-      );
-    }
-
-    const responseData = await response.json();
-
-    // Check if the response has the expected format with data property
-    if (responseData && responseData.data) {
-      results = responseData.data.map((item: any) => ({
-        ...item,
-        // Ensure all required props are present
-        id: item.id || item._id,
-        // Make sure category is an array
-        category: Array.isArray(item.category)
-          ? item.category
-          : item.category
-            ? [item.category]
-            : [],
-        // Make sure type is an array if it exists, otherwise use category
-        type: Array.isArray(item.type)
-          ? item.type
-          : Array.isArray(item.category)
-            ? item.category
-            : item.category
-              ? [item.category]
-              : [],
-        rating: item.rating || Rating.NULL,
-        favored: item.favored || false,
-        profilePhoto: item.profilePhoto || null,
-        profilePhotoUrl: item.profilePhotoUrl || null,
-      }));
-    } else if (responseData.error) {
-      return (
-        <div className="flex flex-col justify-center items-center gap-4 p-4 text-white bg-black min-h-screen">
-          <div className="text-3xl font-bold">Search Results</div>
-          <div>
-            {responseData.error ||
-              "Unexpected error occurred. Please try again."}
-          </div>
-        </div>
-      );
-    } else if (Array.isArray(responseData)) {
-      // Fallback for direct array response with proper formatting
-      results = responseData.map((item: any) => ({
-        ...item,
-        // Ensure all required props are present
-        id: item.id || item._id,
-        // Make sure category is an array
-        category: Array.isArray(item.category)
-          ? item.category
-          : item.category
-            ? [item.category]
-            : [],
-        // Make sure type is an array if it exists, otherwise use category
-        type: Array.isArray(item.type)
-          ? item.type
-          : Array.isArray(item.category)
-            ? item.category
-            : item.category
-              ? [item.category]
-              : [],
-        rating: item.rating || Rating.NULL,
-        favored: item.favored || false,
-        profilePhoto: item.profilePhoto || null,
-        profilePhotoUrl: item.profilePhotoUrl || null,
-      }));
-    } else {
-      throw new Error("Unexpected response format from API");
-    }
-  } catch (error) {
-    console.error("Error fetching search results:", error);
+  if (isLoading) {
+    return (
+      <div className="flex flex-col justify-center items-center gap-4 p-4 text-white bg-black min-h-screen">
+        <div className="text-3xl font-bold">Search Results</div>
+        <div>Loading resources...</div>
+      </div>
+    );
   }
 
-  if (results.length === 0) {
+  if (error) {
+    return (
+      <div className="flex flex-col justify-center items-center gap-4 p-4 text-white bg-black min-h-screen">
+        <div className="text-3xl font-bold">Search Results</div>
+        <div>{error || "Unexpected error occurred. Please try again."}</div>
+      </div>
+    );
+  }
+
+  if (!resources || resources.length === 0) {
     return (
       <div className="flex flex-col justify-center items-center gap-4 p-4 text-white bg-black min-h-screen">
         <div className="text-3xl font-bold">Search Results</div>
@@ -165,23 +94,33 @@ export default async function SearchResultsPage({
     );
   }
 
+  // Debug the resources array before rendering
+  console.log("Resources before rendering:", {
+    count: resources?.length || 0,
+    ids: resources?.map(r => r.id),
+    names: resources?.map(r => r.name)
+  });
+  
   return (
-    <div className="flex flex-col items-center gap-6 p-6 bg-black min-h-screen text-white">
-      <div className="text-3xl font-bold">Search Results</div>
-      {results.map((result, index) => (
-        <ResourceCard
-          key={`${result.id}-${index}`} // Add index to ensure uniqueness
-          id={result.id}
-          name={result.name}
-          description={result.description}
-          category={result.category}
-          type={result.type}
-          rating={result.rating}
-          favored={result.favored}
-          profilePhoto={result.profilePhoto}
-          profilePhotoUrl={result.profilePhotoUrl}
+    <div className="bg-black min-h-screen text-white">
+      <div className="max-w-6xl mx-auto p-6">
+        <div className="mb-4 p-4 bg-gray-800 rounded">
+          <h2 className="text-xl font-bold mb-2">Debug Info:</h2>
+          <p>Resources count: {resources?.length || 0}</p>
+          <p>Resource IDs: {resources?.map(r => r.id).join(', ')}</p>
+          <p>Resource names: {resources?.map(r => r.name).join(', ')}</p>
+        </div>
+        
+        <ResourceGridBase
+          resources={resources}
+          isLoading={isLoading}
+          error={error}
+          title="Search Results"
+          className="w-full"
+          gridClassName="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"
+          emptyMessage="No results found. Please try again with different criteria."
         />
-      ))}
+      </div>
     </div>
   );
 }

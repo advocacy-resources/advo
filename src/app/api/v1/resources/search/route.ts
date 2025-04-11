@@ -322,8 +322,19 @@ export async function POST(request: NextRequest) {
   // Check if the origin is allowed
   const isAllowedOrigin =
     allowedOrigins.includes(origin) || origin.endsWith(".vercel.app");
-
+    
+  // Log MongoDB connection info (without exposing credentials)
+  console.log("MongoDB Connection Test - Environment:", process.env.NODE_ENV);
+  console.log("MongoDB Connection String exists:", !!process.env.MONGODB_URI);
+  
   try {
+    // Test database connection
+    try {
+      const testCount = await prisma.resource.count();
+      console.log("MongoDB Connection Test - Success, resource count:", testCount);
+    } catch (dbConnError) {
+      console.error("MongoDB Connection Test - Failed:", dbConnError);
+    }
     // Parse request body with error handling
     let requestBody;
     try {

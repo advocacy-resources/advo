@@ -50,21 +50,12 @@ export default async function RecommendationsPage() {
         {/* View Archive button - below header on mobile, to the right on desktop */}
         <a
           href="/admin/recommendations/archive"
-          className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-md transition-colors inline-block"
+          className="bg-neutral-800 text-white rounded-full px-4 py-2 btn-gradient-hover inline-block"
         >
           View Archive
         </a>
       </div>
-
-      {recommendations.length === 0 ? (
-        <div className="bg-gray-100 p-8 rounded-lg text-center">
-          <p className="text-gray-600 text-lg">
-            No pending recommendations to review.
-          </p>
-        </div>
-      ) : (
-        <RecommendationsTable recommendations={recommendations} />
-      )}
+      <RecommendationsTable recommendations={recommendations} />
     </div>
   );
 }

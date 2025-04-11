@@ -8,10 +8,10 @@ export const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-blue-600 text-white hover:bg-blue-700",
+        default: "bg-neutral-800 text-white rounded-full btn-gradient-hover",
         destructive: "bg-red-600 text-white hover:bg-red-700",
         outline: "border border-gray-600 text-white hover:bg-gray-700",
-        link: "text-blue-400 underline-offset-4 hover:underline",
+        link: "text-gray-300 underline-offset-4 hover:underline hover:text-white",
         ghost: "hover:bg-gray-700 hover:text-white",
       },
     },

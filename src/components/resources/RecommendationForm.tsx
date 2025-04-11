@@ -280,7 +280,7 @@ const RecommendationForm: React.FC = () => {
       <div className="flex justify-center mt-8">
         <Button
           type="submit"
-          className="bg-blue-600 hover:bg-blue-700 text-white px-10 py-3 rounded-md text-lg font-medium w-full md:w-auto"
+          className="w-full md:w-auto"
           disabled={isSubmitting}
         >
           {isSubmitting ? "Submitting..." : "Submit Recommendation"}

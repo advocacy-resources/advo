@@ -33,7 +33,10 @@ export interface Review {
 }
 
 export interface Resource {
-  id: string;
+  id?: string;
+  _id?: {
+    $oid: string;
+  };
   name: string;
   description: string;
   category: string[];

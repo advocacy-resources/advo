@@ -1,86 +1,50 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect } from "react";
 import { Resource } from "@/interfaces/resource";
 import ResourceGridBase from "@/components/resources/ResourceGridBase";
 import { Button } from "@/components/ui/button";
-
-interface PaginationData {
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-}
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import {
+  fetchResources,
+  setPage,
+  setSearchParams,
+  selectAllResources,
+  selectResourcesLoading,
+  selectResourcesError,
+  selectResourcesPagination
+} from "@/store/slices/resourcesSlice";
 
 const HomeResourceGrid: React.FC = () => {
-  const [resources, setResources] = useState<Resource[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [retryCount, setRetryCount] = useState(0);
-  const [pagination, setPagination] = useState<PaginationData>({
-    total: 0,
-    page: 1,
-    limit: 12,
-    totalPages: 0,
-  });
+  const dispatch = useAppDispatch();
+  const resources = useAppSelector(selectAllResources);
+  const isLoading = useAppSelector(selectResourcesLoading);
+  const error = useAppSelector(selectResourcesError);
+  const pagination = useAppSelector(selectResourcesPagination);
+  const [retryCount, setRetryCount] = React.useState(0);
 
-  const fetchResources = useCallback(
-    async (page = 1) => {
-      try {
-        setIsLoading(true);
-        // Use the search endpoint with pagination but no search parameters
-        // This will return the most recent resources
-        const response = await fetch("/api/v1/resources/search", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            page,
-            limit: pagination.limit,
-            // Empty search parameters to get all resources
-            category: [],
-            type: [],
-          }),
-          // Add cache: 'no-store' to prevent caching issues
-          cache: "no-store",
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        if (!data.data || !Array.isArray(data.data)) {
-          console.error("API response format is unexpected:", data);
-          throw new Error("API did not return expected data format");
-        }
-
-        setResources(data.data);
-        setPagination({
-          total: data.pagination.total || 0,
-          page: data.pagination.page || 1,
-          limit: data.pagination.limit || 12,
-          totalPages: data.pagination.totalPages || 0,
-        });
-        // Reset retry count on successful fetch
-        setRetryCount(0);
-      } catch (e) {
-        console.error("Error fetching resources:", e);
-        setError(e instanceof Error ? e.message : "An unknown error occurred");
-        // Increment retry count on error
-        setRetryCount((prev) => prev + 1);
-      } finally {
-        setIsLoading(false);
-      }
+  // Function to fetch resources using Redux
+  const loadResources = useCallback(
+    (page = 1) => {
+      console.log("HomeResourceGrid: loadResources called with page:", page);
+      dispatch(fetchResources(page));
     },
-    [pagination.limit],
+    [dispatch],
   );
 
-  // Initial fetch
+  // Initial fetch and reset search params
   useEffect(() => {
-    fetchResources();
-  }, [fetchResources]);
+    console.log("HomeResourceGrid: Initial fetch effect running");
+    // Reset search parameters when component mounts
+    dispatch(
+      setSearchParams({
+        category: [],
+        type: [],
+      }),
+    );
+    // Then load resources with clean search params
+    loadResources();
+  }, [loadResources, dispatch]);
 
   // Auto-retry mechanism
   useEffect(() => {
@@ -92,15 +56,16 @@ const HomeResourceGrid: React.FC = () => {
       );
       const retryTimer = setTimeout(() => {
         console.log(`Executing retry attempt ${retryCount + 1}`);
-        fetchResources(pagination.page);
+        loadResources(pagination.page);
       }, retryDelay);
 
       return () => clearTimeout(retryTimer);
     }
-  }, [error, retryCount, fetchResources, pagination.page]);
+  }, [error, retryCount, loadResources, pagination]);
 
   const handlePageChange = (newPage: number) => {
-    fetchResources(newPage);
+    dispatch(setPage(newPage));
+    loadResources(newPage);
   };
 
   // Generate pagination buttons
@@ -171,12 +136,12 @@ const HomeResourceGrid: React.FC = () => {
     <>
       {/* Pagination controls */}
       {pagination.totalPages > 1 && (
-        <div className="flex justify-center mt-8 gap-2 p-4 bg-gray-900 rounded-lg border border-gray-700">
+        <div className="flex flex-wrap justify-center mt-6 md:mt-8 gap-1 md:gap-2 p-3 md:p-4 bg-gray-900 rounded-lg border border-gray-700">
           {renderPaginationButtons()}
         </div>
       )}
-      <div className="text-center text-gray-400 mt-4 p-2 bg-gray-900 bg-opacity-50 rounded-lg">
-        Showing {resources.length} of {pagination.total} resources
+      <div className="text-center text-gray-400 mt-3 md:mt-4 p-2 bg-gray-900 bg-opacity-50 rounded-lg text-sm md:text-base">
+        Showing {resources?.length || 0} of {pagination.total} resources
       </div>
     </>
   );
@@ -186,11 +151,10 @@ const HomeResourceGrid: React.FC = () => {
     <div className="mt-4 flex justify-center">
       <Button
         onClick={() => {
-          setError(null);
-          fetchResources(pagination.page);
+          dispatch(fetchResources(pagination.page));
         }}
         variant="default"
-        className="bg-purple-600 hover:bg-purple-700"
+        className="bg-purple-600 hover:bg-purple-700 transition-colors duration-200 rounded-full px-4 py-2"
       >
         Retry Loading Resources
       </Button>
@@ -204,28 +168,33 @@ const HomeResourceGrid: React.FC = () => {
       error={error}
       title="Latest Resources"
       className="max-w-7xl mx-auto p-4 md:p-8 bg-black bg-opacity-80 rounded-lg shadow-xl"
-      gridClassName="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 p-2"
+      gridClassName="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 lg:gap-8 p-2"
       loadingMessage={
-        <div className="flex flex-col justify-center items-center h-64 bg-gray-900 rounded-lg border border-gray-700">
-          <div className="text-xl text-white mb-4">Loading resources...</div>
-          <div className="w-12 h-12 border-t-2 border-b-2 border-purple-500 rounded-full animate-spin"></div>
+        <div className="flex flex-col justify-center items-center h-64 bg-gray-900 bg-opacity-50 rounded-lg border border-gray-700">
+          <div className="text-lg md:text-xl text-white mb-4">
+            Loading resources...
+          </div>
+          <div className="w-12 h-12 border-t-2 border-b-2 border-r-2 border-purple-500 rounded-full animate-spin"></div>
         </div>
       }
       errorPrefix={
-        <div className="flex flex-col justify-center items-center h-64 bg-gray-900 rounded-lg border border-gray-700">
-          <div className="text-xl text-red-500 mb-4">
+        <div className="flex flex-col justify-center items-center h-64 bg-gray-900 bg-opacity-50 rounded-lg border border-gray-700">
+          <div className="text-lg md:text-xl text-red-500 mb-4 text-center px-4">
             Error loading resources:
           </div>
           {retryButton}
         </div>
       }
       emptyMessage={
-        <div className="text-xl text-white text-center py-12 bg-gray-900 rounded-lg border border-gray-700 shadow-inner">
-          No resources found.
+        <div className="text-lg md:text-xl text-white text-center py-12 bg-gray-900 bg-opacity-50 rounded-lg border border-gray-700 shadow-inner">
+          <div className="mb-2">No resources found</div>
+          <p className="text-sm text-gray-400">
+            Try adjusting your search criteria
+          </p>
         </div>
       }
     >
-      {resources.length > 0 && paginationControls}
+      {resources?.length > 0 && paginationControls}
       {error && retryButton}
     </ResourceGridBase>
   );
