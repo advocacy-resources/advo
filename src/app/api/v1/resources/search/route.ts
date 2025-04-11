@@ -548,11 +548,11 @@ export async function POST(request: NextRequest) {
           // Process resources in batches to avoid overwhelming the geocoding API
           const BATCH_SIZE = 10;
           let filteredResources: any[] = [];
-          
+
           // Process resources in batches
           for (let i = 0; i < resources.length; i += BATCH_SIZE) {
             const batch = resources.slice(i, i + BATCH_SIZE);
-            
+
             // Process batch in parallel
             const batchResults = await Promise.all(
               batch.map(async (resource: any) => {
@@ -585,7 +585,8 @@ export async function POST(request: NextRequest) {
                   if (!resourceAddress) return null;
 
                   // Geocode the resource address
-                  const resourceLocation = await geocodeAddress(resourceAddress);
+                  const resourceLocation =
+                    await geocodeAddress(resourceAddress);
 
                   // Check if the resource is within the specified distance
                   const withinDistance = isWithinDistance(
@@ -603,9 +604,12 @@ export async function POST(request: NextRequest) {
                 }
               }),
             );
-            
+
             // Add filtered results from this batch
-            filteredResources = [...filteredResources, ...batchResults.filter(Boolean)];
+            filteredResources = [
+              ...filteredResources,
+              ...batchResults.filter(Boolean),
+            ];
           }
 
           // Filter out null values
@@ -867,13 +871,16 @@ export async function POST(request: NextRequest) {
         // Process resources in batches to avoid overwhelming the geocoding API
         const BATCH_SIZE = 10;
         let resourcesWithDistance: any[] = [];
-        
+
         // Process resources in batches
         for (let i = 0; i < resources.length; i += BATCH_SIZE) {
           const batch = resources.slice(i, i + BATCH_SIZE);
-          
-          debugLog("DISTANCE", `Processing batch ${i/BATCH_SIZE + 1} of ${Math.ceil(resources.length/BATCH_SIZE)}`);
-          
+
+          debugLog(
+            "DISTANCE",
+            `Processing batch ${i / BATCH_SIZE + 1} of ${Math.ceil(resources.length / BATCH_SIZE)}`,
+          );
+
           // Process batch in parallel
           const batchResults = await Promise.all(
             batch.map(async (resource: any) => {
@@ -898,7 +905,10 @@ export async function POST(request: NextRequest) {
                 ) {
                   const address = resource.address as Address;
                   resourceAddress = `${address.street}, ${address.city}, ${address.state} ${address.zip || ""}`;
-                  debugLog("DISTANCE", `Using full address: ${resourceAddress}`);
+                  debugLog(
+                    "DISTANCE",
+                    `Using full address: ${resourceAddress}`,
+                  );
                 } else if (
                   resource.address &&
                   typeof resource.address === "object"
@@ -955,10 +965,10 @@ export async function POST(request: NextRequest) {
               }
             }),
           );
-          
+
           // Add results from this batch
           resourcesWithDistance = [...resourcesWithDistance, ...batchResults];
-          
+
           // Add a small delay between batches to avoid rate limiting
           if (i + BATCH_SIZE < resources.length) {
             await new Promise((resolve) => setTimeout(resolve, 100));
