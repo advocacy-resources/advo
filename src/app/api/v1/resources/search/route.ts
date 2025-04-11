@@ -545,56 +545,68 @@ export async function POST(request: NextRequest) {
             resources = (result[0] as AggregationResult).data as any[];
           }
 
-          // Filter resources by distance
-          const filteredResources = await Promise.all(
-            resources.map(async (resource: any) => {
-              try {
-                // Build the resource address
-                let resourceAddress = "";
+          // Process resources in batches to avoid overwhelming the geocoding API
+          const BATCH_SIZE = 10;
+          let filteredResources: any[] = [];
+          
+          // Process resources in batches
+          for (let i = 0; i < resources.length; i += BATCH_SIZE) {
+            const batch = resources.slice(i, i + BATCH_SIZE);
+            
+            // Process batch in parallel
+            const batchResults = await Promise.all(
+              batch.map(async (resource: any) => {
+                try {
+                  // Build the resource address
+                  let resourceAddress = "";
 
-                // Check if address is an object with the expected properties
-                if (
-                  resource.address &&
-                  typeof resource.address === "object" &&
-                  "street" in resource.address &&
-                  "city" in resource.address &&
-                  "state" in resource.address
-                ) {
-                  const address = resource.address as Address;
-                  resourceAddress = `${address.street}, ${address.city}, ${address.state} ${address.zip || ""}`;
-                } else if (
-                  resource.address &&
-                  typeof resource.address === "object"
-                ) {
-                  const addressObj = resource.address as AddressWithZip;
-                  if (addressObj.zip && typeof addressObj.zip === "string") {
-                    resourceAddress = addressObj.zip;
+                  // Check if address is an object with the expected properties
+                  if (
+                    resource.address &&
+                    typeof resource.address === "object" &&
+                    "street" in resource.address &&
+                    "city" in resource.address &&
+                    "state" in resource.address
+                  ) {
+                    const address = resource.address as Address;
+                    resourceAddress = `${address.street}, ${address.city}, ${address.state} ${address.zip || ""}`;
+                  } else if (
+                    resource.address &&
+                    typeof resource.address === "object"
+                  ) {
+                    const addressObj = resource.address as AddressWithZip;
+                    if (addressObj.zip && typeof addressObj.zip === "string") {
+                      resourceAddress = addressObj.zip;
+                    }
+                  } else {
+                    return null;
                   }
-                } else {
+
+                  if (!resourceAddress) return null;
+
+                  // Geocode the resource address
+                  const resourceLocation = await geocodeAddress(resourceAddress);
+
+                  // Check if the resource is within the specified distance
+                  const withinDistance = isWithinDistance(
+                    zipLocation.latitude,
+                    zipLocation.longitude,
+                    resourceLocation.latitude,
+                    resourceLocation.longitude,
+                    maxDistance,
+                  );
+
+                  return withinDistance ? resource : null;
+                } catch (error) {
+                  console.error("Error calculating distance:", error);
                   return null;
                 }
-
-                if (!resourceAddress) return null;
-
-                // Geocode the resource address
-                const resourceLocation = await geocodeAddress(resourceAddress);
-
-                // Check if the resource is within the specified distance
-                const withinDistance = isWithinDistance(
-                  zipLocation.latitude,
-                  zipLocation.longitude,
-                  resourceLocation.latitude,
-                  resourceLocation.longitude,
-                  maxDistance,
-                );
-
-                return withinDistance ? resource : null;
-              } catch (error) {
-                console.error("Error calculating distance:", error);
-                return null;
-              }
-            }),
-          );
+              }),
+            );
+            
+            // Add filtered results from this batch
+            filteredResources = [...filteredResources, ...batchResults.filter(Boolean)];
+          }
 
           // Filter out null values
           const validResources = filteredResources.filter(Boolean);
@@ -852,86 +864,106 @@ export async function POST(request: NextRequest) {
           "DISTANCE",
           `Processing ${resources.length} resources for distance filtering`,
         );
-        const resourcesWithDistance = await Promise.all(
-          resources.map(async (resource: any) => {
-            try {
-              // Build the resource address
-              let resourceAddress = "";
+        // Process resources in batches to avoid overwhelming the geocoding API
+        const BATCH_SIZE = 10;
+        let resourcesWithDistance: any[] = [];
+        
+        // Process resources in batches
+        for (let i = 0; i < resources.length; i += BATCH_SIZE) {
+          const batch = resources.slice(i, i + BATCH_SIZE);
+          
+          debugLog("DISTANCE", `Processing batch ${i/BATCH_SIZE + 1} of ${Math.ceil(resources.length/BATCH_SIZE)}`);
+          
+          // Process batch in parallel
+          const batchResults = await Promise.all(
+            batch.map(async (resource: any) => {
+              try {
+                // Build the resource address
+                let resourceAddress = "";
 
-              debugLog("DISTANCE", "Processing resource:", {
-                id: resource.id,
-                name: resource.name,
-                address: resource.address,
-                zipCode: resource.address?.zip || "not set",
-              });
+                debugLog("DISTANCE", "Processing resource:", {
+                  id: resource.id,
+                  name: resource.name,
+                  address: resource.address,
+                  zipCode: resource.address?.zip || "not set",
+                });
 
-              // Check if address is an object with the expected properties
-              if (
-                resource.address &&
-                typeof resource.address === "object" &&
-                "street" in resource.address &&
-                "city" in resource.address &&
-                "state" in resource.address
-              ) {
-                const address = resource.address as Address;
-                resourceAddress = `${address.street}, ${address.city}, ${address.state} ${address.zip || ""}`;
-                debugLog("DISTANCE", `Using full address: ${resourceAddress}`);
-              } else if (
-                resource.address &&
-                typeof resource.address === "object"
-              ) {
-                const addressObj = resource.address as AddressWithZip;
-                if (addressObj.zip && typeof addressObj.zip === "string") {
-                  resourceAddress = addressObj.zip;
+                // Check if address is an object with the expected properties
+                if (
+                  resource.address &&
+                  typeof resource.address === "object" &&
+                  "street" in resource.address &&
+                  "city" in resource.address &&
+                  "state" in resource.address
+                ) {
+                  const address = resource.address as Address;
+                  resourceAddress = `${address.street}, ${address.city}, ${address.state} ${address.zip || ""}`;
+                  debugLog("DISTANCE", `Using full address: ${resourceAddress}`);
+                } else if (
+                  resource.address &&
+                  typeof resource.address === "object"
+                ) {
+                  const addressObj = resource.address as AddressWithZip;
+                  if (addressObj.zip && typeof addressObj.zip === "string") {
+                    resourceAddress = addressObj.zip;
+                  }
+                  debugLog("DISTANCE", `Using address.zip: ${resourceAddress}`);
+                } else {
+                  debugLog("DISTANCE", "No valid address found for resource");
+                  return { ...resource, withinDistance: false };
                 }
-                debugLog("DISTANCE", `Using address.zip: ${resourceAddress}`);
-              } else {
-                debugLog("DISTANCE", "No valid address found for resource");
+
+                if (!resourceAddress) {
+                  debugLog("DISTANCE", "Empty resource address");
+                  return { ...resource, withinDistance: false };
+                }
+
+                // Geocode the resource address
+                debugLog(
+                  "DISTANCE",
+                  `Geocoding resource address: ${resourceAddress}`,
+                );
+                const resourceLocation = await geocodeAddress(resourceAddress);
+                debugLog("DISTANCE", "Resource location:", resourceLocation);
+
+                // Check if the resource is within the specified distance
+                debugLog("DISTANCE", "Calculating distance for resource:", {
+                  id: resource.id,
+                  name: resource.name,
+                  resourceLocation,
+                  zipLocation,
+                });
+
+                const distance = calculateDistance(
+                  zipLocation.latitude,
+                  zipLocation.longitude,
+                  resourceLocation.latitude,
+                  resourceLocation.longitude,
+                );
+
+                const withinDistance = distance <= maxDistance;
+
+                debugLog(
+                  "DISTANCE",
+                  `Resource distance: ${distance.toFixed(2)} miles, within range: ${withinDistance}`,
+                );
+
+                return { ...resource, withinDistance, distance };
+              } catch (error) {
+                console.error("Error calculating distance:", error);
                 return { ...resource, withinDistance: false };
               }
-
-              if (!resourceAddress) {
-                debugLog("DISTANCE", "Empty resource address");
-                return { ...resource, withinDistance: false };
-              }
-
-              // Geocode the resource address
-              debugLog(
-                "DISTANCE",
-                `Geocoding resource address: ${resourceAddress}`,
-              );
-              const resourceLocation = await geocodeAddress(resourceAddress);
-              debugLog("DISTANCE", "Resource location:", resourceLocation);
-
-              // Check if the resource is within the specified distance
-              debugLog("DISTANCE", "Calculating distance for resource:", {
-                id: resource.id,
-                name: resource.name,
-                resourceLocation,
-                zipLocation,
-              });
-
-              const distance = calculateDistance(
-                zipLocation.latitude,
-                zipLocation.longitude,
-                resourceLocation.latitude,
-                resourceLocation.longitude,
-              );
-
-              const withinDistance = distance <= maxDistance;
-
-              debugLog(
-                "DISTANCE",
-                `Resource distance: ${distance.toFixed(2)} miles, within range: ${withinDistance}`,
-              );
-
-              return { ...resource, withinDistance, distance };
-            } catch (error) {
-              console.error("Error calculating distance:", error);
-              return { ...resource, withinDistance: false };
-            }
-          }),
-        );
+            }),
+          );
+          
+          // Add results from this batch
+          resourcesWithDistance = [...resourcesWithDistance, ...batchResults];
+          
+          // Add a small delay between batches to avoid rate limiting
+          if (i + BATCH_SIZE < resources.length) {
+            await new Promise((resolve) => setTimeout(resolve, 100));
+          }
+        }
 
         // Filter resources that are within the specified distance
         const filteredResources = resourcesWithDistance.filter(
