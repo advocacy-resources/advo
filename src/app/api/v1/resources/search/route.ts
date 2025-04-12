@@ -426,10 +426,42 @@ export async function POST(request: NextRequest) {
   console.log("MongoDB Connection String exists:", !!process.env.MONGODB_URI);
 
   try {
-    // Test database connection
+    // Function to create error response with proper headers
+    const createErrorResponse = (message: string, details: string, status: number) => {
+      const response = NextResponse.json(
+        {
+          error: message,
+          details: details,
+        },
+        { status }
+      );
+      
+      // Add CORS headers
+      if (isAllowedOrigin) {
+        response.headers.set("Access-Control-Allow-Origin", origin);
+        response.headers.set("Access-Control-Allow-Credentials", "true");
+      }
+      
+      return response;
+    };
+
+    // Test database connection with timeout
     try {
       startTiming("db_connection_test");
-      const testCount = await prisma.resource.count();
+      
+      // Create a timeout promise
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => {
+          reject(new Error('Database connection timeout after 5 seconds'));
+        }, 5000);
+      });
+      
+      // Race the database connection against the timeout
+      const testCount = await Promise.race([
+        prisma.resource.count(),
+        timeoutPromise
+      ]) as number;
+      
       const dbTestTime = endTiming("db_connection_test");
       console.log(
         "MongoDB Connection Test - Success, resource count:",
@@ -438,6 +470,13 @@ export async function POST(request: NextRequest) {
       );
     } catch (dbConnError) {
       console.error("MongoDB Connection Test - Failed:", dbConnError);
+      
+      // Return a helpful error response for database connection issues
+      return createErrorResponse(
+        "Database connection error",
+        "Unable to connect to the database. Please try again later.",
+        503 // Service Unavailable
+      );
     }
     // Parse request body with error handling
     let requestBody;
