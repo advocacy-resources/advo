@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import prisma from "@/prisma/client";
 import { authOptions } from "@/lib/authOptions";
+import { processResourceImages } from "@/lib/image-utils";
 
 // Constants
 const DEFAULT_PAGE = 1;
@@ -50,9 +51,40 @@ export async function GET(request: NextRequest) {
       prisma.resource.count(),
     ]);
 
+    console.log(
+      `Processing ${resources.length} resources to include owner information`,
+    );
+    // Process resources to include owner information
+    const processedResources = await Promise.all(
+      resources.map(async (resource) => {
+        // Find the business representative (owner) of this resource
+        const owner = await prisma.user.findFirst({
+          where: {
+            managedResourceId: resource.id,
+            role: "business_rep",
+          },
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        });
+
+        console.log(`Resource ${resource.id} owner:`, owner);
+        // Process images
+        const processedResource = processResourceImages(resource);
+
+        // Add owner information
+        return {
+          ...processedResource,
+          owner: owner || null,
+        };
+      }),
+    );
+
     // Return paginated response
     return NextResponse.json({
-      data: resources,
+      data: processedResources,
       pagination: {
         total: totalCount,
         page,

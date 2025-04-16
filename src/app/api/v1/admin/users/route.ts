@@ -20,14 +20,31 @@ async function checkAdminRole() {
   return true;
 }
 
+// Helper function to check if user is admin or business representative
+async function checkAdminOrBusinessRepRole() {
+  const session = await getServerSession(authOptions);
+
+  if (
+    !session ||
+    (session.user.role !== "admin" && session.user.role !== "business_rep")
+  ) {
+    return false;
+  }
+
+  return true;
+}
+
 // GET handler for fetching users with pagination
 export async function GET(request: NextRequest) {
   try {
-    // Check if user is admin
-    const isAdmin = await checkAdminRole();
-    if (!isAdmin) {
+    // Check if user is admin or business representative
+    const isAuthorized = await checkAdminOrBusinessRepRole();
+    if (!isAuthorized) {
       return NextResponse.json(
-        { error: "Unauthorized. Admin access required." },
+        {
+          error:
+            "Unauthorized. Admin or Business Representative access required.",
+        },
         { status: 403 },
       );
     }
@@ -55,6 +72,9 @@ export async function GET(request: NextRequest) {
           isActive: true,
           createdAt: true,
           updatedAt: true,
+          managedResourceId: true,
+          zipcode: true,
+          state: true,
         },
       }),
       prisma.user.count(),
@@ -82,7 +102,7 @@ export async function GET(request: NextRequest) {
 // POST handler for creating a new user
 export async function POST(request: NextRequest) {
   try {
-    // Check if user is admin
+    // Only admin can create users
     const isAdmin = await checkAdminRole();
     if (!isAdmin) {
       return NextResponse.json(
@@ -92,7 +112,16 @@ export async function POST(request: NextRequest) {
     }
 
     // Parse request body
-    const { name, email, password, role } = await request.json();
+    const {
+      name,
+      email,
+      password,
+      role,
+      isActive,
+      managedResourceId,
+      zipcode,
+      state,
+    } = await request.json();
 
     // Validate required fields
     if (!email || !password) {
@@ -124,6 +153,10 @@ export async function POST(request: NextRequest) {
         email,
         password: hashedPassword,
         role: role || "user",
+        isActive: isActive !== undefined ? isActive : true,
+        managedResourceId: role === "business_rep" ? managedResourceId : null,
+        zipcode,
+        state: state || (zipcode ? deriveStateFromZipcode(zipcode) : null),
       },
       select: {
         id: true,
@@ -133,6 +166,9 @@ export async function POST(request: NextRequest) {
         isActive: true,
         createdAt: true,
         updatedAt: true,
+        managedResourceId: true,
+        zipcode: true,
+        state: true,
       },
     });
 
@@ -144,4 +180,26 @@ export async function POST(request: NextRequest) {
       { status: 500 },
     );
   }
+}
+
+// Helper function to derive state from zipcode
+function deriveStateFromZipcode(zipcode: string): string | null {
+  if (!zipcode || zipcode.length < 1) return null;
+
+  // Simple mapping of first digit to state (same as in analytics route)
+  const zipcodeToState: Record<string, string> = {
+    "0": "NY",
+    "1": "NY",
+    "2": "VA",
+    "3": "FL",
+    "4": "MI",
+    "5": "TX",
+    "6": "IL",
+    "7": "TX",
+    "8": "CO",
+    "9": "CA",
+  };
+
+  const firstDigit = zipcode.charAt(0);
+  return zipcodeToState[firstDigit] || null;
 }

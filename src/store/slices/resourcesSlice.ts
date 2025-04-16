@@ -223,7 +223,7 @@ export const fetchResourceById = createAsyncThunk(
 // Unified search function that replaces the old searchResources
 export const searchResources = createAsyncThunk(
   "resources/searchResources",
-  async (searchParams: SearchParams, { rejectWithValue, getState }) => {
+  async (searchParams: SearchParams, { rejectWithValue }) => {
     try {
       // We don't need to access the state here
       // const _state = getState();

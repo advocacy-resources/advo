@@ -32,6 +32,12 @@ export interface Review {
   };
 }
 
+export interface ResourceOwner {
+  id: string;
+  name: string | null;
+  email: string;
+}
+
 export interface Resource {
   id?: string;
   _id?: {
@@ -55,4 +61,5 @@ export interface Resource {
   profilePhotoUrl?: string; // URL to the profile photo
   bannerImageUrl?: string; // URL to the banner image
   reviews?: Review[];
+  owner?: ResourceOwner | null; // Business representative who manages this resource
 }

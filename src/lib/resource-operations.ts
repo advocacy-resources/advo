@@ -15,8 +15,29 @@ export async function getResource(id: string) {
       return null;
     }
 
+    // Find the business representative (owner) of this resource
+    const owner = await prisma.user.findFirst({
+      where: {
+        managedResourceId: id,
+        role: "business_rep",
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+      },
+    });
+
+    console.log(`Resource ID: ${id}, Found owner:`, owner);
+
     // Process images (convert binary to data URLs)
-    return processResourceImages(resource);
+    const processedResource = processResourceImages(resource);
+
+    // Add owner information to the resource
+    return {
+      ...processedResource,
+      owner: owner || null,
+    };
   } catch (error) {
     console.error("Error fetching resource:", error);
     throw error;

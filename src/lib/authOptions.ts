@@ -78,7 +78,12 @@ export const authOptions: NextAuthOptions = {
       // Fetch the user to get the role and active status
       const user = await prisma.user.findUnique({
         where: { id: token.sub as string },
-        select: { id: true, role: true, isActive: true },
+        select: {
+          id: true,
+          role: true,
+          isActive: true,
+          managedResourceId: true,
+        },
       });
 
       session.user = {
@@ -86,6 +91,7 @@ export const authOptions: NextAuthOptions = {
         id: token.sub as string,
         role: user?.role || "user",
         isActive: user?.isActive ?? true,
+        managedResourceId: user?.managedResourceId || null,
       };
       return session;
     },

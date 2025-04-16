@@ -25,9 +25,23 @@ export interface IUser extends NextAuthUser {
   email: string;
   image?: ImageType;
   emailVerified?: boolean;
-  role?: string; // Added role field
+  role?: string; // Can be "user", "admin", or "business_rep"
+  managedResourceId?: string; // Resource ID that a business representative manages
   isActive?: boolean; // Added isActive field
   createdAt?: Date | string; // Added createdAt field
   updatedAt?: Date | string; // Added updatedAt field
+  // Demographic information
+  ageGroup?: string;
+  raceEthnicity?: string;
+  gender?: string;
+  pronoun1?: string;
+  pronoun2?: string;
+  sexualOrientation?: string;
+  incomeBracket?: string;
+  livingSituation?: string;
+  livingArrangement?: string;
+  zipcode?: string;
+  state?: string;
+  resourceInterests?: string[];
   // Add any other custom properties that are specific to your app
 }

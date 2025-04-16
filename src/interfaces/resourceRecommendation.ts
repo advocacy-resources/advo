@@ -15,7 +15,20 @@ export interface ResourceRecommendationFormData {
   name: string;
   type: "state" | "national";
   state?: string;
+  description: string;
+  category: string[];
   note: string;
+  contact: {
+    phone: string;
+    email: string;
+    website: string;
+  };
+  address: {
+    street: string;
+    city: string;
+    state: string;
+    zip?: string;
+  };
   submittedBy?: string;
   email?: string;
 }

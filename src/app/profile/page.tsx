@@ -7,12 +7,7 @@ import { useUserData } from "@/hooks/useUserData";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import UserProfileModal from "@/components/users/UserProfileModal";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "../../components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Card,
   CardContent,
@@ -32,6 +27,25 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 
+interface Resource {
+  id: string;
+  name: string;
+  description: string;
+  address?: {
+    street?: string;
+    city?: string;
+    state?: string;
+    zip?: string;
+  };
+  phone?: string;
+  email?: string;
+  website?: string;
+  hours?: string;
+  contact?: any;
+  operatingHours?: string | object;
+  [key: string]: string | number | boolean | object | null | undefined;
+}
+
 export default function ProfilePage() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -39,13 +53,14 @@ export default function ProfilePage() {
   const [confirmEmail, setConfirmEmail] = useState("");
   const [deleteError, setDeleteError] = useState("");
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
-  interface Resource {
-    id: string;
-    name: string;
-    description: string;
-    [key: string]: string | number | boolean | object | null | undefined;
-  }
-
+  const [managedResource, setManagedResource] = useState<Resource | null>(null);
+  const [isLoadingManagedResource, setIsLoadingManagedResource] =
+    useState(false);
+  const [isEditingResource, setIsEditingResource] = useState(false);
+  const [editedResource, setEditedResource] = useState<Resource | null>(null);
+  const [resourceUpdateError, setResourceUpdateError] = useState<string | null>(
+    null,
+  );
   const [favoriteResources, setFavoriteResources] = useState<Resource[]>([]);
   const [isLoadingFavorites, setIsLoadingFavorites] = useState(false);
 
@@ -116,7 +131,154 @@ export default function ProfilePage() {
     };
 
     fetchFavoriteResources();
-  }, [session?.user?.id]);
+
+    // Fetch managed resource for business representatives
+    if (
+      session?.user?.role === "business_rep" &&
+      session?.user?.managedResourceId
+    ) {
+      fetchManagedResource(session.user.managedResourceId);
+    }
+  }, [
+    session?.user?.id,
+    session?.user?.role,
+    session?.user?.managedResourceId,
+  ]);
+  // Function to fetch the managed resource for business representatives
+  const fetchManagedResource = async (resourceId: string) => {
+    setIsLoadingManagedResource(true);
+    try {
+      const response = await fetch(`/api/v1/resources/${resourceId}`);
+      if (response.ok) {
+        const data = await response.json();
+
+        // Transform the data to match the UI structure if needed
+        // For example, extract contact and address fields from JSON
+        const transformedData = {
+          ...data,
+          // Extract contact fields if they exist
+          phone: data.contact?.phone || "",
+          email: data.contact?.email || "",
+          website: data.contact?.website || "",
+          // Extract hours from operatingHours if it exists
+          hours:
+            typeof data.operatingHours === "string"
+              ? data.operatingHours
+              : JSON.stringify(data.operatingHours),
+          // Make sure address is an object
+          address: data.address || {},
+        };
+
+        setManagedResource(transformedData);
+        setEditedResource(transformedData); // Initialize edited resource with current data
+      } else {
+        console.error("Failed to fetch managed resource");
+      }
+    } catch (error) {
+      console.error("Error fetching managed resource:", error);
+    } finally {
+      setIsLoadingManagedResource(false);
+    }
+  };
+
+  // Function to update the managed resource
+  const updateManagedResource = async () => {
+    if (!editedResource || !session?.user?.managedResourceId) return;
+
+    // Prepare the resource data with the proper structure for the API
+    const resourceData = prepareResourceData();
+    if (!resourceData) return;
+
+    try {
+      // Use the business-update endpoint specifically for business representatives
+      const response = await fetch(
+        `/api/v1/resources/${session.user.managedResourceId}/business-update`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(resourceData),
+        },
+      );
+
+      if (response.ok) {
+        const updatedResource = await response.json();
+        setManagedResource(updatedResource);
+        setIsEditingResource(false);
+        setResourceUpdateError(null);
+      } else {
+        const errorData = await response.json();
+        setResourceUpdateError(errorData.error || "Failed to update resource");
+      }
+    } catch (error) {
+      console.error("Error updating resource:", error);
+      setResourceUpdateError("An unexpected error occurred");
+    }
+  };
+
+  // Handle resource field changes
+  const handleResourceChange = (field: string, value: any) => {
+    if (!editedResource) return;
+
+    // Handle nested fields (e.g., address.street)
+    if (field.includes(".")) {
+      const [parent, child] = field.split(".");
+      setEditedResource({
+        ...editedResource,
+        [parent]: {
+          ...((editedResource[parent] as object) || {}),
+          [child]: value,
+        },
+      });
+    } else if (field === "phone" || field === "email" || field === "website") {
+      // These fields need to go into the contact JSON object
+      setEditedResource({
+        ...editedResource,
+        contact: {
+          ...((editedResource.contact as object) || {}),
+          [field]: value,
+        },
+        // Keep the UI field updated too
+        [field]: value,
+      });
+    } else if (field === "hours") {
+      // Update both operatingHours and the UI hours field
+      setEditedResource({
+        ...editedResource,
+        operatingHours: value,
+        hours: value,
+      });
+    } else {
+      setEditedResource({
+        ...editedResource,
+        [field]: value,
+      });
+    }
+  };
+
+  // Prepare resource data for API submission
+  const prepareResourceData = () => {
+    if (!editedResource) return null;
+
+    // Create a copy of the resource with the proper structure for the API
+    return {
+      name: editedResource.name,
+      description: editedResource.description,
+      // Ensure contact is a proper JSON object
+      contact: {
+        phone: editedResource.phone || "",
+        email: editedResource.email || "",
+        website: editedResource.website || "",
+        ...((editedResource.contact as object) || {}),
+      },
+      // Use the address object directly
+      address: editedResource.address || {},
+      // Use hours as operatingHours
+      operatingHours:
+        editedResource.hours || editedResource.operatingHours || {},
+    };
+  };
 
   if (status === "loading" || isLoading) {
     return (
@@ -172,6 +334,9 @@ export default function ProfilePage() {
           <TabsList className="mb-6">
             <TabsTrigger value="profile">Profile Information</TabsTrigger>
             <TabsTrigger value="favorites">Favorite Resources</TabsTrigger>
+            {session.user?.role === "business_rep" && (
+              <TabsTrigger value="manage-resource">Manage Resource</TabsTrigger>
+            )}
             <TabsTrigger value="account">Account Management</TabsTrigger>
           </TabsList>
 
@@ -289,6 +454,366 @@ export default function ProfilePage() {
               </CardFooter>
             </Card>
           </TabsContent>
+
+          {/* Manage Resource Tab - Only for Business Representatives */}
+          {session.user?.role === "business_rep" && (
+            <TabsContent value="manage-resource">
+              <Card className="bg-gray-800 border-gray-700">
+                <CardHeader>
+                  <CardTitle>Manage Your Resource</CardTitle>
+                  <CardDescription className="text-gray-400">
+                    Update information for the resource you manage
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {isLoadingManagedResource ? (
+                    <p>Loading resource information...</p>
+                  ) : !managedResource ? (
+                    <div>
+                      <p>No resource assigned to your account.</p>
+                      <p className="text-sm text-gray-400 mt-2">
+                        Contact an administrator to assign a resource to your
+                        account.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-6">
+                      {resourceUpdateError && (
+                        <div className="bg-red-900 p-4 rounded-md text-white mb-4">
+                          {resourceUpdateError}
+                        </div>
+                      )}
+
+                      {isEditingResource ? (
+                        /* Edit Mode */
+                        <div className="space-y-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-300 mb-1">
+                              Resource Name
+                            </label>
+                            <input
+                              type="text"
+                              className="w-full bg-gray-700 border border-gray-600 rounded-md p-2 text-white"
+                              value={editedResource?.name || ""}
+                              onChange={(e) =>
+                                handleResourceChange("name", e.target.value)
+                              }
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-medium text-gray-300 mb-1">
+                              Description
+                            </label>
+                            <textarea
+                              className="w-full bg-gray-700 border border-gray-600 rounded-md p-2 text-white min-h-[100px]"
+                              value={editedResource?.description || ""}
+                              onChange={(e) =>
+                                handleResourceChange(
+                                  "description",
+                                  e.target.value,
+                                )
+                              }
+                            />
+                          </div>
+
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                              <label className="block text-sm font-medium text-gray-300 mb-1">
+                                Phone
+                              </label>
+                              <input
+                                type="text"
+                                className="w-full bg-gray-700 border border-gray-600 rounded-md p-2 text-white"
+                                value={editedResource?.phone || ""}
+                                onChange={(e) =>
+                                  handleResourceChange("phone", e.target.value)
+                                }
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-sm font-medium text-gray-300 mb-1">
+                                Email
+                              </label>
+                              <input
+                                type="email"
+                                className="w-full bg-gray-700 border border-gray-600 rounded-md p-2 text-white"
+                                value={editedResource?.email || ""}
+                                onChange={(e) =>
+                                  handleResourceChange("email", e.target.value)
+                                }
+                              />
+                            </div>
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-medium text-gray-300 mb-1">
+                              Website
+                            </label>
+                            <input
+                              type="url"
+                              className="w-full bg-gray-700 border border-gray-600 rounded-md p-2 text-white"
+                              value={editedResource?.website || ""}
+                              onChange={(e) =>
+                                handleResourceChange("website", e.target.value)
+                              }
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-medium text-gray-300 mb-1">
+                              Hours
+                            </label>
+                            <input
+                              type="text"
+                              className="w-full bg-gray-700 border border-gray-600 rounded-md p-2 text-white"
+                              value={editedResource?.hours || ""}
+                              onChange={(e) =>
+                                handleResourceChange("hours", e.target.value)
+                              }
+                              placeholder="e.g., Mon-Fri: 9am-5pm, Sat: 10am-2pm"
+                            />
+                          </div>
+
+                          <div className="border border-gray-700 rounded-md p-4 bg-gray-800">
+                            <h4 className="font-medium mb-3">
+                              Address Information
+                            </h4>
+                            <div className="space-y-3">
+                              <div>
+                                <label className="block text-sm font-medium text-gray-300 mb-1">
+                                  Street
+                                </label>
+                                <input
+                                  type="text"
+                                  className="w-full bg-gray-700 border border-gray-600 rounded-md p-2 text-white"
+                                  value={
+                                    (editedResource?.address as any)?.street ||
+                                    ""
+                                  }
+                                  onChange={(e) =>
+                                    handleResourceChange(
+                                      "address.street",
+                                      e.target.value,
+                                    )
+                                  }
+                                />
+                              </div>
+
+                              <div className="grid grid-cols-3 gap-3">
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-300 mb-1">
+                                    City
+                                  </label>
+                                  <input
+                                    type="text"
+                                    className="w-full bg-gray-700 border border-gray-600 rounded-md p-2 text-white"
+                                    value={
+                                      (editedResource?.address as any)?.city ||
+                                      ""
+                                    }
+                                    onChange={(e) =>
+                                      handleResourceChange(
+                                        "address.city",
+                                        e.target.value,
+                                      )
+                                    }
+                                  />
+                                </div>
+
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-300 mb-1">
+                                    State
+                                  </label>
+                                  <input
+                                    type="text"
+                                    className="w-full bg-gray-700 border border-gray-600 rounded-md p-2 text-white"
+                                    value={
+                                      (editedResource?.address as any)?.state ||
+                                      ""
+                                    }
+                                    onChange={(e) =>
+                                      handleResourceChange(
+                                        "address.state",
+                                        e.target.value,
+                                      )
+                                    }
+                                  />
+                                </div>
+
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-300 mb-1">
+                                    ZIP Code
+                                  </label>
+                                  <input
+                                    type="text"
+                                    className="w-full bg-gray-700 border border-gray-600 rounded-md p-2 text-white"
+                                    value={
+                                      (editedResource?.address as any)?.zip ||
+                                      ""
+                                    }
+                                    onChange={(e) =>
+                                      handleResourceChange(
+                                        "address.zip",
+                                        e.target.value,
+                                      )
+                                    }
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="flex space-x-3 mt-6">
+                            <Button
+                              onClick={updateManagedResource}
+                              className="bg-green-600 hover:bg-green-700"
+                            >
+                              Save Changes
+                            </Button>
+                            <Button
+                              variant="outline"
+                              onClick={() => {
+                                setEditedResource(managedResource);
+                                setIsEditingResource(false);
+                                setResourceUpdateError(null);
+                              }}
+                              className="border-gray-600 text-white hover:bg-gray-700"
+                            >
+                              Cancel
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        /* View Mode */
+                        <div className="space-y-4">
+                          <div>
+                            <h3 className="text-lg font-semibold">
+                              {managedResource.name}
+                            </h3>
+                            <p className="text-gray-300 mt-1">
+                              {managedResource.description}
+                            </p>
+                          </div>
+
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                            <div>
+                              <h4 className="font-medium text-gray-400">
+                                Contact Information
+                              </h4>
+                              <ul className="mt-2 space-y-1">
+                                {managedResource.phone && (
+                                  <li className="flex items-center">
+                                    <span className="text-gray-400 mr-2">
+                                      Phone:
+                                    </span>
+                                    <span>{managedResource.phone}</span>
+                                  </li>
+                                )}
+                                {managedResource.email && (
+                                  <li className="flex items-center">
+                                    <span className="text-gray-400 mr-2">
+                                      Email:
+                                    </span>
+                                    <span>{managedResource.email}</span>
+                                  </li>
+                                )}
+                                {managedResource.website && (
+                                  <li className="flex items-center">
+                                    <span className="text-gray-400 mr-2">
+                                      Website:
+                                    </span>
+                                    <a
+                                      href={managedResource.website}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-blue-400 hover:underline"
+                                    >
+                                      {managedResource.website}
+                                    </a>
+                                  </li>
+                                )}
+                              </ul>
+                            </div>
+
+                            <div>
+                              <h4 className="font-medium text-gray-400">
+                                Address
+                              </h4>
+                              {managedResource.address ? (
+                                <address className="mt-2 not-italic">
+                                  {(managedResource.address as any)?.street && (
+                                    <div>
+                                      {(managedResource.address as any).street}
+                                    </div>
+                                  )}
+                                  {((managedResource.address as any)?.city ||
+                                    (managedResource.address as any)?.state ||
+                                    (managedResource.address as any)?.zip) && (
+                                    <div>
+                                      {(managedResource.address as any)?.city ||
+                                        ""}
+                                      {(managedResource.address as any)?.city &&
+                                      (managedResource.address as any)?.state
+                                        ? ", "
+                                        : ""}
+                                      {(managedResource.address as any)
+                                        ?.state || ""}
+                                      {((managedResource.address as any)
+                                        ?.city ||
+                                        (managedResource.address as any)
+                                          ?.state) &&
+                                      (managedResource.address as any)?.zip
+                                        ? " "
+                                        : ""}
+                                      {(managedResource.address as any)?.zip ||
+                                        ""}
+                                    </div>
+                                  )}
+                                </address>
+                              ) : (
+                                <p className="text-gray-500 mt-2">
+                                  No address information
+                                </p>
+                              )}
+                            </div>
+                          </div>
+
+                          {managedResource.hours && (
+                            <div className="mt-4">
+                              <h4 className="font-medium text-gray-400">
+                                Hours
+                              </h4>
+                              <p className="mt-1">{managedResource.hours}</p>
+                            </div>
+                          )}
+
+                          <Button
+                            onClick={() => setIsEditingResource(true)}
+                            className="bg-blue-600 hover:bg-blue-700 mt-4"
+                          >
+                            Edit Resource Information
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </CardContent>
+                <CardFooter>
+                  <Button
+                    onClick={() =>
+                      router.push(`/resources/${managedResource?.id}`)
+                    }
+                    className="bg-purple-600 hover:bg-purple-700"
+                    disabled={!managedResource}
+                  >
+                    View Public Page
+                  </Button>
+                </CardFooter>
+              </Card>
+            </TabsContent>
+          )}
 
           {/* Account Management Tab */}
           <TabsContent value="account">

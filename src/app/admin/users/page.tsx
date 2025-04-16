@@ -8,13 +8,17 @@ import UserCreateModal from "@/components/users/UserCreateModal";
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<IUser[]>([]);
-  const [editedUsers, setEditedUsers] = useState<Record<string, string>>({});
+  const [editedUsers, setEditedUsers] = useState<
+    Record<string, { role: string; managedResourceId?: string }>
+  >({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const [savingUsers, setSavingUsers] = useState<Record<string, boolean>>({});
+  const [resources, setResources] = useState<any[]>([]);
+  const [loadingResources, setLoadingResources] = useState(false);
   const [limit] = useState(10);
   const [selectedUser, setSelectedUser] = useState<IUser | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -22,6 +26,7 @@ export default function AdminUsersPage() {
 
   useEffect(() => {
     fetchUsers();
+    fetchResources();
   }, [page]);
 
   const fetchUsers = async () => {
@@ -48,10 +53,49 @@ export default function AdminUsersPage() {
     }
   };
 
-  const handleRoleChange = (userId: string, newRole: string) => {
+  const fetchResources = async () => {
+    try {
+      setLoadingResources(true);
+      const response = await fetch("/api/v1/resources");
+      if (!response.ok) {
+        throw new Error("Failed to fetch resources");
+      }
+      const data = await response.json();
+      setResources(data);
+    } catch (err) {
+      console.error("Error fetching resources:", err);
+    } finally {
+      setLoadingResources(false);
+    }
+  };
+
+  const handleRoleChange = (
+    userId: string,
+    newRole: string,
+    managedResourceId?: string,
+  ) => {
     setEditedUsers((prev) => ({
       ...prev,
-      [userId]: newRole,
+      [userId]: {
+        role: newRole,
+        managedResourceId:
+          newRole === "business_rep" ? managedResourceId || "" : undefined,
+      },
+    }));
+
+    // If changing to business_rep and resources haven't been loaded yet, fetch them
+    if (newRole === "business_rep" && resources.length === 0) {
+      fetchResources();
+    }
+  };
+
+  const handleManagedResourceChange = (userId: string, resourceId: string) => {
+    setEditedUsers((prev) => ({
+      ...prev,
+      [userId]: {
+        ...prev[userId],
+        managedResourceId: resourceId,
+      },
     }));
   };
 
@@ -62,13 +106,17 @@ export default function AdminUsersPage() {
         [userId]: true,
       }));
 
-      const newRole = editedUsers[userId];
+      const { role, managedResourceId } = editedUsers[userId];
       const response = await fetch(`/api/v1/admin/users/${userId}/role`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ role: newRole }),
+        body: JSON.stringify({
+          role,
+          managedResourceId:
+            role === "business_rep" ? managedResourceId : undefined,
+        }),
       });
 
       if (!response.ok) {
@@ -78,7 +126,14 @@ export default function AdminUsersPage() {
       // Update the local users list
       setUsers(
         users.map((user) =>
-          user.id === userId ? { ...user, role: newRole } : user,
+          user.id === userId
+            ? {
+                ...user,
+                role,
+                managedResourceId:
+                  role === "business_rep" ? managedResourceId : undefined,
+              }
+            : user,
         ),
       );
 
@@ -102,9 +157,25 @@ export default function AdminUsersPage() {
     delete newEditedUsers[userId];
     setEditedUsers(newEditedUsers);
   };
-  const handleViewDetails = (user: IUser) => {
-    setSelectedUser(user);
-    setIsModalOpen(true);
+
+  const handleViewDetails = async (user: IUser) => {
+    try {
+      // Fetch complete user data including demographic information
+      const response = await fetch(`/api/v1/admin/users/${user.id}`);
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch user details");
+      }
+
+      const userData = await response.json();
+      setSelectedUser(userData);
+      setIsModalOpen(true);
+    } catch (error) {
+      console.error("Error fetching user details:", error);
+      // Fallback to using the basic user data if the fetch fails
+      setSelectedUser(user);
+      setIsModalOpen(true);
+    }
   };
 
   const handleUserUpdate = (updatedUser: IUser) => {
@@ -150,6 +221,9 @@ export default function AdminUsersPage() {
                   Role
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                  Managed Resource
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                   Status
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
@@ -161,7 +235,7 @@ export default function AdminUsersPage() {
               {loading ? (
                 <tr>
                   <td
-                    colSpan={5}
+                    colSpan={6}
                     className="px-6 py-4 text-center text-gray-300"
                   >
                     Loading...
@@ -170,7 +244,7 @@ export default function AdminUsersPage() {
               ) : users.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={5}
+                    colSpan={6}
                     className="px-6 py-4 text-center text-gray-300"
                   >
                     No users found
@@ -193,16 +267,52 @@ export default function AdminUsersPage() {
                           className="text-sm bg-gray-700 text-white border border-gray-600 rounded p-1"
                           value={
                             editedUsers[user.id] !== undefined
-                              ? editedUsers[user.id]
+                              ? editedUsers[user.id].role
                               : user.role || "user"
                           }
                           onChange={(e) =>
-                            handleRoleChange(user.id, e.target.value)
+                            handleRoleChange(
+                              user.id,
+                              e.target.value,
+                              user.managedResourceId,
+                            )
                           }
                         >
                           <option value="user">User</option>
                           <option value="admin">Admin</option>
+                          <option value="business_rep">
+                            Business Representative
+                          </option>
                         </select>
+
+                        {/* Show resource selection for business_rep role */}
+                        {(editedUsers[user.id]?.role === "business_rep" ||
+                          (!editedUsers[user.id] &&
+                            user.role === "business_rep")) && (
+                          <select
+                            className="mt-2 text-sm bg-gray-700 text-white border border-gray-600 rounded p-1"
+                            value={
+                              editedUsers[user.id]?.managedResourceId !==
+                              undefined
+                                ? editedUsers[user.id].managedResourceId
+                                : user.managedResourceId || ""
+                            }
+                            onChange={(e) =>
+                              handleManagedResourceChange(
+                                user.id,
+                                e.target.value,
+                              )
+                            }
+                            disabled={loadingResources}
+                          >
+                            <option value="">Select a resource</option>
+                            {resources.map((resource) => (
+                              <option key={resource.id} value={resource.id}>
+                                {resource.name}
+                              </option>
+                            ))}
+                          </select>
+                        )}
 
                         {editedUsers[user.id] !== undefined && (
                           <div className="flex space-x-1">
@@ -227,6 +337,21 @@ export default function AdminUsersPage() {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
+                      {user.role === "business_rep" ? (
+                        <div className="text-sm text-gray-300">
+                          {user.managedResourceId ? (
+                            <span className="text-green-400">Assigned</span>
+                          ) : (
+                            <span className="text-yellow-400">
+                              Not Assigned
+                            </span>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="text-sm text-gray-500">N/A</div>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <span
                           className={`inline-block w-3 h-3 rounded-full mr-2 ${user.isActive ? "bg-green-500" : "bg-red-500"}`}
@@ -236,10 +361,10 @@ export default function AdminUsersPage() {
                         </span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <td className="px-6 py-4 whitespace-nowrap">
                       <Button
                         variant="outline"
-                        className="text-xs px-3 py-1.5 bg-neutral-800 hover:bg-neutral-700 text-white border-0 whitespace-nowrap overflow-hidden"
+                        className="text-xs px-3 py-1.5 bg-blue-700 hover:bg-blue-800 text-white border-0"
                         onClick={() => handleViewDetails(user)}
                       >
                         View Details
@@ -251,45 +376,50 @@ export default function AdminUsersPage() {
             </tbody>
           </table>
         </div>
+      </div>
 
-        {/* Pagination */}
-        <div className="px-6 py-4 bg-gray-700 border-t border-gray-600 flex items-center justify-between">
-          <div className="text-sm text-gray-300">
-            Showing <span className="font-medium">{users.length}</span> of{" "}
-            <span className="font-medium">{totalItems}</span> users
-          </div>
-          <div className="flex space-x-2">
-            <Button
-              variant="outline"
-              className="text-xs px-3 py-1.5 bg-neutral-800 hover:bg-neutral-700 text-white border-0"
-              onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
-              disabled={page === 1}
-            >
-              Previous
-            </Button>
-            <Button
-              variant="outline"
-              className="text-xs px-3 py-1.5 bg-neutral-800 hover:bg-neutral-700 text-white border-0"
-              onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
-              disabled={page === totalPages}
-            >
-              Next
-            </Button>
-          </div>
+      {/* Pagination */}
+      <div className="mt-4 flex justify-between items-center">
+        <div className="text-sm text-gray-300">
+          Showing {users.length} of {totalItems} users
+        </div>
+        <div className="flex space-x-2">
+          <Button
+            variant="outline"
+            className="px-3 py-1.5 bg-neutral-800 hover:bg-neutral-700 text-white border-0"
+            onClick={() => setPage(Math.max(1, page - 1))}
+            disabled={page === 1 || loading}
+          >
+            Previous
+          </Button>
+          <span className="px-3 py-1.5 bg-gray-700 text-white rounded">
+            {page} of {totalPages}
+          </span>
+          <Button
+            variant="outline"
+            className="px-3 py-1.5 bg-neutral-800 hover:bg-neutral-700 text-white border-0"
+            onClick={() => setPage(Math.min(totalPages, page + 1))}
+            disabled={page === totalPages || loading}
+          >
+            Next
+          </Button>
         </div>
       </div>
-      {/* User Details Modal */}
-      <UserDetailsModal
-        isOpen={isModalOpen}
-        onClose={setIsModalOpen}
-        user={selectedUser}
-        onUserUpdate={handleUserUpdate}
-      />
 
-      {/* User Create Modal */}
+      {/* User Details Modal */}
+      {selectedUser && (
+        <UserDetailsModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          user={selectedUser}
+          onUserUpdate={handleUserUpdate}
+        />
+      )}
+
+      {/* Create User Modal */}
       <UserCreateModal
         isOpen={isCreateModalOpen}
-        onClose={setIsCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
         onUserCreated={handleUserCreated}
       />
     </div>

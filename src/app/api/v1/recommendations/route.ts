@@ -7,9 +7,19 @@ export async function POST(req: NextRequest) {
     const data = await req.json();
 
     // Validate required fields
-    if (!data.name || !data.type || !data.note) {
+    if (
+      !data.name ||
+      !data.type ||
+      !data.note ||
+      !data.description ||
+      !data.category ||
+      data.category.length === 0
+    ) {
       return NextResponse.json(
-        { message: "Missing required fields" },
+        {
+          message:
+            "Missing required fields: name, type, description, category, and note are required",
+        },
         { status: 400 },
       );
     }
@@ -36,7 +46,11 @@ export async function POST(req: NextRequest) {
         name: data.name,
         type: data.type,
         state: data.type === "state" ? data.state : null,
+        description: data.description || "",
+        category: data.category || [],
         note: data.note,
+        contact: data.contact || { phone: "", email: "", website: "" },
+        address: data.address || { street: "", city: "", state: "", zip: "" },
         submittedBy: data.submittedBy || null,
         email: data.email || null,
         status: "pending",

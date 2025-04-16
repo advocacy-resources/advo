@@ -4,6 +4,8 @@ import { authOptions } from "@/lib/authOptions";
 import prisma from "@/prisma/client";
 import { Rating } from "@/enums/rating.enum";
 
+export const dynamic = "force-dynamic";
+
 // GET: Get all ratings for the current user
 export async function GET(request: NextRequest) {
   try {

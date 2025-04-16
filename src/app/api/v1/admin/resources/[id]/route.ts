@@ -21,6 +21,7 @@ export const GET = withAdminAuth(
         );
       }
 
+      console.log(`API: Resource ${id} owner:`, resource.owner);
       return NextResponse.json(resource);
     } catch (error) {
       console.error("Error fetching resource:", error);

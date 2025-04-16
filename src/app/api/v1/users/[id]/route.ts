@@ -28,6 +28,19 @@ export async function GET(
         },
         createdAt: true,
         updatedAt: true,
+        // Demographic information
+        ageGroup: true,
+        raceEthnicity: true,
+        gender: true,
+        pronoun1: true,
+        pronoun2: true,
+        sexualOrientation: true,
+        incomeBracket: true,
+        livingSituation: true,
+        livingArrangement: true,
+        zipcode: true,
+        state: true,
+        resourceInterests: true,
       },
     });
 
@@ -66,9 +79,25 @@ export async function PUT(
     const updateData = await request.json();
     console.log("Update data received:", updateData);
 
-    // Only update the name field directly
+    // Update allowed fields
     const safeUpdateData = {
       name: updateData.name ?? undefined,
+      // Demographic information
+      ageGroup: updateData.ageGroup ?? undefined,
+      raceEthnicity: updateData.raceEthnicity ?? undefined,
+      gender: updateData.gender ?? undefined,
+      pronoun1: updateData.pronoun1 ?? undefined,
+      pronoun2: updateData.pronoun2 ?? undefined,
+      sexualOrientation: updateData.sexualOrientation ?? undefined,
+      incomeBracket: updateData.incomeBracket ?? undefined,
+      livingSituation: updateData.livingSituation ?? undefined,
+      livingArrangement: updateData.livingArrangement ?? undefined,
+      zipcode: updateData.zipcode ?? undefined,
+      // Derive state from zipcode if provided
+      state: updateData.zipcode
+        ? deriveStateFromZipcode(updateData.zipcode)
+        : (updateData.state ?? undefined),
+      resourceInterests: updateData.resourceInterests ?? undefined,
     };
 
     // We don't update favorites directly through this endpoint
@@ -88,6 +117,19 @@ export async function PUT(
         },
         createdAt: true,
         updatedAt: true,
+        // Demographic information
+        ageGroup: true,
+        raceEthnicity: true,
+        gender: true,
+        pronoun1: true,
+        pronoun2: true,
+        sexualOrientation: true,
+        incomeBracket: true,
+        livingSituation: true,
+        livingArrangement: true,
+        zipcode: true,
+        state: true,
+        resourceInterests: true,
       },
     });
 
@@ -166,4 +208,26 @@ export async function DELETE(
       { status: 500 },
     );
   }
+}
+
+// Helper function to derive state from zipcode
+function deriveStateFromZipcode(zipcode: string): string | null {
+  if (!zipcode || zipcode.length < 1) return null;
+
+  // Simple mapping of first digit to state (same as in analytics route)
+  const zipcodeToState: Record<string, string> = {
+    "0": "NY",
+    "1": "NY",
+    "2": "VA",
+    "3": "FL",
+    "4": "MI",
+    "5": "TX",
+    "6": "IL",
+    "7": "TX",
+    "8": "CO",
+    "9": "CA",
+  };
+
+  const firstDigit = zipcode.charAt(0);
+  return zipcodeToState[firstDigit] || null;
 }

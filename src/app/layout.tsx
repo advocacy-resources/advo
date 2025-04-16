@@ -16,6 +16,9 @@ import { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Advo",
   description: "Connecting you with resources that matter",
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_APP_URL || "https://myadvo.org",
+  ),
   openGraph: {
     title: "Advo",
     description: "Connecting you with resources that matter",

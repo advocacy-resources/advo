@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/authOptions";
 import prisma from "@/prisma/client";
 
+export const dynamic = "force-dynamic";
+
 // GET: Get all favorites for the current user
 export async function GET(request: NextRequest) {
   try {

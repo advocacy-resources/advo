@@ -12,6 +12,7 @@ import {
   resetHomeState,
 } from "@/store/slices/resourcesSlice";
 import UserProfileModal from "@/components/users/UserProfileModal";
+import ResourceManageModal from "@/components/resources/ResourceManageModal";
 import { useUserData } from "@/hooks/useUserData";
 import { Search } from "lucide-react";
 import { X } from "lucide-react";
@@ -29,6 +30,8 @@ function Navbar() {
   });
   const [isSearching, setIsSearching] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isResourceManageModalOpen, setIsResourceManageModalOpen] =
+    useState(false);
   const {
     userData,
     isLoading: isUserDataLoading,
@@ -222,6 +225,18 @@ function Navbar() {
                       Admin Dashboard
                     </button>
                   )}
+                  {session.user.role === "business_rep" &&
+                    session.user.managedResourceId && (
+                      <button
+                        onClick={() => {
+                          setIsResourceManageModalOpen(true);
+                          setMobileMenuOpen(false);
+                        }}
+                        className="block w-full text-left px-4 py-3 text-sm text-green-300 rounded-full btn-gradient-hover"
+                      >
+                        Manage Resource
+                      </button>
+                    )}
                   <button
                     onClick={() => {
                       handleSignOut();
@@ -466,6 +481,18 @@ function Navbar() {
                   <span className="md:inline lg:hidden">A</span>
                 </button>
               )}
+              {session.user.role === "business_rep" &&
+                session.user.managedResourceId && (
+                  <button
+                    onClick={() => setIsResourceManageModalOpen(true)}
+                    className="bg-green-700 text-white rounded-full text-xs md:text-xs lg:text-sm px-1 md:px-2 lg:px-3 py-1 md:py-1 lg:py-2 btn-gradient-hover"
+                  >
+                    <span className="hidden md:hidden lg:inline">
+                      Manage Resource
+                    </span>
+                    <span className="md:inline lg:hidden">MR</span>
+                  </button>
+                )}
               <button
                 onClick={() => setIsProfileModalOpen(true)}
                 className={`${buttonClass} text-xs md:text-xs lg:text-sm px-1 md:px-2 lg:px-3 py-1 md:py-1 lg:py-2`}
@@ -511,6 +538,16 @@ function Navbar() {
           onUserUpdate={saveUserData}
         />
       )}
+
+      {/* Resource Management Modal for Business Representatives */}
+      {session?.user?.role === "business_rep" &&
+        session?.user?.managedResourceId && (
+          <ResourceManageModal
+            isOpen={isResourceManageModalOpen}
+            onClose={setIsResourceManageModalOpen}
+            resourceId={session.user.managedResourceId}
+          />
+        )}
     </header>
   );
 }

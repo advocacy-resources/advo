@@ -13,6 +13,17 @@ export interface UserData {
   city?: string;
   state?: string;
   zipCode?: string;
+  // Demographic information
+  ageGroup?: string;
+  raceEthnicity?: string;
+  gender?: string;
+  pronoun1?: string;
+  pronoun2?: string;
+  sexualOrientation?: string;
+  incomeBracket?: string;
+  livingSituation?: string;
+  livingArrangement?: string;
+  resourceInterests?: string[];
 }
 
 export const useUserData = (userId: string | undefined) => {
@@ -58,6 +69,17 @@ export const useUserData = (userId: string | undefined) => {
         city: updatedData.city,
         state: updatedData.state,
         zipCode: updatedData.zipCode,
+        // Demographic information
+        ageGroup: updatedData.ageGroup,
+        raceEthnicity: updatedData.raceEthnicity,
+        gender: updatedData.gender,
+        pronoun1: updatedData.pronoun1,
+        pronoun2: updatedData.pronoun2,
+        sexualOrientation: updatedData.sexualOrientation,
+        incomeBracket: updatedData.incomeBracket,
+        livingSituation: updatedData.livingSituation,
+        livingArrangement: updatedData.livingArrangement,
+        resourceInterests: updatedData.resourceInterests,
       };
 
       const response = await fetch(`/api/v1/users/${updatedData.id}`, {

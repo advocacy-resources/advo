@@ -2,7 +2,29 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { Card } from "@/components/ui/card";
+
+// Dynamically import all components that use browser-specific APIs with no SSR
+const DemographicsCharts = dynamic(
+  () => import("@/components/admin/DemographicsCharts"),
+  { ssr: false },
+);
+
+const GeographicDistribution = dynamic(
+  () => import("@/components/admin/GeographicDistribution"),
+  { ssr: false },
+);
+
+const ResourceInterestsPieChart = dynamic(
+  () => import("@/components/admin/ResourceInterestsPieChart"),
+  { ssr: false },
+);
+
+const ResourceLocationsMapCard = dynamic(
+  () => import("@/components/admin/ResourceLocationsMapCard"),
+  { ssr: false },
+);
 
 interface AnalyticsData {
   users: {
@@ -12,6 +34,14 @@ interface AnalyticsData {
   };
   resources: {
     total: number;
+  };
+  demographics?: {
+    ageGroups: { group: string; count: number }[];
+    genders: { gender: string; count: number }[];
+    raceEthnicity: { group: string; count: number }[];
+    sexualOrientation: { orientation: string; count: number }[];
+    resourceInterests: { interest: string; count: number }[];
+    geographicDistribution: { state: string; count: number }[];
   };
 }
 
@@ -83,6 +113,27 @@ export default function AdminDashboard() {
             {loading ? "..." : analytics?.resources.total || 0}
           </div>
         </Card>
+      </div>
+
+      {/* Demographics Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+        {analytics?.demographics && (
+          <>
+            <DemographicsCharts
+              data={analytics.demographics}
+              loading={loading}
+            />
+            <ResourceInterestsPieChart
+              data={analytics.demographics.resourceInterests}
+              loading={loading}
+            />
+            <GeographicDistribution
+              data={analytics.demographics.geographicDistribution}
+              loading={loading}
+            />
+            <ResourceLocationsMapCard loading={loading} />
+          </>
+        )}
       </div>
 
       {/* Management Cards */}

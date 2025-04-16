@@ -11,6 +11,7 @@ declare module "next-auth" {
       image?: string;
       role?: string; // Add the role property to the Session user object
       isActive?: boolean; // Add the isActive property to the Session user object
+      managedResourceId?: string | null; // Add the managedResourceId property for business representatives
     };
   }
 
@@ -21,5 +22,6 @@ declare module "next-auth" {
     image?: string;
     role?: string; // Add the role property to the User object
     isActive?: boolean; // Add the isActive property to the User object
+    managedResourceId?: string | null; // Add the managedResourceId property for business representatives
   }
 }

@@ -9,7 +9,7 @@
 
 // Debug configuration
 const DEBUG = {
-  enabled: false,
+  enabled: true,
 };
 
 // Debug logger utility

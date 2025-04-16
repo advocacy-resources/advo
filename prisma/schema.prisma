@@ -8,21 +8,35 @@ datasource db {
 }
 
 model User {
-  id              String     @id @default(auto()) @map("_id") @db.ObjectId
-  email           String     @unique
-  name            String?
-  password        String
-  role            String     @default("user") // Added role field with default value "user"
-  isActive        Boolean    @default(true) // Added isActive field to control account status
-  isEmailVerified Boolean    @default(false) // Whether the email has been verified
-  otpSecret       String?    // Secret for OTP generation
-  otpExpiry       DateTime?  // When the OTP expires
-  favorites       Favorite[] // One-to-many relationship with Favorite
-  likes           Like[] // One-to-many relationship with Like
-  ratings         Rating[] // One-to-many relationship with Rating
-  reviews         Review[] // One-to-many relationship with Review
-  createdAt       DateTime   @default(now())
-  updatedAt       DateTime   @updatedAt
+  id                String     @id @default(auto()) @map("_id") @db.ObjectId
+  email             String     @unique
+  name              String?
+  password          String
+  role              String     @default("user") // Role can be "user", "admin", or "business_rep"
+  managedResourceId String?    @db.ObjectId // Resource ID that a business representative manages
+  isActive          Boolean    @default(true) // Added isActive field to control account status
+  isEmailVerified   Boolean    @default(false) // Whether the email has been verified
+  otpSecret         String?    // Secret for OTP generation
+  otpExpiry         DateTime?  // When the OTP expires
+  // User demographic data
+  ageGroup          String?    // Age group: 16-18, 18-24, 25-30, 30-45, 45+
+  raceEthnicity     String?    // Race/ethnicity: Hispanic, Black, Latine, etc.
+  gender            String?    // Gender: cis/trans and female/male
+  pronoun1          String?    // First pronoun (e.g., he, she, they)
+  pronoun2          String?    // Second pronoun (e.g., him, her, them)
+  sexualOrientation String?    // Sexual orientation: questioning, lesbian, gay, etc.
+  incomeBracket     String?    // Income bracket in standard IRS ranges
+  livingSituation   String?    // Living situation: apartment, house, homeless
+  livingArrangement String?    // Living arrangement: with family, alone
+  zipcode           String?    // User's zipcode for geographic data
+  state             String?    // State derived from zipcode (can be populated by backend)
+  resourceInterests String[]   // Array of resource interests
+  favorites         Favorite[] // One-to-many relationship with Favorite
+  likes             Like[]     // One-to-many relationship with Like
+  ratings           Rating[]   // One-to-many relationship with Rating
+  reviews           Review[]   // One-to-many relationship with Review
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
 }
 
 model Resource {
@@ -97,7 +111,11 @@ model ResourceRecommendation {
   name        String   // Name of the recommended resource
   type        String   // "state" or "national"
   state       String?  // State name if type is "state"
+  description String   @db.String // Description of what the resource offers
+  category    String[] // Array of categories the resource belongs to
   note        String   @db.String // Note about why they are recommending this resource
+  contact     Json     // Contact information (phone, email, website)
+  address     Json     // Address information (street, city, state, zip)
   status      String   @default("pending") // Status of the recommendation: pending, approved, rejected
   submittedBy String?  // Optional name of the person who submitted the recommendation
   email       String?  // Optional email of the person who submitted the recommendation

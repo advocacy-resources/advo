@@ -4,9 +4,44 @@ import prisma from "@/prisma/client";
 import { generateOTP, saveOTP, sendOTPEmail } from "@/lib/otp-utils";
 import { isOtpVerificationEnabled } from "@/lib/feature-flags";
 
+// Helper function to derive state from zipcode
+function deriveStateFromZipcode(zipcode: string): string | undefined {
+  if (!zipcode || zipcode.length < 1) return undefined;
+  // Simple mapping of first digit to state (same as in analytics route)
+  const zipcodeToState: Record<string, string> = {
+    "0": "NY",
+    "1": "NY",
+    "2": "VA",
+    "3": "FL",
+    "4": "MI",
+    "5": "TX",
+    "6": "IL",
+    "7": "TX",
+    "8": "CO",
+    "9": "CA",
+  };
+
+  const firstDigit = zipcode.charAt(0);
+  return zipcodeToState[firstDigit];
+}
+
 export async function POST(req: Request) {
   try {
-    const { email, password } = await req.json();
+    const {
+      email,
+      password,
+      ageGroup,
+      raceEthnicity,
+      gender,
+      pronoun1,
+      pronoun2,
+      sexualOrientation,
+      incomeBracket,
+      livingSituation,
+      livingArrangement,
+      zipcode,
+      resourceInterests,
+    } = await req.json();
 
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
@@ -33,6 +68,20 @@ export async function POST(req: Request) {
         password: hashedPassword,
         // If OTP verification is enabled, set isEmailVerified to false, otherwise true
         isEmailVerified: !otpEnabled,
+        // Add demographic data
+        ageGroup,
+        raceEthnicity,
+        gender,
+        pronoun1,
+        pronoun2,
+        sexualOrientation,
+        incomeBracket,
+        livingSituation,
+        livingArrangement,
+        zipcode,
+        // Derive state from zipcode if available
+        state: zipcode ? deriveStateFromZipcode(zipcode) : undefined,
+        resourceInterests,
       },
     });
 

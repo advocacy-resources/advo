@@ -35,6 +35,8 @@ const ResourceDetailsModal: React.FC<ResourceDetailsModalProps> = ({
 
   useEffect(() => {
     if (resource) {
+      console.log("ResourceDetailsModal received resource:", resource);
+      console.log("ResourceDetailsModal resource.owner:", resource.owner);
       setEditedResource(JSON.parse(JSON.stringify(resource))); // Deep copy
     }
   }, [resource]);
@@ -558,8 +560,33 @@ const ResourceDetailsModal: React.FC<ResourceDetailsModalProps> = ({
               )}
             </div>
 
-            {/* Stats */}
+            {/* Owner Information */}
             <div>
+              <h3 className="text-sm font-medium text-gray-400 mb-2">
+                Business Representative
+              </h3>
+              <div className="bg-gray-700 border border-gray-600 rounded-md p-3 text-white">
+                {resource.owner ? (
+                  <div className="space-y-1 text-sm">
+                    <p>
+                      <span className="font-medium">Name:</span>{" "}
+                      {resource.owner.name || "Not specified"}
+                    </p>
+                    <p>
+                      <span className="font-medium">Email:</span>{" "}
+                      {resource.owner.email || "Not specified"}
+                    </p>
+                  </div>
+                ) : (
+                  <p className="text-gray-400">
+                    No business representative assigned
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Stats */}
+            <div className="mt-4">
               <h3 className="text-sm font-medium text-gray-400 mb-2">Stats</h3>
               <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm text-white">
                 <p>Favorites:</p>
