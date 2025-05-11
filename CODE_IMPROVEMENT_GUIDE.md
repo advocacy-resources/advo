@@ -33,7 +33,7 @@ The application has inconsistent handling of MongoDB ObjectIDs, sometimes conver
 
 ```typescript
 // utils/mongodb.ts
-import { ObjectId } from 'mongodb';
+import { ObjectId } from "mongodb";
 
 export const isValidObjectId = (id: string): boolean => {
   try {
@@ -52,25 +52,25 @@ export const formatObjectId = (id: string): string => {
 
 ```typescript
 // Example API route
-import { isValidObjectId } from '@/utils/mongodb';
+import { isValidObjectId } from "@/utils/mongodb";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string } },
 ) {
   const { id } = params;
-  
+
   if (!isValidObjectId(id)) {
     return NextResponse.json(
       { error: "Invalid resource ID format" },
-      { status: 400 }
+      { status: 400 },
     );
   }
-  
+
   const resource = await prisma.resource.findUnique({
     where: { id },
   });
-  
+
   // ...
 }
 ```
@@ -102,7 +102,7 @@ try {
       error: "Internal Server Error",
       details: error instanceof Error ? error.message : "Unknown error",
     },
-    { status: 500 }
+    { status: 500 },
   );
 }
 ```
@@ -116,68 +116,68 @@ try {
 export class ApiError extends Error {
   public readonly statusCode: number;
   public readonly code: string;
-  
+
   constructor(message: string, statusCode: number, code: string) {
     super(message);
     this.statusCode = statusCode;
     this.code = code;
-    this.name = 'ApiError';
+    this.name = "ApiError";
   }
-  
-  static badRequest(message: string, code = 'BAD_REQUEST') {
+
+  static badRequest(message: string, code = "BAD_REQUEST") {
     return new ApiError(message, 400, code);
   }
-  
-  static unauthorized(message: string, code = 'UNAUTHORIZED') {
+
+  static unauthorized(message: string, code = "UNAUTHORIZED") {
     return new ApiError(message, 401, code);
   }
-  
-  static forbidden(message: string, code = 'FORBIDDEN') {
+
+  static forbidden(message: string, code = "FORBIDDEN") {
     return new ApiError(message, 403, code);
   }
-  
-  static notFound(message: string, code = 'NOT_FOUND') {
+
+  static notFound(message: string, code = "NOT_FOUND") {
     return new ApiError(message, 404, code);
   }
-  
-  static internal(message: string, code = 'INTERNAL_ERROR') {
+
+  static internal(message: string, code = "INTERNAL_ERROR") {
     return new ApiError(message, 500, code);
   }
 }
 
 export function handleApiError(error: unknown) {
   console.error(error);
-  
+
   if (error instanceof ApiError) {
     return NextResponse.json(
       {
         error: error.message,
         code: error.code,
       },
-      { status: error.statusCode }
+      { status: error.statusCode },
     );
   }
-  
+
   // Prisma errors
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
     return NextResponse.json(
       {
-        error: 'Database error',
+        error: "Database error",
         code: error.code,
         details: error.message,
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
-  
+
   // Default error
   return NextResponse.json(
     {
-      error: 'Internal server error',
-      code: 'INTERNAL_ERROR',
-      details: error instanceof Error ? error.message : 'Unknown error',
+      error: "Internal server error",
+      code: "INTERNAL_ERROR",
+      details: error instanceof Error ? error.message : "Unknown error",
     },
-    { status: 500 }
+    { status: 500 },
   );
 }
 ```
@@ -186,27 +186,27 @@ export function handleApiError(error: unknown) {
 
 ```typescript
 // Example API route with improved error handling
-import { ApiError, handleApiError } from '@/utils/api-error';
+import { ApiError, handleApiError } from "@/utils/api-error";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string } },
 ) {
   try {
     const { id } = params;
-    
+
     if (!isValidObjectId(id)) {
-      throw ApiError.badRequest('Invalid resource ID format');
+      throw ApiError.badRequest("Invalid resource ID format");
     }
-    
+
     const resource = await prisma.resource.findUnique({
       where: { id },
     });
-    
+
     if (!resource) {
-      throw ApiError.notFound('Resource not found');
+      throw ApiError.notFound("Resource not found");
     }
-    
+
     return NextResponse.json(resource);
   } catch (error) {
     return handleApiError(error);
@@ -222,7 +222,7 @@ NextAuth is in debug mode and there's potential for unauthorized access:
 
 ```typescript
 // Warning in logs
-[next-auth][warn][DEBUG_ENABLED] 
+[next-auth][warn][DEBUG_ENABLED]
 https://next-auth.js.org/warnings#debug_enabled
 ```
 
@@ -234,7 +234,7 @@ https://next-auth.js.org/warnings#debug_enabled
 // lib/authOptions.ts
 export const authOptions: NextAuthOptions = {
   // ...
-  debug: process.env.NODE_ENV === 'development',
+  debug: process.env.NODE_ENV === "development",
   // ...
 };
 ```
@@ -250,31 +250,37 @@ import { ApiError } from "@/utils/api-error";
 
 export async function withAuth(
   handler: (req: NextRequest, session: Session) => Promise<NextResponse>,
-  req: NextRequest
+  req: NextRequest,
 ) {
   const session = await getServerSession(authOptions);
-  
+
   if (!session || !session.user) {
-    throw ApiError.unauthorized('You must be logged in to access this resource');
+    throw ApiError.unauthorized(
+      "You must be logged in to access this resource",
+    );
   }
-  
+
   return handler(req, session);
 }
 
 export async function withAdminAuth(
   handler: (req: NextRequest, session: Session) => Promise<NextResponse>,
-  req: NextRequest
+  req: NextRequest,
 ) {
   const session = await getServerSession(authOptions);
-  
+
   if (!session || !session.user) {
-    throw ApiError.unauthorized('You must be logged in to access this resource');
+    throw ApiError.unauthorized(
+      "You must be logged in to access this resource",
+    );
   }
-  
-  if (session.user.role !== 'admin') {
-    throw ApiError.forbidden('You do not have permission to access this resource');
+
+  if (session.user.role !== "admin") {
+    throw ApiError.forbidden(
+      "You do not have permission to access this resource",
+    );
   }
-  
+
   return handler(req, session);
 }
 ```
@@ -283,8 +289,8 @@ export async function withAdminAuth(
 
 ```typescript
 // Example admin API route
-import { withAdminAuth } from '@/middleware/auth';
-import { handleApiError } from '@/utils/api-error';
+import { withAdminAuth } from "@/middleware/auth";
+import { handleApiError } from "@/utils/api-error";
 
 export async function GET(req: NextRequest) {
   try {
@@ -334,24 +340,24 @@ const resources = await prisma.resource.findMany({
 
 ```typescript
 // utils/cache.ts
-import NodeCache from 'node-cache';
+import NodeCache from "node-cache";
 
 const cache = new NodeCache({ stdTTL: 300 }); // 5 minutes default TTL
 
 export async function getCachedData<T>(
   key: string,
   fetchFn: () => Promise<T>,
-  ttl?: number
+  ttl?: number,
 ): Promise<T> {
   const cachedData = cache.get<T>(key);
-  
+
   if (cachedData !== undefined) {
     return cachedData;
   }
-  
+
   const freshData = await fetchFn();
   cache.set(key, freshData, ttl);
-  
+
   return freshData;
 }
 ```
@@ -363,7 +369,7 @@ export async function getCachedData<T>(
 export async function GET(req: NextRequest) {
   try {
     const resources = await getCachedData(
-      'all-resources',
+      "all-resources",
       async () => {
         return prisma.resource.findMany({
           include: {
@@ -371,9 +377,9 @@ export async function GET(req: NextRequest) {
           },
         });
       },
-      600 // 10 minutes TTL
+      600, // 10 minutes TTL
     );
-    
+
     return NextResponse.json(resources);
   } catch (error) {
     return handleApiError(error);
@@ -404,7 +410,7 @@ interface ResourceCardProps {
 export type ObjectId = string;
 
 // interfaces/resource.ts
-import { ObjectId } from '@/types/mongodb';
+import { ObjectId } from "@/types/mongodb";
 
 export interface Resource {
   id: ObjectId;
@@ -425,16 +431,16 @@ interface ResourceCardProps {
 
 ```typescript
 // schemas/resource.ts
-import { z } from 'zod';
-import { isValidObjectId } from '@/utils/mongodb';
+import { z } from "zod";
+import { isValidObjectId } from "@/utils/mongodb";
 
 export const ObjectIdSchema = z.string().refine(isValidObjectId, {
-  message: 'Invalid ObjectId format',
+  message: "Invalid ObjectId format",
 });
 
 export const ResourceSchema = z.object({
   id: ObjectIdSchema,
-  name: z.string().min(1, 'Name is required'),
+  name: z.string().min(1, "Name is required"),
   description: z.string(),
   category: z.array(z.string()),
   // ...
@@ -447,27 +453,27 @@ export type ResourceInput = z.infer<typeof ResourceSchema>;
 
 ```typescript
 // Example API route with Zod validation
-import { ResourceSchema } from '@/schemas/resource';
-import { ApiError, handleApiError } from '@/utils/api-error';
+import { ResourceSchema } from "@/schemas/resource";
+import { ApiError, handleApiError } from "@/utils/api-error";
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    
+
     // Validate input
     const result = ResourceSchema.safeParse(body);
-    
+
     if (!result.success) {
-      throw ApiError.badRequest('Invalid resource data', 'VALIDATION_ERROR');
+      throw ApiError.badRequest("Invalid resource data", "VALIDATION_ERROR");
     }
-    
+
     const validatedData = result.data;
-    
+
     // Process the validated data
     const resource = await prisma.resource.create({
       data: validatedData,
     });
-    
+
     return NextResponse.json(resource);
   } catch (error) {
     return handleApiError(error);
@@ -492,7 +498,7 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
   // ...many state variables
   // ...many side effects
   // ...many handlers
-  
+
   return (
     // ...complex JSX
   );
@@ -516,7 +522,7 @@ const ResourceRating: React.FC<ResourceRatingProps> = ({
 }) => {
   const [currentRating, setCurrentRating] = useState<Rating>(initialRating);
   // ...rating-specific logic
-  
+
   return (
     <div className="flex gap-2">
       <button onClick={handleRatingUp}>👍</button>
@@ -552,9 +558,9 @@ export function useResourceRating(resourceId: ObjectId, initialRating: Rating) {
   const [currentRating, setCurrentRating] = useState<Rating>(initialRating);
   const [approvalPercentage, setApprovalPercentage] = useState<number>(0);
   const [totalVotes, setTotalVotes] = useState<number>(0);
-  
+
   // ...rating logic
-  
+
   return {
     currentRating,
     approvalPercentage,
@@ -576,7 +582,7 @@ const ResourceRating: React.FC<ResourceRatingProps> = ({
     handleRatingUp,
     handleRatingDown,
   } = useResourceRating(resourceId, initialRating);
-  
+
   return (
     // ...JSX
   );
@@ -591,17 +597,17 @@ const ResourceRating: React.FC<ResourceRatingProps> = ({
 
 ```typescript
 // utils/mongodb.test.ts
-import { isValidObjectId } from './mongodb';
+import { isValidObjectId } from "./mongodb";
 
-describe('MongoDB utilities', () => {
-  describe('isValidObjectId', () => {
-    it('should return true for valid ObjectIds', () => {
-      expect(isValidObjectId('507f1f77bcf86cd799439011')).toBe(true);
+describe("MongoDB utilities", () => {
+  describe("isValidObjectId", () => {
+    it("should return true for valid ObjectIds", () => {
+      expect(isValidObjectId("507f1f77bcf86cd799439011")).toBe(true);
     });
-    
-    it('should return false for invalid ObjectIds', () => {
-      expect(isValidObjectId('invalid-id')).toBe(false);
-      expect(isValidObjectId('123')).toBe(false);
+
+    it("should return false for invalid ObjectIds", () => {
+      expect(isValidObjectId("invalid-id")).toBe(false);
+      expect(isValidObjectId("123")).toBe(false);
     });
   });
 });
@@ -611,35 +617,37 @@ describe('MongoDB utilities', () => {
 
 ```typescript
 // __tests__/api/resources.test.ts
-import { createMocks } from 'node-mocks-http';
-import { GET } from '@/app/api/v1/resources/[id]/route';
+import { createMocks } from "node-mocks-http";
+import { GET } from "@/app/api/v1/resources/[id]/route";
 
 // Mock Prisma
-jest.mock('@/prisma/client', () => ({
+jest.mock("@/prisma/client", () => ({
   resource: {
     findUnique: jest.fn(),
   },
 }));
 
-describe('Resource API', () => {
+describe("Resource API", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
-  
-  it('should return 404 for non-existent resource', async () => {
-    const prisma = require('@/prisma/client');
+
+  it("should return 404 for non-existent resource", async () => {
+    const prisma = require("@/prisma/client");
     prisma.resource.findUnique.mockResolvedValue(null);
-    
+
     const { req, res } = createMocks({
-      method: 'GET',
-      params: { id: '507f1f77bcf86cd799439011' },
+      method: "GET",
+      params: { id: "507f1f77bcf86cd799439011" },
     });
-    
-    const response = await GET(req, { params: { id: '507f1f77bcf86cd799439011' } });
+
+    const response = await GET(req, {
+      params: { id: "507f1f77bcf86cd799439011" },
+    });
     const data = await response.json();
-    
+
     expect(response.status).toBe(404);
-    expect(data.error).toBe('Resource not found');
+    expect(data.error).toBe("Resource not found");
   });
 });
 ```
@@ -679,7 +687,7 @@ describe('ResourceCard', () => {
         favored={false}
       />
     );
-    
+
     expect(screen.getByText('Test Resource')).toBeInTheDocument();
     expect(screen.getByText('Test Description')).toBeInTheDocument();
     expect(screen.getByText(/Test Category/)).toBeInTheDocument();
