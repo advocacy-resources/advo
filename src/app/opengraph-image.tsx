@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
-export const alt = "Advo";
+export const alt = "myAdvo";
 export const contentType = "image/png";
 export const size = {
   width: 1200,
