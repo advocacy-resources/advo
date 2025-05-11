@@ -1,5 +1,5 @@
 import dynamic from "next/dynamic";
-import SidebarFIlters from "../sidebar/SidebarFilters";
+import SidebarFilters from "../sidebar/SidebarFilters";
 import SidebarContent from "../sidebar/SidebarContent";
 import "leaflet/dist/leaflet.css";
 
@@ -13,7 +13,7 @@ export default function SidebarSectionPage() {
       {/* Sidebar Section */}
       <div className="col-span-2 bg-gray-200">
         <div className="sidebar">
-          <SidebarFIlters />
+          <SidebarFilters />
         </div>
       </div>
 
