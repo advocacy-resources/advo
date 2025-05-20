@@ -1,3 +1,7 @@
+// File: src/app/resources/page.tsx
+// Purpose: Search results page that displays resources based on search parameters.
+// Owner: Advo Team
+
 "use client";
 
 import { useEffect } from "react";
@@ -14,6 +18,10 @@ import {
   selectResourcesSearchParams,
 } from "@/store/slices/resourcesSlice";
 
+/**
+ * Interface defining the structure of search results from the API
+ * Contains resource details needed for display in the search results grid
+ */
 interface SearchResult {
   id: string | number;
   name: string;
@@ -28,6 +36,12 @@ interface SearchResult {
   profilePhotoUrl?: string;
 }
 
+/**
+ * Search results page component that displays resources matching search criteria.
+ * Parses search parameters from URL and dispatches search actions to Redux.
+ * Displays loading states, errors, and formatted results.
+ * @returns React component with the search results UI
+ */
 export default function SearchResultsPage() {
   const searchParams = useSearchParams();
   const dispatch = useAppDispatch();
@@ -36,9 +50,11 @@ export default function SearchResultsPage() {
   const error = useAppSelector(selectResourcesError);
   const storeSearchParams = useAppSelector(selectResourcesSearchParams);
 
-  // Resources and search parameters from Redux store
-
-  // Function to format search parameters for display
+  /**
+   * Formats the current search parameters into a human-readable string.
+   * Combines description, location, category, and type filters into a sentence.
+   * @returns Formatted search query string for display
+   */
   const formatSearchQuery = () => {
     const displayText: string[] = [];
 
@@ -79,8 +95,11 @@ export default function SearchResultsPage() {
   };
 
   useEffect(() => {
-    // Parse the search parameter if it exists
-    // Initialize with required properties to satisfy SearchParams interface
+    /**
+     * Extracts and processes search parameters from the URL.
+     * Handles both JSON encoded search parameters and individual query parameters.
+     * Dispatches the search action to fetch matching resources.
+     */
     let searchQuery: {
       category: string[];
       type: string[];
@@ -93,7 +112,7 @@ export default function SearchResultsPage() {
     };
     if (searchParams.get("search")) {
       try {
-        // Decode the JSON string from the URL
+        // Decode the JSON-encoded search parameters from the URL
         const searchString = searchParams.get("search") || "";
         const decodedString = decodeURIComponent(searchString);
         searchQuery = JSON.parse(decodedString);
@@ -101,7 +120,7 @@ export default function SearchResultsPage() {
         // Silently handle parsing errors
       }
     } else {
-      // If no search parameter, use the raw query parameters
+      // If no encoded search parameter exists, extract individual query parameters
       const description = searchParams.get("description") || "";
       const zipCode = searchParams.get("zipCode") || "";
       const category = searchParams.getAll("category");
@@ -114,7 +133,7 @@ export default function SearchResultsPage() {
         type,
       };
     }
-    // Dispatch the search action
+    // Dispatch the search action to fetch resources matching the criteria
     dispatch(searchResources(searchQuery));
   }, [searchParams, dispatch]);
 

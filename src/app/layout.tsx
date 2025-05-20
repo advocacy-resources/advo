@@ -1,3 +1,7 @@
+// File: src/app/layout.tsx
+// Purpose: Root layout component that wraps the entire application with providers and common UI elements.
+// Owner: Advo Team
+
 import "./globals.css";
 
 import { Suspense } from "react";
@@ -8,8 +12,8 @@ import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import Footbar from "@/components/layout/footbar/Footbar";
 import Navbar from "@/components/layout/Navbar";
-// Removed unused import: BackgroundContextProvider is commented out in the component
-// import { BackgroundContextProvider } from "@/providers/BackgroundProvider";
+// NOTE: BackgroundContextProvider is imported but commented out in the component
+// This is kept for future implementation
 import { BackgroundContextProvider } from "@/providers/BackgroundProvider";
 import { Metadata } from "next";
 
@@ -42,6 +46,14 @@ export const metadata: Metadata = {
   },
 };
 
+/**
+ * Root layout component that wraps the entire application.
+ * Provides authentication, state management, and common UI elements like navbar and footer.
+ * Also includes analytics tracking components.
+ *
+ * @param children - The page content to render within the layout
+ * @returns React component with the complete application structure
+ */
 export default function RootLayout({
   children,
 }: {

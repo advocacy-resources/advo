@@ -1,3 +1,7 @@
+// File: src/app/admin/resources/create/page.tsx
+// Purpose: Form for creating new resources with all required fields and image uploads.
+// Owner: Advo Team
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
@@ -7,12 +11,18 @@ import { Button } from "@/components/ui/button";
 import { Resource, OperatingHours } from "@/interfaces/resource";
 import { FileUpload } from "@/components/ui/file-upload";
 
+/**
+ * Page component for creating new resources.
+ * Provides a form with fields for basic information, contact details,
+ * address, operating hours, and image uploads.
+ * @returns React component with the resource creation form
+ */
 export default function CreateResourcePage() {
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  // Initialize a new empty resource
+  // Initialize a new resource with default values for all required fields
   const [newResource, setNewResource] = useState<Partial<Resource>>({
     name: "",
     description: "",
@@ -41,6 +51,11 @@ export default function CreateResourcePage() {
     },
   });
 
+  /**
+   * Updates the resource state when form fields change.
+   * @param field - The field name to update
+   * @param value - The new value for the field
+   */
   const handleInputChange = (field: string, value: any) => {
     console.log(
       `handleInputChange field: ${field}, value type: ${typeof value}`,
@@ -55,8 +70,13 @@ export default function CreateResourcePage() {
     });
   };
 
+  /**
+   * Handles the category input field, converting comma-separated values
+   * into an array of category strings.
+   * @param value - Comma-separated category string
+   */
   const handleCategoryChange = (value: string) => {
-    // Split by commas and trim whitespace
+    // Split by commas and trim whitespace for each category
     const categories = value.split(",").map((cat) => cat.trim());
 
     setNewResource({
@@ -65,11 +85,15 @@ export default function CreateResourcePage() {
     });
   };
 
+  /**
+   * Validates form data and submits the new resource to the API.
+   * Redirects to the resource edit page on success.
+   */
   const handleSave = async () => {
     try {
       setIsSaving(true);
 
-      // Validate required fields
+      // Validate required fields before submission
       if (!newResource.name || !newResource.description) {
         setError("Name and description are required");
         setIsSaving(false);
@@ -86,7 +110,7 @@ export default function CreateResourcePage() {
         !!newResource.bannerImage,
       );
 
-      // Create a new object with only the fields we want to create
+      // Create a clean object with only the fields needed for the API
       const resourceToCreate: any = {
         name: newResource.name,
         description: newResource.description,
@@ -100,7 +124,7 @@ export default function CreateResourcePage() {
         bannerImageUrl: newResource.bannerImageUrl,
       };
 
-      // Add the image data if it exists
+      // Add image data only if files were uploaded
       if (newResource.profilePhoto) {
         resourceToCreate.profilePhoto = newResource.profilePhoto;
       }
@@ -124,7 +148,7 @@ export default function CreateResourcePage() {
 
       const createdResource = await response.json();
 
-      // Redirect to the resource edit page
+      // Redirect to the resource edit page after successful creation
       router.push(`/admin/resources/${createdResource.id}`);
     } catch (err) {
       setError("Error creating resource. Please try again.");
@@ -133,6 +157,9 @@ export default function CreateResourcePage() {
     }
   };
 
+  /**
+   * Cancels the resource creation and returns to the resources list.
+   */
   const handleCancel = () => {
     router.push("/admin/resources");
   };
