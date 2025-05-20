@@ -1,8 +1,15 @@
+// File: src/store/slices/resourcesSlice.ts
+// Purpose: Redux slice for managing resources data, search, and pagination state.
+// Owner: Advo Team
+
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { createSelector } from "@reduxjs/toolkit";
 import { Resource } from "@/interfaces/resource";
 
-// Define interfaces for MongoDB ObjectId and nested ID structures
+/**
+ * Interfaces for handling different ID formats from the API
+ * The API may return IDs in different formats that need normalization
+ */
 interface MongoDBObjectId {
   $oid: string;
 }
@@ -11,7 +18,10 @@ interface NestedIdObject {
   _id: string;
 }
 
-// Define interface for search parameters to match ResourcesState.searchParams
+/**
+ * Interface defining the structure of search parameters for resource queries.
+ * Used for both URL parameters and API requests.
+ */
 interface SearchParams {
   category: string[];
   type: string[];
@@ -24,6 +34,10 @@ interface SearchParams {
   [key: string]: unknown;
 }
 
+/**
+ * Interface for pagination metadata returned from the API.
+ * Used to manage pagination state in the UI.
+ */
 interface PaginationData {
   total: number;
   page: number;
@@ -31,7 +45,10 @@ interface PaginationData {
   totalPages: number;
 }
 
-// Export the ResourcesState interface so it can be used in other files
+/**
+ * Main state interface for the resources slice.
+ * Uses normalized data structure with byId and allIds for efficient lookups.
+ */
 export interface ResourcesState {
   byId: Record<string, Resource>;
   allIds: string[];
@@ -69,7 +86,14 @@ const initialState: ResourcesState = {
   lastFetched: null,
 };
 
-// Helper function to normalize resource data
+/**
+ * Normalizes resource data from various API formats into a consistent structure.
+ * Handles different ID formats (MongoDB ObjectId, string, nested objects) and
+ * creates a normalized store with byId and allIds for efficient access.
+ *
+ * @param resources - Array of resources from the API
+ * @returns Object with normalized byId map and allIds array
+ */
 const normalizeResources = (resources: Resource[]) => {
   const byId: Record<string, Resource> = {};
   const allIds: string[] = [];
@@ -126,7 +150,13 @@ const normalizeResources = (resources: Resource[]) => {
   return { byId, allIds };
 };
 
-// Async thunk for fetching resources
+/**
+ * Async thunk for fetching paginated resources from the API.
+ * Uses current search parameters and pagination state from Redux.
+ *
+ * @param page - Page number to fetch (defaults to 1)
+ * @returns Object with normalized resources and pagination data
+ */
 export const fetchResources = createAsyncThunk(
   "resources/fetchResources",
   async (page: number = 1, { getState, rejectWithValue }) => {
@@ -187,7 +217,13 @@ export const fetchResources = createAsyncThunk(
   },
 );
 
-// Async thunk for fetching a single resource by ID
+/**
+ * Async thunk for fetching detailed information about a single resource.
+ * Checks if detailed data is already loaded before making API request.
+ *
+ * @param id - ID of the resource to fetch
+ * @returns Object containing the detailed resource data
+ */
 export const fetchResourceById = createAsyncThunk(
   "resources/fetchResourceById",
   async (id: string, { getState, rejectWithValue }) => {
@@ -220,7 +256,13 @@ export const fetchResourceById = createAsyncThunk(
   },
 );
 
-// Unified search function that replaces the old searchResources
+/**
+ * Async thunk for searching resources with various filter criteria.
+ * Fetches all pages of results for the search query to provide complete results.
+ *
+ * @param searchParams - Object containing search filters (category, type, description, etc.)
+ * @returns Object with all matching resources and updated pagination data
+ */
 export const searchResources = createAsyncThunk(
   "resources/searchResources",
   async (searchParams: SearchParams, { rejectWithValue }) => {
@@ -333,7 +375,10 @@ const resourcesSlice = createSlice({
     clearError: (state) => {
       state.error = null;
     },
-    // Reset the entire state to initial values for homepage
+    /**
+     * Resets the resources state to initial values for the homepage.
+     * Clears search parameters, pagination, and cached data.
+     */
     resetHomeState: (state) => {
       state.pagination = {
         total: 0,
@@ -460,7 +505,10 @@ const resourcesSlice = createSlice({
   },
 });
 
-// Export memoized selectors
+/**
+ * Memoized selectors for accessing resources state.
+ * These selectors help optimize rendering by preventing unnecessary recalculations.
+ */
 export const selectResourcesState = (state: { resources: ResourcesState }) =>
   state.resources;
 

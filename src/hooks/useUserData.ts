@@ -1,6 +1,14 @@
+// File: src/hooks/useUserData.ts
+// Purpose: Custom hook for fetching, managing, and updating user profile data.
+// Owner: Advo Team
+
 import { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 
+/**
+ * Interface defining the structure of user profile data.
+ * Contains basic user information, contact details, and demographic information.
+ */
 export interface UserData {
   id: string;
   email: string;
@@ -26,12 +34,23 @@ export interface UserData {
   resourceInterests?: string[];
 }
 
+/**
+ * Custom hook for fetching and managing user profile data.
+ * Provides functions to load, update, and save user information.
+ *
+ * @param userId - The ID of the user to fetch data for
+ * @returns Object containing user data, loading state, and functions to update the data
+ */
 export const useUserData = (userId: string | undefined) => {
   const [userData, setUserData] = useState<UserData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
+    /**
+     * Fetches user data from the API when the component mounts or userId changes.
+     * Updates local state with the fetched data and handles loading/error states.
+     */
     const fetchUserData = async () => {
       if (userId) {
         try {
@@ -57,11 +76,19 @@ export const useUserData = (userId: string | undefined) => {
     fetchUserData();
   }, [userId, toast]);
 
+  /**
+   * Saves updated user data to the API.
+   * Only sends fields that can be updated and shows success/error notifications.
+   *
+   * @param updatedData - The complete user data object with updated fields
+   * @returns The saved user data from the API response
+   * @throws Error if the API request fails
+   */
   const saveUserData = async (updatedData: UserData) => {
     try {
       console.log("useUserData.saveUserData - Saving data:", updatedData);
 
-      // Only send the fields that can be updated
+      // Extract only the fields that are allowed to be updated by the API
       const dataToSend = {
         id: updatedData.id,
         name: updatedData.name,
@@ -97,7 +124,7 @@ export const useUserData = (userId: string | undefined) => {
       const savedData = await response.json();
       console.log("useUserData.saveUserData - Received response:", savedData);
 
-      // Update the local state with the data returned from the API
+      // Update the local state with the data returned from the API to ensure consistency
       setUserData(savedData);
 
       toast({
