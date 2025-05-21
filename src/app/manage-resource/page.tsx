@@ -1,3 +1,7 @@
+// File: src/app/manage-resource/page.tsx
+// Purpose: Dashboard for business representatives to manage their resource information.
+// Owner: Advo Team
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -16,6 +20,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { AlertCircle, CheckCircle, Save } from "lucide-react";
 
+/**
+ * Page component for business representatives to manage their resource.
+ * Provides a tabbed interface for editing resource details, contact information,
+ * and location/hours.
+ * @returns React component with the resource management interface
+ */
 export default function ManageResourcePage() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -27,6 +37,11 @@ export default function ManageResourcePage() {
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
+  /**
+   * Checks user authentication and role on component mount.
+   * Redirects to appropriate pages if user is not authenticated
+   * or is not a business representative.
+   */
   useEffect(() => {
     // Check if user is logged in and is a business representative
     if (status === "authenticated") {
@@ -47,6 +62,10 @@ export default function ManageResourcePage() {
     }
   }, [status, session, router]);
 
+  /**
+   * Fetches resource data from the API.
+   * @param resourceId - ID of the resource to fetch
+   */
   const fetchResource = async (resourceId: string) => {
     setIsLoading(true);
     try {
@@ -84,6 +103,12 @@ export default function ManageResourcePage() {
     }
   };
 
+  /**
+   * Updates the resource state when form fields change.
+   * Handles both simple fields and nested objects like contact and address.
+   * @param field - The field name to update
+   * @param value - The new value for the field
+   */
   const handleResourceChange = (field: string, value: any) => {
     if (!editedResource) return;
 
@@ -123,7 +148,11 @@ export default function ManageResourcePage() {
     }
   };
 
-  // Prepare resource data for API submission
+  /**
+   * Prepares resource data for API submission.
+   * Transforms UI state into the proper structure expected by the API.
+   * @returns Formatted resource data object or null if no resource exists
+   */
   const prepareResourceData = () => {
     if (!editedResource) return null;
 
@@ -146,6 +175,10 @@ export default function ManageResourcePage() {
     };
   };
 
+  /**
+   * Saves the edited resource data to the API.
+   * Shows success or error messages based on the result.
+   */
   const handleSave = async () => {
     if (!session?.user?.managedResourceId || !editedResource) return;
 
@@ -209,6 +242,10 @@ export default function ManageResourcePage() {
     }
   };
 
+  /**
+   * Cancels the editing process and reverts changes.
+   * Resets the edited resource to the original resource data.
+   */
   const handleCancel = () => {
     // Reset edited resource to the original resource
     setEditedResource(resource);

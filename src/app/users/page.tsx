@@ -1,19 +1,38 @@
+// File: src/app/users/page.tsx
+// Purpose: Page for displaying a list of all users in the system.
+// Owner: Advo Team
+
 "use client";
 
 import { useEffect, useState } from "react";
 
+/**
+ * Interface representing a user in the system
+ */
 interface User {
   id: number;
   name: string;
   email: string;
 }
 
+/**
+ * Users page component that displays a list of all users.
+ * Fetches user data from the API and renders it in a list format.
+ * @returns React component with the users list
+ */
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
+  /**
+   * Fetches the list of users from the API when the component mounts.
+   */
   useEffect(() => {
+    /**
+     * Async function to fetch users data from the API.
+     * Updates state with the fetched users or error message.
+     */
     const fetchUsers = async () => {
       try {
         const response = await fetch("/api/v1/users");
