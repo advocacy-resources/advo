@@ -1,3 +1,7 @@
+// File: src/components/resources/ResourceCard.tsx
+// Purpose: Reusable card component for displaying resource information with interactive elements.
+// Owner: Advo Team
+
 "use client";
 import Link from "next/link";
 import { Rating } from "@/enums/rating.enum";
@@ -14,6 +18,10 @@ import {
 import { Address } from "@/interfaces/resource";
 import { selectResourceById } from "@/store/slices/resourcesSlice";
 
+/**
+ * Props interface for the ResourceCard component.
+ * Defines the minimum data needed to display a resource in card format.
+ */
 interface ResourceCardProps {
   id: string | number;
   name: string;
@@ -26,6 +34,14 @@ interface ResourceCardProps {
   profilePhotoUrl?: string;
 }
 
+/**
+ * Displays a resource in a card format with interactive elements.
+ * Shows resource image, name, approval rating, and action buttons.
+ * Fetches additional resource details from Redux store if available.
+ *
+ * @param props - The resource data to display in the card
+ * @returns React component with the resource card UI
+ */
 const ResourceCard: React.FC<ResourceCardProps> = ({
   id,
   name,
@@ -41,27 +57,39 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
   const [totalVotes, setTotalVotes] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // Helper function to check if an address is complete and geocodeable
+  /**
+   * Checks if an address has all required fields for geocoding.
+   * Used to determine whether to show the map button.
+   * @param address - The address object to check
+   * @returns Boolean indicating if the address is complete
+   */
   const hasCompleteAddress = (address?: Address): boolean => {
     if (!address) return false;
     return !!(address.street && address.city && address.state);
   };
 
-  // Helper function to format address for Google Maps
+  /**
+   * Formats an address object into a string for Google Maps URL.
+   * @param address - The address object to format
+   * @returns Formatted address string for Google Maps
+   */
   const formatAddress = (address?: Address): string => {
     if (!address) return "";
     return `${address.street}, ${address.city}, ${address.state} ${address.zip || ""}`.trim();
   };
 
-  // Ensure we have a valid string ID
+  // Convert numeric IDs to strings for consistent handling
   const safeId = typeof id === "string" ? id : String(id);
 
-  // Get the full resource from Redux if available
+  // Retrieve complete resource data from Redux store if available
   const resourceFromStore = useAppSelector((state) =>
     selectResourceById(state, safeId),
   );
 
-  // Load approval percentage from store
+  /**
+   * Calculates and sets the approval rating percentage from store data.
+   * Handles loading states and edge cases like missing IDs.
+   */
   useEffect(() => {
     // Set loading to false immediately if we have no valid ID
     if (!safeId || safeId === "unknown") {
@@ -88,7 +116,11 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
     }
   }, [safeId, resourceFromStore]);
 
-  // Helper function to determine approval rating display
+  /**
+   * Determines the display text and color for the approval rating.
+   * Changes color based on rating percentage (green for high, yellow for medium, red for low).
+   * @returns Object with text and color class for the approval rating
+   */
   const getApprovalRatingDisplay = () => {
     if (totalVotes === 0) {
       return { text: "No ratings yet", color: "text-gray-400" };

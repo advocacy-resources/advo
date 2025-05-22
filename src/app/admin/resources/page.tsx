@@ -1,3 +1,7 @@
+// File: src/app/admin/resources/page.tsx
+// Purpose: Admin interface for managing resources with CRUD operations.
+// Owner: Advo Team
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -8,6 +12,11 @@ import { Resource } from "@/interfaces/resource";
 import ResourceDetailsModal from "@/components/resources/ResourceDetailsModal";
 import ResourceCreateModal from "@/components/resources/ResourceCreateModal";
 
+/**
+ * Admin page for managing resources with pagination, filtering, and CRUD operations.
+ * Provides a tabular view of all resources with options to view details, edit, and delete.
+ * @returns React component with the resources management UI
+ */
 export default function AdminResourcesPage() {
   const [resources, setResources] = useState<Resource[]>([]);
   const [loading, setLoading] = useState(true);
@@ -24,6 +33,10 @@ export default function AdminResourcesPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
+  /**
+   * Fetches paginated resources from the API.
+   * Updates state with resources data and pagination information.
+   */
   const fetchResources = async () => {
     try {
       setLoading(true);
@@ -51,10 +64,18 @@ export default function AdminResourcesPage() {
     fetchResources();
   }, [page, limit]);
 
+  /**
+   * Sets the resource ID to be deleted and shows the confirmation dialog.
+   * @param id - ID of the resource to delete
+   */
   const handleDeleteClick = (id: string) => {
     setResourceToDelete(id);
   };
 
+  /**
+   * Handles the confirmed deletion of a resource.
+   * Sends DELETE request to the API and refreshes the resource list.
+   */
   const handleConfirmDelete = async () => {
     if (!resourceToDelete) return;
 
@@ -82,23 +103,39 @@ export default function AdminResourcesPage() {
     }
   };
 
+  /**
+   * Opens the resource details modal for the selected resource.
+   * @param resource - The resource object to view
+   */
   const handleViewDetails = (resource: Resource) => {
     setSelectedResource(resource);
     setIsModalOpen(true);
   };
 
+  /**
+   * Updates a resource in the local state after it's been modified.
+   * @param updatedResource - The updated resource object
+   */
   const handleResourceUpdate = (updatedResource: Resource) => {
-    // Update the resource in the local state
+    // Update the resource in the local state without requiring a full refetch
     setResources(
       resources.map((r) => (r.id === updatedResource.id ? updatedResource : r)),
     );
   };
 
+  /**
+   * Handles the creation of a new resource.
+   * Refreshes the resource list to include the newly created item.
+   * @param createdResource - The newly created resource object
+   */
   const handleResourceCreated = (createdResource: Resource) => {
-    // Add the newly created resource to the list and refresh
+    // Refresh the entire list to ensure correct pagination and sorting
     fetchResources();
   };
 
+  /**
+   * Cancels the resource deletion process and hides the confirmation dialog.
+   */
   const handleCancelDelete = () => {
     setResourceToDelete(null);
   };

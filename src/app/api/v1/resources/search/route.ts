@@ -1,3 +1,7 @@
+// File: src/app/api/v1/resources/search/route.ts
+// Purpose: API endpoint for searching resources with advanced filtering and geolocation capabilities.
+// Owner: Advo Team
+
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/prisma/client";
 import { InputJsonValue } from "@prisma/client/runtime/library";

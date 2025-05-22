@@ -1,3 +1,7 @@
+// File: src/app/admin/recommendations/page.tsx
+// Purpose: Displays and manages pending resource recommendations for admin review.
+// Owner: Advo Team
+
 import React from "react";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/authOptions";
@@ -10,14 +14,20 @@ export const metadata = {
   description: "Manage resource recommendations",
 };
 
+/**
+ * Displays the admin page for reviewing pending resource recommendations.
+ * Shows a table of all pending recommendations with approval/rejection actions.
+ * Requires admin authentication to access.
+ * @returns React component with the pending recommendations UI
+ */
 export default async function RecommendationsPage() {
-  // Check if user is authenticated and is an admin
+  // Verify admin access - redirect to login if unauthorized
   const session = await getServerSession(authOptions);
   if (!session || session.user.role !== "admin") {
     redirect("/auth/signin?callbackUrl=/admin");
   }
 
-  // Fetch only pending recommendations
+  // Query database for recommendations awaiting admin review
   const recommendationsData = await prisma.resourceRecommendation.findMany({
     where: {
       status: "pending",
@@ -27,14 +37,15 @@ export default async function RecommendationsPage() {
     },
   });
 
-  // Cast the data to match the ResourceRecommendation interface
+  // Transform database records to match the expected ResourceRecommendation interface
+  // This handles nullable fields and type casting for the component
   const recommendations = recommendationsData.map((rec) => ({
     ...rec,
     type: rec.type as "state" | "national",
     status: rec.status as "pending" | "approved" | "rejected",
-    state: rec.state || undefined, // Convert null to undefined
-    submittedBy: rec.submittedBy || undefined, // Convert null to undefined
-    email: rec.email || undefined, // Convert null to undefined
+    state: rec.state || undefined,
+    submittedBy: rec.submittedBy || undefined,
+    email: rec.email || undefined,
   }));
 
   return (

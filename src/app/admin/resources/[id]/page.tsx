@@ -1,3 +1,7 @@
+// File: src/app/admin/resources/[id]/page.tsx
+// Purpose: Admin interface for editing existing resources with all fields and image uploads.
+// Owner: Advo Team
+
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -6,6 +10,12 @@ import { Button } from "@/components/ui/button";
 import { Resource, OperatingHours } from "@/interfaces/resource";
 import { FileUpload } from "@/components/ui/file-upload";
 
+/**
+ * Admin page for editing an existing resource.
+ * Provides a form with fields for basic information, contact details,
+ * address, operating hours, and image uploads.
+ * @returns React component with the resource editing form
+ */
 export default function ResourceEditPage({
   params,
 }: {
@@ -23,6 +33,10 @@ export default function ResourceEditPage({
   const [isSaving, setIsSaving] = useState(false);
   const router = useRouter();
 
+  /**
+   * Fetches the resource data from the API when the component mounts
+   * or when the resource ID changes.
+   */
   useEffect(() => {
     // Define fetchResource inside useEffect to avoid dependency issues
     const fetchResource = async () => {
@@ -53,6 +67,9 @@ export default function ResourceEditPage({
   }, [params.id]);
 
   // Define a type for the possible values that can be passed to handleInputChange
+  /**
+   * Type definition for possible values that can be passed to handleInputChange
+   */
   type ResourceFieldValue =
     | string
     | string[]
@@ -63,6 +80,11 @@ export default function ResourceEditPage({
     | null
     | undefined;
 
+  /**
+   * Updates the resource state when form fields change.
+   * @param field - The field name to update
+   * @param value - The new value for the field
+   */
   const handleInputChange = (field: string, value: ResourceFieldValue) => {
     if (!editedResource) return;
 
@@ -101,6 +123,11 @@ export default function ResourceEditPage({
     setIsEditing(true);
   };
 
+  /**
+   * Handles the category input field, converting comma-separated values
+   * into an array of category strings.
+   * @param value - Comma-separated category string
+   */
   const handleCategoryChange = (value: string) => {
     if (!editedResource) return;
 
@@ -113,6 +140,10 @@ export default function ResourceEditPage({
     });
     setIsEditing(true);
   };
+  /**
+   * Validates form data and submits the updated resource to the API.
+   * Updates the UI state on success.
+   */
   const handleSave = async () => {
     if (!editedResource) return;
 
@@ -215,6 +246,9 @@ export default function ResourceEditPage({
     }
   };
 
+  /**
+   * Cancels the editing process and reverts changes.
+   */
   const handleCancel = () => {
     setEditedResource(resource);
     setIsEditing(false);

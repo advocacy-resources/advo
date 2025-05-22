@@ -1,7 +1,19 @@
+// File: src/app/admin/layout.tsx
+// Purpose: Layout wrapper for all admin pages with authentication protection.
+// Owner: Advo Team
+
 import { getServerSession } from "next-auth/next";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/authOptions";
 
+/**
+ * Layout component for all admin pages.
+ * Verifies admin authentication and provides consistent styling.
+ * Redirects non-admin users to the homepage.
+ *
+ * @param children - The page content to render within the admin layout
+ * @returns React component with the admin layout wrapper
+ */
 export default async function AdminLayout({
   children,
 }: {
@@ -9,7 +21,7 @@ export default async function AdminLayout({
 }) {
   const session = await getServerSession(authOptions);
 
-  // Check if user is authenticated and has admin role
+  // Verify admin access - redirect unauthorized users to homepage
   if (!session || session.user.role !== "admin") {
     redirect("/");
   }

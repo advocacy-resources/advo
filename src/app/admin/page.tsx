@@ -1,3 +1,7 @@
+// File: src/app/admin/page.tsx
+// Purpose: Main admin dashboard with analytics, user statistics, and navigation to management sections.
+// Owner: Advo Team
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -5,7 +9,8 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { Card } from "@/components/ui/card";
 
-// Dynamically import all components that use browser-specific APIs with no SSR
+// Dynamically import chart components with no SSR to avoid hydration issues
+// These components use browser-specific APIs that aren't available during server rendering
 const DemographicsCharts = dynamic(
   () => import("@/components/admin/DemographicsCharts"),
   { ssr: false },
@@ -26,6 +31,10 @@ const ResourceLocationsMapCard = dynamic(
   { ssr: false },
 );
 
+/**
+ * Interface defining the structure of analytics data from the API
+ * Contains user statistics, resource counts, and demographic information
+ */
 interface AnalyticsData {
   users: {
     total: number;
@@ -45,12 +54,21 @@ interface AnalyticsData {
   };
 }
 
+/**
+ * Main admin dashboard component displaying analytics, user statistics, and navigation cards.
+ * Fetches analytics data on mount and renders various visualization components.
+ * @returns React component with the admin dashboard UI
+ */
 export default function AdminDashboard() {
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    /**
+     * Fetches analytics data from the API.
+     * Updates state with user statistics, resource counts, and demographic information.
+     */
     const fetchAnalytics = async () => {
       try {
         setLoading(true);

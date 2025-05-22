@@ -1,3 +1,7 @@
+// File: src/app/admin/recommendations/archive/page.tsx
+// Purpose: Displays archived resource recommendations that have been approved or rejected.
+// Owner: Advo Team
+
 import React from "react";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/authOptions";
@@ -10,14 +14,20 @@ export const metadata = {
   description: "View archived resource recommendations",
 };
 
+/**
+ * Displays the archive page for resource recommendations that have been processed.
+ * Shows a table of all approved or rejected recommendations with their details.
+ * Requires admin authentication to access.
+ * @returns React component with the recommendations archive UI
+ */
 export default async function RecommendationsArchivePage() {
-  // Check if user is authenticated and is an admin
+  // Verify admin access - redirect to login if unauthorized
   const session = await getServerSession(authOptions);
   if (!session || session.user.role !== "admin") {
     redirect("/auth/signin?callbackUrl=/admin");
   }
 
-  // Fetch archived recommendations (approved or rejected)
+  // Query database for all processed recommendations (both approved and rejected)
   const recommendationsData = await prisma.resourceRecommendation.findMany({
     where: {
       status: {
@@ -29,7 +39,8 @@ export default async function RecommendationsArchivePage() {
     },
   });
 
-  // Cast the data to match the ResourceRecommendation interface
+  // Transform database records to match the expected ResourceRecommendation interface
+  // This handles nullable fields and type casting for the component
   const recommendations = recommendationsData.map((rec) => ({
     ...rec,
     type: rec.type as "state" | "national",

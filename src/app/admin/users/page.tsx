@@ -1,3 +1,7 @@
+// File: src/app/admin/users/page.tsx
+// Purpose: Admin interface for managing users with role assignment and profile management.
+// Owner: Advo Team
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -6,6 +10,12 @@ import { IUser } from "@/interfaces/user";
 import UserDetailsModal from "@/components/users/UserDetailsModal";
 import UserCreateModal from "@/components/users/UserCreateModal";
 
+/**
+ * Admin page for managing users with role assignment and profile management.
+ * Provides a tabular view of all users with options to edit roles, assign resources to business reps,
+ * and view detailed user information.
+ * @returns React component with the users management UI
+ */
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<IUser[]>([]);
   const [editedUsers, setEditedUsers] = useState<
@@ -29,6 +39,10 @@ export default function AdminUsersPage() {
     fetchResources();
   }, [page]);
 
+  /**
+   * Fetches paginated users from the API.
+   * Updates state with users data and pagination information.
+   */
   const fetchUsers = async () => {
     try {
       setLoading(true);
@@ -53,6 +67,10 @@ export default function AdminUsersPage() {
     }
   };
 
+  /**
+   * Fetches all resources from the API.
+   * Used for assigning resources to business representatives.
+   */
   const fetchResources = async () => {
     try {
       setLoadingResources(true);
@@ -69,6 +87,13 @@ export default function AdminUsersPage() {
     }
   };
 
+  /**
+   * Handles changing a user's role in the UI.
+   * For business_rep role, also manages the associated resource.
+   * @param userId - ID of the user being modified
+   * @param newRole - New role to assign to the user
+   * @param managedResourceId - Optional resource ID for business representatives
+   */
   const handleRoleChange = (
     userId: string,
     newRole: string,
@@ -89,6 +114,11 @@ export default function AdminUsersPage() {
     }
   };
 
+  /**
+   * Updates the managed resource for a business representative user.
+   * @param userId - ID of the business rep user
+   * @param resourceId - ID of the resource to assign
+   */
   const handleManagedResourceChange = (userId: string, resourceId: string) => {
     setEditedUsers((prev) => ({
       ...prev,
@@ -99,6 +129,11 @@ export default function AdminUsersPage() {
     }));
   };
 
+  /**
+   * Saves the updated role and managed resource to the API.
+   * Updates the local state upon successful API response.
+   * @param userId - ID of the user being updated
+   */
   const handleSaveRole = async (userId: string) => {
     try {
       setSavingUsers((prev) => ({
@@ -152,12 +187,22 @@ export default function AdminUsersPage() {
     }
   };
 
+  /**
+   * Cancels the current edit operation for a user.
+   * Reverts the UI back to the original values.
+   * @param userId - ID of the user being edited
+   */
   const handleCancelEdit = (userId: string) => {
     const newEditedUsers = { ...editedUsers };
     delete newEditedUsers[userId];
     setEditedUsers(newEditedUsers);
   };
 
+  /**
+   * Fetches detailed user information and opens the details modal.
+   * Falls back to basic user data if the detailed fetch fails.
+   * @param user - Basic user object to view details for
+   */
   const handleViewDetails = async (user: IUser) => {
     try {
       // Fetch complete user data including demographic information
@@ -178,13 +223,22 @@ export default function AdminUsersPage() {
     }
   };
 
+  /**
+   * Updates a user in the local state after modification.
+   * @param updatedUser - The updated user object
+   */
   const handleUserUpdate = (updatedUser: IUser) => {
-    // Update the user in the local state
+    // Update the user in the local state without requiring a full refetch
     setUsers(users.map((u) => (u.id === updatedUser.id ? updatedUser : u)));
   };
 
+  /**
+   * Handles the creation of a new user.
+   * Refreshes the user list to include the newly created account.
+   * @param createdUser - The newly created user object
+   */
   const handleUserCreated = (createdUser: IUser) => {
-    // Add the newly created user to the list and refresh
+    // Refresh the entire list to ensure correct pagination and sorting
     fetchUsers();
   };
 
