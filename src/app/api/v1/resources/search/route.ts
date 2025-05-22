@@ -416,15 +416,13 @@ export async function POST(request: NextRequest) {
   // Set CORS headers
   const origin = request.headers.get("origin") || "";
   const allowedOrigins = [
-    "https://advo-q83h0o0hr-kmje405s-projects.vercel.app",
+    "https://myadvo.org",
     "http://localhost:3000",
     "http://localhost:3001",
   ];
 
   // Check if the origin is allowed
-  const isAllowedOrigin =
-    allowedOrigins.includes(origin) || origin.endsWith(".vercel.app");
-
+  const isAllowedOrigin = allowedOrigins.includes(origin);
   // Log MongoDB connection info (without exposing credentials)
   console.log("MongoDB Connection Test - Environment:", process.env.NODE_ENV);
   console.log("MongoDB Connection String exists:", !!process.env.MONGODB_URI);

@@ -8,8 +8,6 @@ import { Suspense } from "react";
 
 import NextAuthProvider from "@/components/utils/SessionProvider";
 import ReduxProvider from "@/providers/ReduxProvider";
-import { Analytics } from "@vercel/analytics/react";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 import Footbar from "@/components/layout/footbar/Footbar";
 import Navbar from "@/components/layout/Navbar";
 // NOTE: BackgroundContextProvider is imported but commented out in the component
@@ -71,8 +69,6 @@ export default function RootLayout({
               <Footbar />
             </Suspense>
             {/* </BackgroundContextProvider> */}
-            <Analytics />
-            <SpeedInsights />
           </body>
         </ReduxProvider>
       </NextAuthProvider>
