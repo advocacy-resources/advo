@@ -13,5 +13,5 @@ sed -i '' "s/true/temp_value/g; s/false/true/g; s/temp_value/false/g" "$DEPLOY_C
 
 # Commit the changes to the main branch
 git add "$DEPLOY_CHANGE_FILE"
-git commit -m "Deploy to Vercel"
+git commit -m "Deploy to Linode"
 git push origin main

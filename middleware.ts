@@ -7,16 +7,14 @@ export function middleware(request: NextRequest) {
 
   // Define allowed origins
   const allowedOrigins = [
-    "https://advo-q83h0o0hr-kmje405s-projects.vercel.app",
+    "https://myadvo.org",
     "http://localhost:3000",
     "http://localhost:3001",
   ];
 
   // Check if the origin is allowed
   const isAllowedOrigin =
-    allowedOrigins.includes(origin) ||
-    origin.endsWith(".vercel.app") ||
-    origin.includes("localhost");
+    allowedOrigins.includes(origin) || origin.includes("localhost");
 
   // Handle OPTIONS preflight requests
   if (request.method === "OPTIONS") {
